@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #FFFFFF;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.muni.fi.xkeda.ltl_designer.view.CanvasController">
+   <top>
+      <HBox prefHeight="38.0" prefWidth="600.0" spacing="12.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button mnemonicParsing="false" onAction="#handleNextAction" text="Next" />
+            <Button mnemonicParsing="false" onAction="#handleGlobalAction" text="Globally" />
+            <Button mnemonicParsing="false" onAction="#handleFinallyAction" text="Finally" />
+            <Button mnemonicParsing="false" onAction="#handleUntilAction" text="Until" />
+            <Button mnemonicParsing="false" onAction="#handleReleaseAction" text="Release" />
+            <Button mnemonicParsing="false" onAction="#handleConnectAction" text="Connect" />
+         </children>
+      </HBox>
+   </top>
+   <center>
+      <Pane fx:id="canvas" onMouseClicked="#handleCanvasClick" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+   </center>
+</BorderPane>
