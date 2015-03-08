@@ -5,13 +5,13 @@
  */
 package cz.muni.fi.xkeda.ltl_designer;
 
-import cz.fi.muni.xkeda.ltl_designer.model.AtomicProposition;
-import cz.fi.muni.xkeda.ltl_designer.model.BinaryConjuction;
-import cz.fi.muni.xkeda.ltl_designer.model.BinaryFormula;
-import cz.fi.muni.xkeda.ltl_designer.model.ChainedFormula;
-import cz.fi.muni.xkeda.ltl_designer.model.Formula;
-import cz.fi.muni.xkeda.ltl_designer.model.UnaryConjunction;
-import cz.fi.muni.xkeda.ltl_designer.model.UnaryFormula;
+import cz.muni.fi.xkeda.ltl_designer.model.AtomicProposition;
+import cz.muni.fi.xkeda.ltl_designer.model.BinaryConjuction;
+import cz.muni.fi.xkeda.ltl_designer.model.BinaryFormula;
+import cz.muni.fi.xkeda.ltl_designer.model.ChainedFormula;
+import cz.muni.fi.xkeda.ltl_designer.model.Formula;
+import cz.muni.fi.xkeda.ltl_designer.model.UnaryConjunction;
+import cz.muni.fi.xkeda.ltl_designer.model.UnaryFormula;
 
 /**
  *

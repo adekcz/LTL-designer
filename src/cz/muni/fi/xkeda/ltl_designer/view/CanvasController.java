@@ -5,19 +5,24 @@
  */
 package cz.muni.fi.xkeda.ltl_designer.view;
 
+import cz.muni.fi.xkeda.ltl_designer.resources.ResourcesManager;
 import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.MyCircle;
+import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.MyLine;
+import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.MyShape;
+import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.StartFormulaNode;
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Shape;
 
 /**
  * FXML Controller class
@@ -33,41 +38,75 @@ public class CanvasController implements Initializable {
 
 	private CanvasStatus status;
 
-//TODO remove as soon as possible
-	Line line = new Line();
+	private MyLine connectingLine;
+	private MyShape connectingShape;
 
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		status = CanvasStatus.IDLE;
 		canvas.setOnMouseMoved((eventMoved) -> {
-			line.setEndX(eventMoved.getX());
-			line.setEndY(eventMoved.getY());
-
+			if (status == CanvasStatus.CONNECTING_FORMULAE && connectingLine != null) {
+				//-2 because clicking on element does not propagate throught line if line is directly under cursor... OPTIONALY try to find better solution
+				connectingLine.getShape().setEndX(eventMoved.getX() - 2);
+				connectingLine.getShape().setEndY(eventMoved.getY() - 2);
+			}
 		});
 
 	}
-
+//             ######## ##     ## ######## ##    ## ######## 
+//             ##       ##     ## ##       ###   ##    ##    
+//             ##       ##     ## ##       ####  ##    ##    
+//             ######   ##     ## ######   ## ## ##    ##    
+//             ##        ##   ##  ##       ##  ####    ##    
+//             ##         ## ##   ##       ##   ###    ##    
+//             ########    ###    ######## ##    ##    ##    
+//             
+//             
+//             ##     ##    ###    ##    ## ########  ##       ######## ########   ######  
+//             ##     ##   ## ##   ###   ## ##     ## ##       ##       ##     ## ##    ## 
+//             ##     ##  ##   ##  ####  ## ##     ## ##       ##       ##     ## ##       
+//             ######### ##     ## ## ## ## ##     ## ##       ######   ########   ######  
+//             ##     ## ######### ##  #### ##     ## ##       ##       ##   ##         ## 
+//             ##     ## ##     ## ##   ### ##     ## ##       ##       ##    ##  ##    ## 
+//             ##     ## ##     ## ##    ## ########  ######## ######## ##     ##  ###### 
 
 	@FXML
 	void handleCanvasClick(MouseEvent event) {
 		double x = event.getX();
 		double y = event.getY();
-		if (equalsToCurrentCursor(Cursor.HAND)) {
-			MyCircle circle = new MyCircle(x, y, 30, this);
-			canvas.getChildren().add(circle);
-
+		//TODO --- completely wrong condition
+		if (status == CanvasStatus.CREATING_DOT) {
+			new StartFormulaNode(x, y, this);
+			setStatus(CanvasStatus.IDLE);
 		}
-		setStatus(CanvasStatus.IDLE);
+		if(status == CanvasStatus.CREATING_NEW_ELEMENT){
+			new MyCircle(x, y, 20, this);
+			setStatus(CanvasStatus.IDLE);
+		}
 	}
-		
+
+	@FXML
+	void handleNodeAction(ActionEvent event) {
+		setStatus(CanvasStatus.CREATING_NEW_ELEMENT);
+	}
+
+	@FXML
+	void handleStartAction(ActionEvent event) {
+		setStatus(CanvasStatus.CREATING_DOT);
+	}
+
+	@FXML
+	void handleArrowAction(ActionEvent event) {
+		setStatus(CanvasStatus.CONNECTING_FORMULAE);
+	}
+
 	@FXML
 	void handleConnectAction(ActionEvent event) {
-		setStatus(CanvasStatus.CONNECTING_FORMULAE);
 
 	}
+
 	@FXML
 	void handleNextAction(ActionEvent event) {
-		setStatus(CanvasStatus.CREATING_NEW_ELEMENT);
 
 	}
 
@@ -104,9 +143,10 @@ public class CanvasController implements Initializable {
 		}
 		return rootPane.getCursor().equals(other);
 	}
-	private void setStatus(CanvasStatus status){
+
+	public void setStatus(CanvasStatus status) {
 		this.status = status;
-		switch (status){
+		switch (status) {
 			case IDLE: {
 				resetCursor();
 				break;
@@ -117,11 +157,18 @@ public class CanvasController implements Initializable {
 			case CREATING_NEW_ELEMENT:
 				rootPane.setCursor(Cursor.HAND);
 				break;
+			case CREATING_DOT:
+				rootPane.setCursor(Cursor.cursor(ResourcesManager.getResourceAsString("Cursor3.png")));
+				break;
 			default:
 				throw new AssertionError(status.name());
 
 		}
 
+	}
+
+	public void add(Shape shape) {
+		canvas.getChildren().add(shape);
 	}
 
 	private void resetCursor() {
@@ -130,6 +177,26 @@ public class CanvasController implements Initializable {
 
 	public CanvasStatus getStatus() {
 		return status;
+	}
+
+	public MyShape getConnectingShape() {
+		return connectingShape;
+	}
+
+	public void setConnectingShape(MyShape connectingShape) {
+		this.connectingShape = connectingShape;
+	}
+
+	public void setConnectingLine(MyLine line) {
+		this.connectingLine = line;
+	}
+
+	public MyLine getConnectingLine() {
+		return connectingLine;
+	}
+
+	public Pane getCanvas() {
+		return canvas;
 	}
 
 }

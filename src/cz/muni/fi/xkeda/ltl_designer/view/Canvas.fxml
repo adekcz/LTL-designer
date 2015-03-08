@@ -11,12 +11,9 @@
    <top>
       <HBox prefHeight="38.0" prefWidth="600.0" spacing="12.0" BorderPane.alignment="CENTER">
          <children>
-            <Button mnemonicParsing="false" onAction="#handleNextAction" text="Next" />
-            <Button mnemonicParsing="false" onAction="#handleGlobalAction" text="Globally" />
-            <Button mnemonicParsing="false" onAction="#handleFinallyAction" text="Finally" />
-            <Button mnemonicParsing="false" onAction="#handleUntilAction" text="Until" />
-            <Button mnemonicParsing="false" onAction="#handleReleaseAction" text="Release" />
-            <Button mnemonicParsing="false" onAction="#handleConnectAction" text="Connect" />
+            <Button mnemonicParsing="false" onAction="#handleNodeAction" text="Node" />
+            <Button mnemonicParsing="false" onAction="#handleStartAction" text="Start" />
+            <Button mnemonicParsing="false" onAction="#handleArrowAction" text="Arrow" />
          </children>
       </HBox>
    </top>

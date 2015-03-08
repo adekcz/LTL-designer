@@ -31,6 +31,9 @@
           </Menu>
           <Menu mnemonicParsing="false" text="_Edit">
             <items>
+                  <SeparatorMenuItem mnemonicParsing="false" text="Logical operations" />
+                  <MenuItem mnemonicParsing="false" text="Negate Formula" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" text="Undo" />
               <MenuItem mnemonicParsing="false" text="Redo" />
                   <MenuItem mnemonicParsing="false" text="Copy" />

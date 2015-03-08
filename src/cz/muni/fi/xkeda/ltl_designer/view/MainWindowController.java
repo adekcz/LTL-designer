@@ -5,7 +5,7 @@
  */
 package cz.muni.fi.xkeda.ltl_designer.view;
 
-import cz.fi.muni.xkeda.ltl_designer.util.JavaFxHelper;
+import cz.muni.fi.xkeda.ltl_designer.util.JavaFxHelper;
 import cz.muni.fi.xkeda.ltl_designer.view.menu.AboutDialogController;
 import java.io.IOException;
 import java.net.URL;

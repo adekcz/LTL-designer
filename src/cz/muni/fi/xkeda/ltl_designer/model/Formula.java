@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.fi.muni.xkeda.ltl_designer.model;
+package cz.muni.fi.xkeda.ltl_designer.model;
 
 import java.util.ArrayList;
 import java.util.List;

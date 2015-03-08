@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.fi.muni.xkeda.ltl_designer.util;
+package cz.muni.fi.xkeda.ltl_designer.util;
 
 import javafx.fxml.FXMLLoader;
 
