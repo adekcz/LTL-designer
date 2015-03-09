@@ -20,7 +20,7 @@ import javafx.scene.shape.Shape;
  *
  * @author adekcz
  */
-public class StartFormulaNode extends  MyShape<Circle>{
+public class StartFormulaNode extends  FormulaShape<Circle>{
 
 	public StartFormulaNode(double x, double y, CanvasController canvasController){
 		super(new Circle(x, y, 10, Color.BLACK),canvasController);
@@ -67,10 +67,6 @@ public class StartFormulaNode extends  MyShape<Circle>{
 	}
 
 
-	@Override
-	public void setChild(MyShape aThis) {
-		System.out.println("should set child");
-	}
 
 	@Override
 	public void moveTo(double x, double y) {

@@ -12,22 +12,24 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
 
 /**
  *
  * @author adekcz
  */
-public class MyCircle extends MyShape<Circle> {
+public class FormulaNode extends FormulaShape<Rectangle> {
 
 	private CanvasController canvasController;
+	private Text text;
 	//possible more than one element
-	private MyShape parent;
-	private MyShape child;
-	private MyLine connectingLine;
+	private FormulaShape parent;
+	private FormulaShape child;
 
-	public MyCircle(double x, double y, int rad, CanvasController canvasController) {
-		setShape(new Circle(x, y, rad));
+	public FormulaNode(double x, double y, CanvasController canvasController) {
+		setShape(new Rectangle(x, y, 100, 30));
 		this.canvasController = canvasController;
 		canvasController.add(getShape());
 
@@ -37,20 +39,18 @@ public class MyCircle extends MyShape<Circle> {
 			getShape().setStroke(Color.GREEN);
 			if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
 				if (canvasController.getConnectingLine() == null) {
-					MyLine line = new MyLine(MyCircle.this);
+					MyLine line = new MyLine(FormulaNode.this);
 					addToOutEdges(line);
 					canvasController.getCanvas().getChildren().add(line.getShape());
 					canvasController.setConnectingLine(line);
-					canvasController.setConnectingShape(MyCircle.this);
-					connectingLine = line;
+					canvasController.setConnectingShape(FormulaNode.this);
 				}
 			}
 			if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
-				if (canvasController.getConnectingLine() != null && !canvasController.getConnectingShape().equals(MyCircle.this)) {
-					canvasController.getConnectingShape().setChild(MyCircle.this);
+				if (canvasController.getConnectingLine() != null && !canvasController.getConnectingShape().equals(FormulaNode.this)) {
 					MyLine connectingLine1 = canvasController.getConnectingLine();
 					addToInEdges(connectingLine1);
-					connectingLine1.setEnd(MyCircle.this);
+					connectingLine1.setEnd(FormulaNode.this);
 					canvasController.setConnectingLine(null);
 					canvasController.setConnectingShape(null);
 					canvasController.setStatus(CanvasStatus.IDLE);
@@ -69,45 +69,34 @@ public class MyCircle extends MyShape<Circle> {
 		});
 	}
 
-	public MyShape getChild() {
+	public FormulaShape getChild() {
 		return child;
 	}
 
-	@Override
-	public void setChild(MyShape child) {
-		this.child = child;
-	}
 
-	public MyShape getMyParent() {
+	public FormulaShape getMyParent() {
 		return parent;
 	}
 
-	public void setMyParent(MyShape parent) {
+	public void setMyParent(FormulaShape parent) {
 		this.parent = parent;
 	}
 
-	public MyLine getConnectingLine() {
-		return connectingLine;
-	}
-
-	public void setConnectingLine(MyLine connectingLine) {
-		this.connectingLine = connectingLine;
-	}
 
 	@Override
 	public double getCenterX() {
-		return getShape().getCenterX();
+		return getShape().getX() + getShape().getWidth()/2;
 	}
 
 	@Override
 	public double getCenterY() {
-		return getShape().getCenterY();
+		return getShape().getY() + getShape().getHeight()/2;
 	}
 
 	@Override
 	public void moveTo(double x, double y) {
 		moveLines(x, y);
-		getShape().setCenterX(x);
-		getShape().setCenterY(y);
+		getShape().setX(x); 
+		getShape().setY(y);
 	}
 }

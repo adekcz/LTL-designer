@@ -43,8 +43,6 @@ public class AboutDialogController implements Initializable {
 	/**
 	 * Closes dialog
 	 */
-	//TODO how to supress Missing javadoc warning
-	//http://stackoverflow.com/questions/20636058/how-do-i-disable-missing-java-doc-warning-in-netbeans-code-inspection
 	@FXML
 	public void handleCloseAction(){
 		dialogStage.close();

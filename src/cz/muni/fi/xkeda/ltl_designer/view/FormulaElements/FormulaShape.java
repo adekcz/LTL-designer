@@ -15,18 +15,18 @@ import javafx.scene.shape.Shape;
  *
  * @author adekcz
  */
-public abstract class MyShape<E extends Shape> {
+public abstract class FormulaShape<E extends Shape> {
 	private List<MyLine> outEdges;
 	private List<MyLine> inEdges;
 	private CanvasController controller;
 	//in more complicated formulas thiss will probably be group of different elements
 	private E shape;
 
-	public MyShape(){
+	public FormulaShape(){
 		outEdges = new ArrayList<>();
 		inEdges = new ArrayList<>();
 	}
-	public MyShape(E shape, CanvasController controller){
+	public FormulaShape(E shape, CanvasController controller){
 		this();
 		this.shape = shape;
 		this.controller = controller;
@@ -48,8 +48,6 @@ public abstract class MyShape<E extends Shape> {
 		this.shape = shape;
 	}
 	
-	//TODO pointless?
-	public abstract void setChild(MyShape aThis);
 	/**
 	 * Moves by deltaX and deltaY units. Also moves with appropriate end of all lines that are connected to this
 	 * @param x where to move

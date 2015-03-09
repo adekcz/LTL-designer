@@ -13,43 +13,39 @@ import javafx.scene.shape.Shape;
  *
  * @author adekcz
  */
-public class MyLine extends MyShape<Line>{
-	private MyShape start;
-	private MyShape end;
+public class MyLine extends FormulaShape<Line>{
+	private FormulaShape start;
+	private FormulaShape end;
 
-	public MyLine(MyShape start){
+	public MyLine(FormulaShape start){
 		this(start, start);
 	}
 
-	public MyLine(MyShape start, MyShape end) {
+	public MyLine(FormulaShape start, FormulaShape end) {
 		setShape(new Line(start.getCenterX(), start.getCenterY(), end.getCenterX(),end.getCenterY()));
 		this.start = start;
 		this.end = end;
 	}
 
-	public MyShape getStart() {
+	public FormulaShape getStart() {
 		return start;
 	}
 
-	public void setStart(MyShape start) {
+	public void setStart(FormulaShape start) {
 		this.start = start;
 	}
 
-	public MyShape getEnd() {
+	public FormulaShape getEnd() {
 		return end;
 	}
 
-	public void setEnd(MyShape end) {
+	public void setEnd(FormulaShape end) {
 		this.end = end;
 	}
 
 	
 
 
-	@Override
-	public void setChild(MyShape aThis) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
 
 
 	@Override

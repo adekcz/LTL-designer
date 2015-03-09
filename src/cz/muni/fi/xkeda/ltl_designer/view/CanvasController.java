@@ -6,9 +6,9 @@
 package cz.muni.fi.xkeda.ltl_designer.view;
 
 import cz.muni.fi.xkeda.ltl_designer.resources.ResourcesManager;
-import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.MyCircle;
+import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.FormulaNode;
 import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.MyLine;
-import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.MyShape;
+import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.FormulaShape;
 import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.StartFormulaNode;
 import java.io.File;
 import java.net.URL;
@@ -53,7 +53,8 @@ public class CanvasController implements Initializable {
 	private CanvasStatus status;
 
 	private MyLine connectingLine;
-	private MyShape connectingShape;
+	private FormulaShape connectingShape;
+	private FormulaShape selectedNode;
 	private double x;
 	private double y;
 
@@ -90,16 +91,23 @@ public class CanvasController implements Initializable {
 	void handleCanvasClick(MouseEvent event) {
 		x = event.getX();
 		y = event.getY();
-		//TODO switchify
-		if (status == CanvasStatus.CREATING_DOT) {
-			new StartFormulaNode(x, y, this);
-			setStatus(CanvasStatus.IDLE);
-		}
-		if (status == CanvasStatus.CREATING_NEW_ELEMENT) {
-			new MyCircle(x, y, 20, this);
-			setStatus(CanvasStatus.IDLE);
-		}
-		if (status == CanvasStatus.CREATING_TEXT) {
+		switch (status) {
+			case IDLE:
+				break;
+			case CONNECTING_FORMULAE:
+				break;
+			case CREATING_NEW_ELEMENT:
+				new FormulaNode(x, y, this);
+				setStatus(CanvasStatus.IDLE);
+				break;
+			case CREATING_DOT:
+				new StartFormulaNode(x, y, this);
+				setStatus(CanvasStatus.IDLE);
+				break;
+			case CREATING_TEXT:
+				break;
+			default:
+				throw new AssertionError(status.name());
 
 		}
 	}
@@ -186,6 +194,8 @@ public class CanvasController implements Initializable {
 				break;
 			case CREATING_TEXT:
 				txtFormulae.setBorder(new Border(new BorderStroke(Color.GREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.EMPTY, Insets.EMPTY)));
+				txtFormulae.setText("Write Formula Here:");
+				txtFormulae.setStyle("-fx-background-color: PaleTurquoise;");
 				txtFormulae.setEditable(true);
 				txtFormulae.setOnKeyPressed((eventPressed) -> {
 					if (eventPressed.getCode() == KeyCode.ENTER) {
@@ -220,11 +230,11 @@ public class CanvasController implements Initializable {
 		return status;
 	}
 
-	public MyShape getConnectingShape() {
+	public FormulaShape getConnectingShape() {
 		return connectingShape;
 	}
 
-	public void setConnectingShape(MyShape connectingShape) {
+	public void setConnectingShape(FormulaShape connectingShape) {
 		this.connectingShape = connectingShape;
 	}
 
