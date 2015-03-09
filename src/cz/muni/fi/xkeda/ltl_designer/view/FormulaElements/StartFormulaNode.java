@@ -39,17 +39,7 @@ public class StartFormulaNode extends  MyShape<Circle>{
 						canvasController.setConnectingShape(StartFormulaNode.this);
 					}
 				}
-				if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
-					if (canvasController.getConnectingLine() != null && !canvasController.getConnectingShape().equals(StartFormulaNode.this)) {
-						canvasController.getConnectingShape().setChild(StartFormulaNode.this);
-						MyLine connectingLine = canvasController.getConnectingLine();
-						addToInEdges(connectingLine);
-						connectingLine.setEnd(StartFormulaNode.this);
-						canvasController.setConnectingLine(null);
-						canvasController.setConnectingShape(null);
-						canvasController.setStatus(CanvasStatus.IDLE);
-					}
-				}
+			
 				//TODO handle if clicked not nothing (possibly in some higher layer
 			}
 		});

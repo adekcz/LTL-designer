@@ -18,7 +18,8 @@ import javafx.scene.shape.Shape;
  *
  * @author adekcz
  */
-public class MyCircle extends MyShape<Circle>{
+public class MyCircle extends MyShape<Circle> {
+
 	private CanvasController canvasController;
 	//possible more than one element
 	private MyShape parent;
@@ -31,30 +32,28 @@ public class MyCircle extends MyShape<Circle>{
 		canvasController.add(getShape());
 
 		getShape().setFill(Color.GREEN);
-		getShape().setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-			public void handle(MouseEvent eventMouse) {
-				getShape().setFill(Color.RED);
-				getShape().setStroke(Color.GREEN);
-				if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
-					if (canvasController.getConnectingLine() == null) {
-						MyLine line = new MyLine(MyCircle.this);
-						canvasController.getCanvas().getChildren().add(line.getShape());
-						canvasController.setConnectingLine(line);
-						canvasController.setConnectingShape(MyCircle.this);
-						connectingLine = line;
-					}
+		getShape().setOnMouseClicked((MouseEvent eventMouse) -> {
+			getShape().setFill(Color.RED);
+			getShape().setStroke(Color.GREEN);
+			if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
+				if (canvasController.getConnectingLine() == null) {
+					MyLine line = new MyLine(MyCircle.this);
+					addToOutEdges(line);
+					canvasController.getCanvas().getChildren().add(line.getShape());
+					canvasController.setConnectingLine(line);
+					canvasController.setConnectingShape(MyCircle.this);
+					connectingLine = line;
 				}
-				if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
-					if (canvasController.getConnectingLine() != null && !canvasController.getConnectingShape().equals(MyCircle.this)) {
-						canvasController.getConnectingShape().setChild(MyCircle.this);
-						connectingLine = canvasController.getConnectingLine();
-						connectingLine.setEnd(MyCircle.this);
-						parent = canvasController.getConnectingShape();
-						canvasController.setConnectingLine(null);
-						canvasController.setConnectingShape(null);
-						canvasController.setStatus(CanvasStatus.IDLE);
-					}
+			}
+			if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
+				if (canvasController.getConnectingLine() != null && !canvasController.getConnectingShape().equals(MyCircle.this)) {
+					canvasController.getConnectingShape().setChild(MyCircle.this);
+					MyLine connectingLine1 = canvasController.getConnectingLine();
+					addToInEdges(connectingLine1);
+					connectingLine1.setEnd(MyCircle.this);
+					canvasController.setConnectingLine(null);
+					canvasController.setConnectingShape(null);
+					canvasController.setStatus(CanvasStatus.IDLE);
 				}
 			}
 		});
@@ -63,23 +62,9 @@ public class MyCircle extends MyShape<Circle>{
 			if (eventDragged.isPrimaryButtonDown()) {
 				double x1 = eventDragged.getX();
 				double y1 = eventDragged.getY();
+				moveTo(x1, y1);
+			} 
 
-				getShape().setCenterX(x1);
-				getShape().setCenterY(y1);
-			}
-			//TODO obsolete
-			if (connectingLine != null) {
-				double x1 = eventDragged.getX();
-				double y1 = eventDragged.getY();
-				if (this.equals(connectingLine.getEnd())) {
-					this.connectingLine.getShape().setEndX(x1);
-					this.connectingLine.getShape().setEndY(y1);
-				} else{
-					this.connectingLine.getShape().setStartX(x1);
-					this.connectingLine.getShape().setStartY(y1);
-				}
-
-			}
 
 		});
 	}
@@ -108,7 +93,6 @@ public class MyCircle extends MyShape<Circle>{
 	public void setConnectingLine(MyLine connectingLine) {
 		this.connectingLine = connectingLine;
 	}
-
 
 	@Override
 	public double getCenterX() {

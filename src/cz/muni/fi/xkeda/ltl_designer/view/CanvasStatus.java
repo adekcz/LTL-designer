@@ -10,5 +10,5 @@ package cz.muni.fi.xkeda.ltl_designer.view;
  * @author adekcz
  */
 public enum CanvasStatus {
-IDLE, CONNECTING_FORMULAE, CREATING_NEW_ELEMENT, CREATING_DOT
+IDLE, CONNECTING_FORMULAE, CREATING_NEW_ELEMENT, CREATING_DOT, CREATING_TEXT
 }

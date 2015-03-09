@@ -16,13 +16,25 @@ import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Cursor;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 
 /**
  * FXML Controller class
@@ -35,11 +47,15 @@ public class CanvasController implements Initializable {
 	private BorderPane rootPane;
 	@FXML
 	private Pane canvas;
+	@FXML
+	private TextField txtFormulae;
 
 	private CanvasStatus status;
 
 	private MyLine connectingLine;
 	private MyShape connectingShape;
+	private double x;
+	private double y;
 
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
@@ -72,17 +88,25 @@ public class CanvasController implements Initializable {
 
 	@FXML
 	void handleCanvasClick(MouseEvent event) {
-		double x = event.getX();
-		double y = event.getY();
-		//TODO --- completely wrong condition
+		x = event.getX();
+		y = event.getY();
+		//TODO switchify
 		if (status == CanvasStatus.CREATING_DOT) {
 			new StartFormulaNode(x, y, this);
 			setStatus(CanvasStatus.IDLE);
 		}
-		if(status == CanvasStatus.CREATING_NEW_ELEMENT){
+		if (status == CanvasStatus.CREATING_NEW_ELEMENT) {
 			new MyCircle(x, y, 20, this);
 			setStatus(CanvasStatus.IDLE);
 		}
+		if (status == CanvasStatus.CREATING_TEXT) {
+
+		}
+	}
+
+	@FXML
+	void handleTextAction(ActionEvent event) {
+		setStatus(CanvasStatus.CREATING_TEXT);
 	}
 
 	@FXML
@@ -159,6 +183,23 @@ public class CanvasController implements Initializable {
 				break;
 			case CREATING_DOT:
 				rootPane.setCursor(Cursor.cursor(ResourcesManager.getResourceAsString("Cursor3.png")));
+				break;
+			case CREATING_TEXT:
+				txtFormulae.setBorder(new Border(new BorderStroke(Color.GREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.EMPTY, Insets.EMPTY)));
+				txtFormulae.setEditable(true);
+				txtFormulae.setOnKeyPressed((eventPressed) -> {
+					if (eventPressed.getCode() == KeyCode.ENTER) {
+
+						Text text = new Text(x, y, "");
+						text.setFont(new Font(20));
+						text.setWrappingWidth(200);
+						text.setTextAlignment(TextAlignment.JUSTIFY);
+						text.setText(txtFormulae.getText());
+						canvas.getChildren().add(text);
+						txtFormulae.setText("");
+					}
+
+				});
 				break;
 			default:
 				throw new AssertionError(status.name());
