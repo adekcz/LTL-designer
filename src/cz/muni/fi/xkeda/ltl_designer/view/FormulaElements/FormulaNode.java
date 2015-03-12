@@ -7,14 +7,13 @@ package cz.muni.fi.xkeda.ltl_designer.view.FormulaElements;
 
 import cz.muni.fi.xkeda.ltl_designer.view.CanvasController;
 import cz.muni.fi.xkeda.ltl_designer.view.CanvasStatus;
-import javafx.event.EventHandler;
+import javafx.event.Event;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 
 /**
  *
@@ -22,57 +21,37 @@ import javafx.scene.text.Text;
  */
 public class FormulaNode extends FormulaShape<Rectangle> {
 
-	private CanvasController canvasController;
+	//TODO FindBugs says I dont use it. do I really need it just in constructor?
 	private Text text;
 	//possible more than one element
 	private FormulaShape parent;
 	private FormulaShape child;
 
 	public FormulaNode(double x, double y, CanvasController canvasController) {
-		setShape(new Rectangle(x, y, 100, 30));
-		this.canvasController = canvasController;
-		canvasController.add(getShape());
+		super(new Rectangle(x, y, 100, 30), canvasController);
 
-		getShape().setFill(Color.GREEN);
 		getShape().setOnMouseClicked((MouseEvent eventMouse) -> {
-			getShape().setFill(Color.RED);
-			getShape().setStroke(Color.GREEN);
-			if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
-				if (canvasController.getConnectingLine() == null) {
-					MyLine line = new MyLine(FormulaNode.this);
-					addToOutEdges(line);
-					canvasController.getCanvas().getChildren().add(line.getShape());
-					canvasController.setConnectingLine(line);
-					canvasController.setConnectingShape(FormulaNode.this);
-				}
-			}
-			if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
-				if (canvasController.getConnectingLine() != null && !canvasController.getConnectingShape().equals(FormulaNode.this)) {
-					MyLine connectingLine1 = canvasController.getConnectingLine();
-					addToInEdges(connectingLine1);
-					connectingLine1.setEnd(FormulaNode.this);
-					canvasController.setConnectingLine(null);
-					canvasController.setConnectingShape(null);
-					canvasController.setStatus(CanvasStatus.IDLE);
-				}
-			}
+			System.out.println("OnMouseClicked");
+			//TODO passing "this" to method in superclass really smells.
+			FormulaShape.handleClickForLineCreation(canvasController, FormulaNode.this);
+			FormulaShape.handleClickForLineConnection(canvasController, FormulaNode.this);
 		});
 
+		//todo this also into super class as static or somehow better method
 		getShape().setOnMouseDragged((eventDragged) -> {
 			if (eventDragged.isPrimaryButtonDown()) {
 				double x1 = eventDragged.getX();
 				double y1 = eventDragged.getY();
 				moveTo(x1, y1);
-			} 
-
+			}
 
 		});
 	}
 
+
 	public FormulaShape getChild() {
 		return child;
 	}
-
 
 	public FormulaShape getMyParent() {
 		return parent;
@@ -82,21 +61,44 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 		this.parent = parent;
 	}
 
-
 	@Override
-	public double getCenterX() {
-		return getShape().getX() + getShape().getWidth()/2;
+	public double getX() {
+		return getShape().getX() + getShape().getWidth() / 2;
 	}
 
 	@Override
-	public double getCenterY() {
-		return getShape().getY() + getShape().getHeight()/2;
+	public double getY() {
+		return getShape().getY() + getShape().getHeight() / 2;
 	}
 
+	//TODO Deltas will be better, after all, (it will get rid of magic constant;
 	@Override
-	public void moveTo(double x, double y) {
+	public final void moveTo(double x, double y) {
 		moveLines(x, y);
-		getShape().setX(x); 
-		getShape().setY(y);
+		if (getShape() != null) {
+			getShape().setX(x);
+			getShape().setY(y);
+		}
+		if (text != null) {
+			text.setX(x);
+			text.setY(y + 20);
+		}
+
+	}
+
+	public void setText(String textToAdd) {
+		text = new Text(getShape().getX(), getShape().getY() + 20, textToAdd);
+		text.setFont(new Font(20));
+		text.setWrappingWidth(200);
+		text.setTextAlignment(TextAlignment.JUSTIFY);
+
+		//TODO Try to find fix
+		text.setOnMouseClicked((event) -> {
+			Event.fireEvent(getShape(), event);
+		});
+		text.setOnMouseDragged((event) -> {
+			Event.fireEvent(getShape(), event);
+		});
+		getController().add(text);
 	}
 }

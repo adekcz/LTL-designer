@@ -5,24 +5,22 @@
  */
 package cz.muni.fi.xkeda.ltl_designer.view.FormulaElements;
 
-import javafx.scene.shape.Circle;
+import java.util.List;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Shape;
 
 /**
  *
  * @author adekcz
  */
-public class MyLine extends FormulaShape<Line>{
+public class PolygonalChain extends FormulaShape<Line>{
 	private FormulaShape start;
 	private FormulaShape end;
 
-	public MyLine(FormulaShape start){
+	public PolygonalChain(FormulaShape start){
 		this(start, start);
 	}
-
-	public MyLine(FormulaShape start, FormulaShape end) {
-		setShape(new Line(start.getCenterX(), start.getCenterY(), end.getCenterX(),end.getCenterY()));
+	public PolygonalChain(FormulaShape start, FormulaShape end) {
+		setShape(new Line(start.getX(), start.getY(), end.getX(),end.getY()));
 		this.start = start;
 		this.end = end;
 	}
@@ -49,12 +47,12 @@ public class MyLine extends FormulaShape<Line>{
 
 
 	@Override
-	public double getCenterX() {
+	public double getX() {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
 	@Override
-	public double getCenterY() {
+	public double getY() {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 

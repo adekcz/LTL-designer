@@ -7,41 +7,27 @@ package cz.muni.fi.xkeda.ltl_designer.view.FormulaElements;
 
 import cz.muni.fi.xkeda.ltl_designer.view.CanvasController;
 import cz.muni.fi.xkeda.ltl_designer.view.CanvasStatus;
-import java.util.ArrayList;
-import java.util.List;
-import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Shape;
 
 /**
- *
+ * class representing "dot". Start point for formulae and subformulae.
  * @author adekcz
  */
 public class StartFormulaNode extends  FormulaShape<Circle>{
 
+	/**
+	 * 
+	 * @param x x coordinate of center of circle
+	 * @param y y coordinate of center of circle
+	 * @param canvasController  controller for specific stage
+	 */
 	public StartFormulaNode(double x, double y, CanvasController canvasController){
 		super(new Circle(x, y, 10, Color.BLACK),canvasController);
-		canvasController.add(getShape());
-			getShape().setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-			public void handle(MouseEvent eventMouse) {
-				getShape().setFill(Color.RED);
-				getShape().setStroke(Color.GREEN);
-				if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
-					if (canvasController.getConnectingLine() == null) {
-						MyLine line = new MyLine(StartFormulaNode.this);
-						addToOutEdges(line);
-						canvasController.getCanvas().getChildren().add(line.getShape());
-						canvasController.setConnectingLine(line);
-						canvasController.setConnectingShape(StartFormulaNode.this);
-					}
-				}
-			
-				//TODO handle if clicked not nothing (possibly in some higher layer
-			}
+			getShape().setOnMouseClicked((MouseEvent eventMouse) -> {
+			FormulaShape.handleClickForLineCreation(canvasController, StartFormulaNode.this);
+		//TODO handle if clicked not nothing (possibly in some higher layer
 		});
 
 		getShape().setOnMouseDragged((eventDragged) -> {
@@ -54,25 +40,28 @@ public class StartFormulaNode extends  FormulaShape<Circle>{
 		});
 	}
 
+
 	public Circle getCircle() {
 		return getShape();
 	}
 
 
-	public final double getCenterX() {
+	@Override
+	public final double getX() {
 		return getShape().getCenterX();
 	}
-	public final double getCenterY() {
+	@Override
+	public final double getY() {
 		return getShape().getCenterY();
 	}
 
-
-
 	@Override
-	public void moveTo(double x, double y) {
+	public final void moveTo(double x, double y) {
 		moveLines(x, y);
 		getShape().setCenterX(x);
 		getShape().setCenterY(y);
 	}
+
+	
 
 }

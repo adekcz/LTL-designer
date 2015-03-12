@@ -7,30 +7,23 @@ package cz.muni.fi.xkeda.ltl_designer.view;
 
 import cz.muni.fi.xkeda.ltl_designer.resources.ResourcesManager;
 import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.FormulaNode;
-import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.MyLine;
+import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.PolygonalChain;
 import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.FormulaShape;
+import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.LineGrabPoint;
 import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.StartFormulaNode;
-import java.io.File;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -49,12 +42,14 @@ public class CanvasController implements Initializable {
 	private Pane canvas;
 	@FXML
 	private TextField txtFormulae;
+    @FXML
+    private HBox hbFormula;
 
 	private CanvasStatus status;
 
-	private MyLine connectingLine;
+	private PolygonalChain connectingLine;
 	private FormulaShape connectingShape;
-	private FormulaShape selectedNode;
+	private List<FormulaShape> selectedNodes;
 	private double x;
 	private double y;
 
@@ -95,6 +90,9 @@ public class CanvasController implements Initializable {
 			case IDLE:
 				break;
 			case CONNECTING_FORMULAE:
+				if(!getConnectingShape().getShape().intersects(x, y, 2, 2)){
+					new LineGrabPoint(x, y, this);
+				}
 				break;
 			case CREATING_NEW_ELEMENT:
 				new FormulaNode(x, y, this);
@@ -105,6 +103,20 @@ public class CanvasController implements Initializable {
 				setStatus(CanvasStatus.IDLE);
 				break;
 			case CREATING_TEXT:
+				FormulaNode formulaNode = new FormulaNode(x, y, this);
+				hbFormula.setVisible(true);
+				txtFormulae.setStyle("-fx-background-color: LavenderBlush;");
+				txtFormulae.requestFocus();
+				txtFormulae.setOnKeyPressed((eventPressed) -> {
+					if (eventPressed.getCode() == KeyCode.ENTER) {
+
+						formulaNode.setText(txtFormulae.getText());
+						txtFormulae.setText("");
+						hbFormula.setVisible(false);
+						setStatus(CanvasStatus.IDLE);
+					}
+
+				});
 				break;
 			default:
 				throw new AssertionError(status.name());
@@ -169,13 +181,6 @@ public class CanvasController implements Initializable {
 //       ##     ##  ##        ## ##       
 //       ##     ##  ##  ##    ## ##    ## 
 //       ##     ## ####  ######   ###### 
-	private boolean equalsToCurrentCursor(Cursor other) {
-		if (rootPane == null || other == null || rootPane.getCursor() == null) {
-			return false;
-		}
-		return rootPane.getCursor().equals(other);
-	}
-
 	public void setStatus(CanvasStatus status) {
 		this.status = status;
 		switch (status) {
@@ -193,23 +198,7 @@ public class CanvasController implements Initializable {
 				rootPane.setCursor(Cursor.cursor(ResourcesManager.getResourceAsString("Cursor3.png")));
 				break;
 			case CREATING_TEXT:
-				txtFormulae.setBorder(new Border(new BorderStroke(Color.GREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.EMPTY, Insets.EMPTY)));
-				txtFormulae.setText("Write Formula Here:");
-				txtFormulae.setStyle("-fx-background-color: PaleTurquoise;");
-				txtFormulae.setEditable(true);
-				txtFormulae.setOnKeyPressed((eventPressed) -> {
-					if (eventPressed.getCode() == KeyCode.ENTER) {
-
-						Text text = new Text(x, y, "");
-						text.setFont(new Font(20));
-						text.setWrappingWidth(200);
-						text.setTextAlignment(TextAlignment.JUSTIFY);
-						text.setText(txtFormulae.getText());
-						canvas.getChildren().add(text);
-						txtFormulae.setText("");
-					}
-
-				});
+				rootPane.setCursor(Cursor.TEXT);
 				break;
 			default:
 				throw new AssertionError(status.name());
@@ -238,11 +227,11 @@ public class CanvasController implements Initializable {
 		this.connectingShape = connectingShape;
 	}
 
-	public void setConnectingLine(MyLine line) {
+	public void setConnectingLine(PolygonalChain line) {
 		this.connectingLine = line;
 	}
 
-	public MyLine getConnectingLine() {
+	public PolygonalChain getConnectingLine() {
 		return connectingLine;
 	}
 

@@ -10,7 +10,7 @@ package cz.muni.fi.xkeda.ltl_designer.model;
  * @author adekcz
  */
 public class AtomicProposition extends Formula {
-	private String text;
+	private final String text;
 
 	public AtomicProposition(String text) {
 		this.text = text;

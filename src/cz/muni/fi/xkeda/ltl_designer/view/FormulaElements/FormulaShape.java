@@ -6,30 +6,73 @@
 package cz.muni.fi.xkeda.ltl_designer.view.FormulaElements;
 
 import cz.muni.fi.xkeda.ltl_designer.view.CanvasController;
+import cz.muni.fi.xkeda.ltl_designer.view.CanvasStatus;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 
 /**
+ * class that should be used as parent for all graphical formulae subclasses. provides basic operations and sets
+ * "interface" for other classes.
  *
  * @author adekcz
+ * @param <E> Underlying Shape that is somehow main graphical shape in specific subclass;
  */
 public abstract class FormulaShape<E extends Shape> {
-	private List<MyLine> outEdges;
-	private List<MyLine> inEdges;
+
+	public static void handleClickForLineCreation(CanvasController canvasController, FormulaShape node) {
+		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
+			if (canvasController.getConnectingLine() == null) {
+				PolygonalChain line = new PolygonalChain(node);
+				node.addToOutEdges(line);
+				canvasController.getCanvas().getChildren().add(line.getShape());
+				canvasController.setConnectingLine(line);
+				canvasController.setConnectingShape(node);
+			}
+		}
+	}
+	
+	public static void handleClickForLineConnection(CanvasController canvasController, FormulaShape node) {
+		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
+			if (canvasController.getConnectingLine() != null && !canvasController.getConnectingShape().equals(node)) {
+				PolygonalChain connectingLine1 = canvasController.getConnectingLine();
+				node.addToInEdges(connectingLine1);
+				connectingLine1.setEnd(node);
+				canvasController.setConnectingLine(null);
+				canvasController.setConnectingShape(null);
+				canvasController.setStatus(CanvasStatus.IDLE);
+			}
+		}
+	}
+
+	private List<PolygonalChain> outEdges;
+	private List<PolygonalChain> inEdges;
 	private CanvasController controller;
 	//in more complicated formulas thiss will probably be group of different elements
 	private E shape;
 
-	public FormulaShape(){
+	public FormulaShape() {
 		outEdges = new ArrayList<>();
 		inEdges = new ArrayList<>();
 	}
-	public FormulaShape(E shape, CanvasController controller){
+
+	public FormulaShape(E shape, CanvasController controller) {
 		this();
 		this.shape = shape;
 		this.controller = controller;
+		//TODO this is unsafe publication (findbugs didn't found it)
+		this.controller.add(shape);
+
+		//TODO possible prone to be easily overwritten
+		shape.setFill(Color.GREEN);
+		shape.setOnMousePressed((event) -> {
+			shape.setFill(Color.RED);
+		});
+		shape.setOnMouseReleased((event) -> {
+			shape.setFill(Color.GREEN);
+		});
 	}
 
 	public CanvasController getController() {
@@ -40,42 +83,77 @@ public abstract class FormulaShape<E extends Shape> {
 		this.controller = controller;
 	}
 
-	public E getShape(){
+	/**
+	 *
+	 * @return
+	 */
+	public E getShape() {
 		return shape;
 	}
 
-	public void setShape(E shape){
+	/**
+	 * @param shape Sets main underlying Shape
+	 */
+	public void setShape(E shape) {
 		this.shape = shape;
 	}
-	
+
 	/**
-	 * Moves by deltaX and deltaY units. Also moves with appropriate end of all lines that are connected to this
+	 * Moves to x and y coordinate. Also moves with all lines that are connected to this (with line-end that is
+	 * connected to this).
+	 *
 	 * @param x where to move
 	 * @param y where to move
 	 */
-	protected void moveLines(double x, double y){
-		for(MyLine myLine:inEdges){
+	protected void moveLines(double x, double y) {
+		for (PolygonalChain myLine : inEdges) {
 			Line line = myLine.getShape();
 			line.setEndX(x);
 			line.setEndY(y);
 		}
-		for(MyLine myLine:outEdges){
+
+		for (PolygonalChain myLine : outEdges) {
 			Line line = myLine.getShape();
 			line.setStartX(x);
 			line.setStartY(y);
 		}
 	}
+
+	/**
+	 * Where to move.
+	 *
+	 * @param x coordinate x
+	 * @param y coordinate y
+	 */
 	public abstract void moveTo(double x, double y);
 
-	public abstract double getCenterX();
-	public abstract double getCenterY();
+	/**
+	 * @return returns X coordinate for this element. Should be somehow reasonable (e.g. center for circle)
+	 */
+	public abstract double getX();
 
-	public void addToOutEdges(MyLine line){
-		this.outEdges.add(line);
-	}
-	public void addToInEdges(MyLine line){
-		this.inEdges.add(line);
+	/**
+	 * @return returns Y coordinate for this element. Should be somehow reasonable (e.g. center for circle)
+	 */
+	public abstract double getY();
+
+	/**
+	 * @param line Adds line to outgoing edges. If line is null, nothing happens;
+	 */
+	public void addToOutEdges(PolygonalChain line) {
+		if (line != null) {
+			this.outEdges.add(line);
+		}
 	}
 
-	
+	/**
+	 * @param line Adds line to outgoing edges. If line is null, nothing happens;
+	 *
+	 */
+	public void addToInEdges(PolygonalChain line) {
+		if (line != null) {
+			this.inEdges.add(line);
+		}
+	}
+
 }

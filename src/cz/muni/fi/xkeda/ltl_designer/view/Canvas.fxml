@@ -22,9 +22,10 @@
       <Pane fx:id="canvas" onMouseClicked="#handleCanvasClick" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
    </center>
    <bottom>
-      <HBox prefHeight="34.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+      <HBox fx:id="hbFormula" alignment="CENTER" prefHeight="34.0" prefWidth="600.0" visible="false" BorderPane.alignment="CENTER">
          <children>
-            <TextField fx:id="txtFormulae" editable="false" prefHeight="31.0" prefWidth="588.0" />
+            <Label text="Write formula Here:" />
+            <TextField fx:id="txtFormulae" prefHeight="31.0" prefWidth="433.0" />
          </children>
       </HBox>
    </bottom>
