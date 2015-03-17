@@ -5,9 +5,6 @@
  */
 package cz.muni.fi.xkeda.ltl_designer.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * <table>
  * <tr><th>Logic</th></tr>

@@ -15,16 +15,8 @@ import javafx.scene.shape.Circle;
  */
 public class LineGrabPoint extends FormulaShape<Circle> {
 
-	public LineGrabPoint(double x, double y, CanvasController controller) {
+	private LineGrabPoint(double x, double y, CanvasController controller) {
 		super(new Circle(x, y, 10, Color.BLACK), controller);
-		PolygonalChain connectingLine1 = controller.getConnectingLine();
-		connectingLine1.setEnd(this);
-		addToInEdges(connectingLine1);
-
-		PolygonalChain polygonalChain = new PolygonalChain(this);
-		controller.getCanvas().getChildren().add(polygonalChain.getShape());
-		controller.setConnectingLine(polygonalChain);
-		controller.setConnectingShape(this);
 
 			getShape().setOnMouseDragged((eventDragged) -> {
 			if (eventDragged.isPrimaryButtonDown()) {
@@ -35,13 +27,38 @@ public class LineGrabPoint extends FormulaShape<Circle> {
 
 		});
 	}
+	public static LineGrabPoint createLineGrabPoint(double x, double y, CanvasController controller){
+		LineGrabPoint created = new LineGrabPoint(x, y, controller);
+		created.init();
+		return created;
+	}
 
+	public void init(){
+		PolygonalChain inLine = getController().getConnectingLine();
+		inLine.setEnd(this);
+		addToInEdges(inLine);
+
+		PolygonalChain outLine = new PolygonalChain(this);
+		addToOutEdges(outLine);
+		getController().getCanvas().getChildren().add(outLine.getShape());
+		getController().setConnectingLine(outLine);
+		getController().setConnectingShape(this);
+	}
+
+	//TODO solve overridable method call in constructor. make static methods? make init methdos that requrire user invokation?
 	@Override
-	public void moveTo(double x, double y) {
+	public final void moveTo(double x, double y) {
 		//TODO create method for moving circles
-		moveLines(x, y);
+		moveLinesTo(x, y);
 		getShape().setCenterX(x);
 		getShape().setCenterY(y);
+	}
+	@Override
+	public final void moveBy(double deltaX, double detlaY) {
+		//TODO create method for moving circles
+		moveLinesBy(deltaX, detlaY);
+		getShape().setCenterX(deltaX+getShape().getCenterX());
+		getShape().setCenterY(detlaY+getShape().getCenterY());
 	}
 
 	@Override

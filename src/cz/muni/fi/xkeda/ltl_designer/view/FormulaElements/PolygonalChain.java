@@ -5,7 +5,6 @@
  */
 package cz.muni.fi.xkeda.ltl_designer.view.FormulaElements;
 
-import java.util.List;
 import javafx.scene.shape.Line;
 
 /**
@@ -58,6 +57,12 @@ public class PolygonalChain extends FormulaShape<Line>{
 
 	@Override
 	public void moveTo(double x, double y) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		moveLinesTo(x, y);
 	}
+	@Override
+	public final void moveBy(double deltaX, double detlaY) {
+		//TODO create method for moving circles
+		moveLinesBy(deltaX, detlaY);
+	}
+
 }

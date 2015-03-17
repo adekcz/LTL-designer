@@ -39,7 +39,6 @@ public class ChainedFormula extends Formula{
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
-		//TODO decide if you want to disable netbeans "hint/warnings" about using lambda instead of loops. Sometimes it seems OK, sometimes terrible, sometimes just meh (like here)
 		chain.stream().forEach((formula) -> {
 			sb.append(formula.toString());
 		});

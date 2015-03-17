@@ -7,16 +7,18 @@ package cz.muni.fi.xkeda.ltl_designer.view;
 
 import cz.muni.fi.xkeda.ltl_designer.resources.ResourcesManager;
 import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.FormulaNode;
-import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.PolygonalChain;
 import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.FormulaShape;
 import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.LineGrabPoint;
+import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.PolygonalChain;
 import cz.muni.fi.xkeda.ltl_designer.view.FormulaElements.StartFormulaNode;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.CacheHint;
 import javafx.scene.Cursor;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -24,10 +26,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 
 /**
  * FXML Controller class
@@ -42,8 +43,8 @@ public class CanvasController implements Initializable {
 	private Pane canvas;
 	@FXML
 	private TextField txtFormulae;
-    @FXML
-    private HBox hbFormula;
+	@FXML
+	private HBox hbFormula;
 
 	private CanvasStatus status;
 
@@ -53,8 +54,53 @@ public class CanvasController implements Initializable {
 	private double x;
 	private double y;
 
+// records relative x and y co-ordinates.
+	static class Delta {
+
+		double x, y;
+	}
+
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
+		// allow the label to be dragged around.
+		Circle circle = new Circle(40, 40, 40, Color.GOLD);
+		Color col = new Color(0.5, 0, 0, 0.5);
+		 circle.setCache(true);
+        //circle.setCacheHint(CacheHint.QUALITY);
+        // Do an animation
+        circle.setCacheHint(CacheHint.SPEED);
+		circle.setFill(col);
+		add(circle);
+		final Delta dragDelta = new Delta();
+		circle.setOnMousePressed(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				// record a delta distance for the drag and drop operation.
+				dragDelta.x = circle.getLayoutX() - mouseEvent.getSceneX();
+				dragDelta.y = circle.getLayoutY() - mouseEvent.getSceneY();
+				circle.setCursor(Cursor.MOVE);
+			}
+		});
+		circle.setOnMouseReleased(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				circle.setCursor(Cursor.HAND);
+			}
+		});
+		circle.setOnMouseDragged(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				circle.setLayoutX(mouseEvent.getSceneX() + dragDelta.x);
+				circle.setLayoutY(mouseEvent.getSceneY() + dragDelta.y);
+			}
+		});
+		circle.setOnMouseEntered(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				circle.setCursor(Cursor.HAND);
+			}
+		});
+
 		status = CanvasStatus.IDLE;
 		canvas.setOnMouseMoved((eventMoved) -> {
 			if (status == CanvasStatus.CONNECTING_FORMULAE && connectingLine != null) {
@@ -90,8 +136,8 @@ public class CanvasController implements Initializable {
 			case IDLE:
 				break;
 			case CONNECTING_FORMULAE:
-				if(!getConnectingShape().getShape().intersects(x, y, 2, 2)){
-					new LineGrabPoint(x, y, this);
+				if (getConnectingShape() != null && !getConnectingShape().getShape().intersects(x, y, 2, 2)) {
+					LineGrabPoint.createLineGrabPoint(x, y, this);
 				}
 				break;
 			case CREATING_NEW_ELEMENT:

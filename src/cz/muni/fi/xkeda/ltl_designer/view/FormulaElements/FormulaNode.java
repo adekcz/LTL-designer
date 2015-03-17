@@ -6,10 +6,8 @@
 package cz.muni.fi.xkeda.ltl_designer.view.FormulaElements;
 
 import cz.muni.fi.xkeda.ltl_designer.view.CanvasController;
-import cz.muni.fi.xkeda.ltl_designer.view.CanvasStatus;
 import javafx.event.Event;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -21,7 +19,6 @@ import javafx.scene.text.TextAlignment;
  */
 public class FormulaNode extends FormulaShape<Rectangle> {
 
-	//TODO FindBugs says I dont use it. do I really need it just in constructor?
 	private Text text;
 	//possible more than one element
 	private FormulaShape parent;
@@ -74,7 +71,7 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 	//TODO Deltas will be better, after all, (it will get rid of magic constant;
 	@Override
 	public final void moveTo(double x, double y) {
-		moveLines(x, y);
+		moveLinesTo(x, y);
 		if (getShape() != null) {
 			getShape().setX(x);
 			getShape().setY(y);
@@ -84,7 +81,21 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 			text.setY(y + 20);
 		}
 
+	}	
+
+	@Override
+	public void moveBy(double deltaX, double deltaY) {
+		moveLinesBy(deltaX, deltaY);
+		if (getShape() != null) {
+			getShape().setX(deltaX + getShape().getX());
+			getShape().setY(deltaY + getShape().getY());
+		}
+		if (text != null) {
+			text.setX(deltaX + text.getX());
+			text.setY(deltaY + text.getY() + 20);
+		}
 	}
+	
 
 	public void setText(String textToAdd) {
 		text = new Text(getShape().getX(), getShape().getY() + 20, textToAdd);
@@ -92,7 +103,6 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 		text.setWrappingWidth(200);
 		text.setTextAlignment(TextAlignment.JUSTIFY);
 
-		//TODO Try to find fix
 		text.setOnMouseClicked((event) -> {
 			Event.fireEvent(getShape(), event);
 		});
@@ -101,4 +111,5 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 		});
 		getController().add(text);
 	}
+
 }

@@ -37,9 +37,9 @@ public abstract class FormulaShape<E extends Shape> {
 	public static void handleClickForLineConnection(CanvasController canvasController, FormulaShape node) {
 		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
 			if (canvasController.getConnectingLine() != null && !canvasController.getConnectingShape().equals(node)) {
-				PolygonalChain connectingLine1 = canvasController.getConnectingLine();
-				node.addToInEdges(connectingLine1);
-				connectingLine1.setEnd(node);
+				PolygonalChain inEdge = canvasController.getConnectingLine();
+				node.addToInEdges(inEdge);
+				inEdge.setEnd(node);
 				canvasController.setConnectingLine(null);
 				canvasController.setConnectingShape(null);
 				canvasController.setStatus(CanvasStatus.IDLE);
@@ -62,7 +62,6 @@ public abstract class FormulaShape<E extends Shape> {
 		this();
 		this.shape = shape;
 		this.controller = controller;
-		//TODO this is unsafe publication (findbugs didn't found it)
 		this.controller.add(shape);
 
 		//TODO possible prone to be easily overwritten
@@ -105,7 +104,7 @@ public abstract class FormulaShape<E extends Shape> {
 	 * @param x where to move
 	 * @param y where to move
 	 */
-	protected void moveLines(double x, double y) {
+	protected void moveLinesTo(double x, double y) {
 		for (PolygonalChain myLine : inEdges) {
 			Line line = myLine.getShape();
 			line.setEndX(x);
@@ -118,6 +117,19 @@ public abstract class FormulaShape<E extends Shape> {
 			line.setStartY(y);
 		}
 	}
+	protected void moveLinesBy(double deltaX, double deltaY) {
+		for (PolygonalChain myLine : inEdges) {
+			Line line = myLine.getShape();
+			line.setEndX(deltaX + line.getEndX());
+			line.setEndY(deltaY + line.getEndY());
+		}
+
+		for (PolygonalChain myLine : outEdges) {
+			Line line = myLine.getShape();
+			line.setStartX(deltaX + line.getEndX());
+			line.setStartY(deltaY + line.getEndY());
+		}
+	}
 
 	/**
 	 * Where to move.
@@ -126,6 +138,7 @@ public abstract class FormulaShape<E extends Shape> {
 	 * @param y coordinate y
 	 */
 	public abstract void moveTo(double x, double y);
+	public abstract void moveBy(double deltaX, double deltaY);
 
 	/**
 	 * @return returns X coordinate for this element. Should be somehow reasonable (e.g. center for circle)
@@ -143,6 +156,7 @@ public abstract class FormulaShape<E extends Shape> {
 	public void addToOutEdges(PolygonalChain line) {
 		if (line != null) {
 			this.outEdges.add(line);
+			//line.setStart(this);
 		}
 	}
 
@@ -153,6 +167,7 @@ public abstract class FormulaShape<E extends Shape> {
 	public void addToInEdges(PolygonalChain line) {
 		if (line != null) {
 			this.inEdges.add(line);
+			//line.setEnd(this);
 		}
 	}
 

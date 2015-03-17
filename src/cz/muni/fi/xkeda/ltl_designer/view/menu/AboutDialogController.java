@@ -49,7 +49,6 @@ public class AboutDialogController implements Initializable {
 	}
 
 
-	//TODO possibly to superclass
 	/**
 	 * Returns <b> modal </b> Stage with about dialog. Just call stage.show()
 	 * @param parent
