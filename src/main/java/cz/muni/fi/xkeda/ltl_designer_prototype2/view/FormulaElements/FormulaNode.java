@@ -7,7 +7,6 @@ package cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements;
 
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
 import javafx.event.Event;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -24,25 +23,22 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 	private FormulaShape parent;
 	private FormulaShape child;
 
+// records relative x and y co-ordinates.
 	public FormulaNode(double x, double y, CanvasController canvasController) {
 		super(new Rectangle(x, y, 100, 30), canvasController);
 
-		getShape().setOnMouseClicked((MouseEvent eventMouse) -> {
-			System.out.println("OnMouseClicked");
-			//TODO passing "this" to method in superclass really smells.
-			FormulaShape.handleClickForLineCreation(canvasController, FormulaNode.this);
-			FormulaShape.handleClickForLineConnection(canvasController, FormulaNode.this);
-		});
+		
 
+	
 		//todo this also into super class as static or somehow better method
-		getShape().setOnMouseDragged((eventDragged) -> {
-			if (eventDragged.isPrimaryButtonDown()) {
-				double x1 = eventDragged.getX();
-				double y1 = eventDragged.getY();
-				moveTo(x1, y1);
-			}
-
-		});
+		//getShape().setOnMouseDragged((eventDragged) -> {
+			//if (eventDragged.isPrimaryButtonDown()) {
+				//double x1 = eventDragged.getX();
+				//double y1 = eventDragged.getY();
+				//moveTo(x1, y1);
+			//}
+//
+		//});
 	}
 
 
@@ -85,10 +81,13 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 
 	@Override
 	public void moveBy(double deltaX, double deltaY) {
+		System.out.println("DeltaX: " + deltaX + " " + "DeltaY: " + deltaY);
 		moveLinesBy(deltaX, deltaY);
 		if (getShape() != null) {
-			getShape().setX(deltaX + getShape().getX());
-			getShape().setY(deltaY + getShape().getY());
+			System.out.println("before Change layoutX:" + getShape().getLayoutX() + " getX " + getShape().getX());
+			getShape().setX(getShape().getX() + deltaX);
+			System.out.println("after Change layoutX:" + getShape().getLayoutX() + " getX " + getShape().getX());
+			getShape().setY(getShape().getY() + deltaY);
 		}
 		if (text != null) {
 			text.setX(deltaX + text.getX());

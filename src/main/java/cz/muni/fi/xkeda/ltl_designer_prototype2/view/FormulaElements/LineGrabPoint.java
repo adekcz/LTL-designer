@@ -18,14 +18,6 @@ public class LineGrabPoint extends FormulaShape<Circle> {
 	private LineGrabPoint(double x, double y, CanvasController controller) {
 		super(new Circle(x, y, 10, Color.BLACK), controller);
 
-			getShape().setOnMouseDragged((eventDragged) -> {
-			if (eventDragged.isPrimaryButtonDown()) {
-				double x1 = eventDragged.getX();
-				double y1 = eventDragged.getY();
-				moveTo(x1, y1);
-			}
-
-		});
 	}
 	public static LineGrabPoint createLineGrabPoint(double x, double y, CanvasController controller){
 		LineGrabPoint created = new LineGrabPoint(x, y, controller);

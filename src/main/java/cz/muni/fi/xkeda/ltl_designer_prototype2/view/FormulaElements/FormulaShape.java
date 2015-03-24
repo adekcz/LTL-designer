@@ -9,16 +9,21 @@ import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasStatus;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
+import javafx.scene.Cursor;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 
 /**
- * class that should be used as parent for all graphical formulae subclasses. provides basic operations and sets
- * "interface" for other classes.
+ * class that should be used as parent for all graphical formulae subclasses.
+ * provides basic operations and sets "interface" for other classes.
  *
  * @author adekcz
- * @param <E> Underlying Shape that is somehow main graphical shape in specific subclass;
+ * @param <E> Underlying Shape that is somehow main graphical shape in specific
+ * subclass;
  */
 public abstract class FormulaShape<E extends Shape> {
 
@@ -33,7 +38,7 @@ public abstract class FormulaShape<E extends Shape> {
 			}
 		}
 	}
-	
+
 	public static void handleClickForLineConnection(CanvasController canvasController, FormulaShape node) {
 		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
 			if (canvasController.getConnectingLine() != null && !canvasController.getConnectingShape().equals(node)) {
@@ -52,12 +57,14 @@ public abstract class FormulaShape<E extends Shape> {
 	private CanvasController controller;
 	//in more complicated formulas thiss will probably be group of different elements
 	private E shape;
+	protected Point2D lastPosition;
 
 	public FormulaShape() {
 		outEdges = new ArrayList<>();
 		inEdges = new ArrayList<>();
 	}
 
+	 
 	public FormulaShape(E shape, CanvasController controller) {
 		this();
 		this.shape = shape;
@@ -66,12 +73,47 @@ public abstract class FormulaShape<E extends Shape> {
 
 		//TODO possible prone to be easily overwritten
 		shape.setFill(Color.GREEN);
-		shape.setOnMousePressed((event) -> {
-			shape.setFill(Color.RED);
+		shape.setOnMouseClicked((MouseEvent eventMouse) -> {
+			System.out.println("OnMouseClicked");
+			//TODO passing "this" to method in superclass really smells.
+			handleClickForLineCreation(controller, this);
+			handleClickForLineConnection(controller, this);
 		});
-		shape.setOnMouseReleased((event) -> {
-			shape.setFill(Color.GREEN);
+		shape.setOnMousePressed(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				System.out.println("Potential drag Started");
+				// record a delta distance for the drag and drop operation.
+				double x = mouseEvent.getX();
+				double y = mouseEvent.getY();
+				lastPosition = new Point2D(x, y);
+				shape.setCursor(Cursor.MOVE);
+			}
 		});
+		shape.setOnMouseReleased(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				shape.setCursor(Cursor.HAND);
+			}
+		});
+		shape.setOnMouseDragged(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				System.out.println("handflajds");
+
+				double deltaX = mouseEvent.getX() - lastPosition.getX();
+				double deltaY = mouseEvent.getY() - lastPosition.getY();
+				lastPosition = new Point2D(mouseEvent.getX(), mouseEvent.getY());
+				moveBy(deltaX, deltaY);
+			}
+		});
+		shape.setOnMouseEntered(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				shape.setCursor(Cursor.HAND);
+			}
+		});
+
 	}
 
 	public CanvasController getController() {
@@ -98,8 +140,8 @@ public abstract class FormulaShape<E extends Shape> {
 	}
 
 	/**
-	 * Moves to x and y coordinate. Also moves with all lines that are connected to this (with line-end that is
-	 * connected to this).
+	 * Moves to x and y coordinate. Also moves with all lines that are
+	 * connected to this (with line-end that is connected to this).
 	 *
 	 * @param x where to move
 	 * @param y where to move
@@ -117,17 +159,24 @@ public abstract class FormulaShape<E extends Shape> {
 			line.setStartY(y);
 		}
 	}
+
 	protected void moveLinesBy(double deltaX, double deltaY) {
 		for (PolygonalChain myLine : inEdges) {
+			System.out.println("moving inEdges -- ends");
 			Line line = myLine.getShape();
+			//line.setLayoutX(deltaX);
+			//line.setLayoutY(deltaY);
 			line.setEndX(deltaX + line.getEndX());
 			line.setEndY(deltaY + line.getEndY());
 		}
 
 		for (PolygonalChain myLine : outEdges) {
+			System.out.println("moving outEdges -- starts");
 			Line line = myLine.getShape();
-			line.setStartX(deltaX + line.getEndX());
-			line.setStartY(deltaY + line.getEndY());
+			//line.setLayoutX(deltaX);
+			//line.setLayoutY(deltaY);
+			line.setStartX(deltaX + line.getStartX());
+			line.setStartY(deltaY + line.getStartY());
 		}
 	}
 
@@ -138,20 +187,24 @@ public abstract class FormulaShape<E extends Shape> {
 	 * @param y coordinate y
 	 */
 	public abstract void moveTo(double x, double y);
+
 	public abstract void moveBy(double deltaX, double deltaY);
 
 	/**
-	 * @return returns X coordinate for this element. Should be somehow reasonable (e.g. center for circle)
+	 * @return returns X coordinate for this element. Should be somehow
+	 * reasonable (e.g. center for circle)
 	 */
 	public abstract double getX();
 
 	/**
-	 * @return returns Y coordinate for this element. Should be somehow reasonable (e.g. center for circle)
+	 * @return returns Y coordinate for this element. Should be somehow
+	 * reasonable (e.g. center for circle)
 	 */
 	public abstract double getY();
 
 	/**
-	 * @param line Adds line to outgoing edges. If line is null, nothing happens;
+	 * @param line Adds line to outgoing edges. If line is null, nothing
+	 * happens;
 	 */
 	public void addToOutEdges(PolygonalChain line) {
 		if (line != null) {
@@ -161,7 +214,8 @@ public abstract class FormulaShape<E extends Shape> {
 	}
 
 	/**
-	 * @param line Adds line to outgoing edges. If line is null, nothing happens;
+	 * @param line Adds line to outgoing edges. If line is null, nothing
+	 * happens;
 	 *
 	 */
 	public void addToInEdges(PolygonalChain line) {

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.muni.fi.xkeda.ltl_designer;
+package cz.muni.fi.xkeda.ltl_designer_prototype2;
 
 /**
  *
