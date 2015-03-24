@@ -9,7 +9,6 @@ import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasStatus;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.input.MouseEvent;
@@ -55,6 +54,20 @@ public abstract class FormulaShape<E extends Shape> {
 	private List<PolygonalChain> outEdges;
 	private List<PolygonalChain> inEdges;
 	private CanvasController controller;
+	private boolean  isSelected = false;
+
+	public boolean isIsSelected() {
+		return isSelected;
+	}
+
+	public void setIsSelected(boolean isSelected) {
+		if(isSelected){
+			shape.setFill(Color.YELLOW);
+		} else{
+			shape.setFill(Color.GREEN);
+		}
+		this.isSelected = isSelected;
+	}
 	//in more complicated formulas thiss will probably be group of different elements
 	private E shape;
 	protected Point2D lastPosition;
@@ -79,39 +92,30 @@ public abstract class FormulaShape<E extends Shape> {
 			handleClickForLineCreation(controller, this);
 			handleClickForLineConnection(controller, this);
 		});
-		shape.setOnMousePressed(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent mouseEvent) {
-				System.out.println("Potential drag Started");
-				// record a delta distance for the drag and drop operation.
-				double x = mouseEvent.getX();
-				double y = mouseEvent.getY();
-				lastPosition = new Point2D(x, y);
-				shape.setCursor(Cursor.MOVE);
+		shape.setOnMousePressed((MouseEvent mouseEvent) -> {
+			if(mouseEvent.isControlDown()){
+				controller.addSelected(this);
 			}
+			System.out.println("Potential drag Started");
+			// record a delta distance for the drag and drop operation.
+			double x = mouseEvent.getX();
+			double y = mouseEvent.getY();
+			lastPosition = new Point2D(x, y);
+			shape.setCursor(Cursor.MOVE);
 		});
-		shape.setOnMouseReleased(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent mouseEvent) {
-				shape.setCursor(Cursor.HAND);
-			}
+		shape.setOnMouseReleased((MouseEvent mouseEvent) -> {
+			shape.setCursor(Cursor.HAND);
 		});
-		shape.setOnMouseDragged(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent mouseEvent) {
-				System.out.println("handflajds");
-
-				double deltaX = mouseEvent.getX() - lastPosition.getX();
-				double deltaY = mouseEvent.getY() - lastPosition.getY();
-				lastPosition = new Point2D(mouseEvent.getX(), mouseEvent.getY());
-				moveBy(deltaX, deltaY);
-			}
+		shape.setOnMouseDragged((MouseEvent mouseEvent) -> {
+			System.out.println("handflajds");
+			
+			double deltaX = mouseEvent.getX() - lastPosition.getX();
+			double deltaY = mouseEvent.getY() - lastPosition.getY();
+			lastPosition = new Point2D(mouseEvent.getX(), mouseEvent.getY());
+			controller.moveSelectedBy(deltaX, deltaY);
 		});
-		shape.setOnMouseEntered(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent mouseEvent) {
-				shape.setCursor(Cursor.HAND);
-			}
+		shape.setOnMouseEntered((MouseEvent mouseEvent) -> {
+			shape.setCursor(Cursor.HAND);
 		});
 
 	}

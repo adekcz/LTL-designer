@@ -12,6 +12,7 @@ import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.LineGrabPoi
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.PolygonalChain;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.StartFormulaNode;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -50,11 +51,11 @@ public class CanvasController implements Initializable {
 	private double x;
 	private double y;
 
-
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		// allow the label to be dragged around.
 
+		selectedNodes = new ArrayList<>();
 		status = CanvasStatus.IDLE;
 		canvas.setOnMouseMoved((eventMoved) -> {
 			if (status == CanvasStatus.CONNECTING_FORMULAE && connectingLine != null) {
@@ -88,6 +89,9 @@ public class CanvasController implements Initializable {
 		y = event.getY();
 		switch (status) {
 			case IDLE:
+				if (event.getTarget().equals(canvas)){
+					deselectAll();
+				}
 				break;
 			case CONNECTING_FORMULAE:
 				if (getConnectingShape() != null && !getConnectingShape().getShape().intersects(x, y, 2, 2)) {
@@ -239,5 +243,26 @@ public class CanvasController implements Initializable {
 	public Pane getCanvas() {
 		return canvas;
 	}
+
+	public void moveSelectedBy(double deltaX, double deltaY) {
+		for (FormulaShape shape : selectedNodes) {
+			shape.moveBy(deltaX, deltaY);
+		}
+	}
+
+	public void addSelected(FormulaShape shape) {
+		if (!shape.isIsSelected()) {
+			shape.setIsSelected(true);
+			selectedNodes.add(shape);
+		}
+	}
+
+	public void deselectAll() {
+		for (FormulaShape selectedNode : selectedNodes) {
+			selectedNode.setIsSelected(false);
+		}
+		selectedNodes.clear();
+	}
+
 
 }
