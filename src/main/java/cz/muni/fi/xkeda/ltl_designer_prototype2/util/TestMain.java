@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.muni.fi.xkeda.ltl_designer_prototype2;
+package cz.muni.fi.xkeda.ltl_designer_prototype2.util;
 
 import cz.muni.fi.xkeda.ltl_designer_prototype2.model.AtomicProposition;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.model.BinaryConjuction;
@@ -20,6 +20,15 @@ import cz.muni.fi.xkeda.ltl_designer_prototype2.model.UnaryFormula;
 public class TestMain {
 
 	public static void main(String[] args){
+		System.out.println("asfj a flkasjd f XXX asdlfkj aofi XXXX sadofij asdXXXsakXXX".split("XXX"));
+
+	}
+
+	private static void substringCountTest(){
+
+	}
+
+	private void atomicPropositionTest(){
 		AtomicProposition holka = new AtomicProposition("h");
 		AtomicProposition fialova = new AtomicProposition("f");
 		AtomicProposition green = new AtomicProposition("g");
@@ -36,8 +45,6 @@ public class TestMain {
 
 
 		System.out.println(unaryFormula);
-
-
 	}
 	
 }

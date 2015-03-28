@@ -5,7 +5,11 @@
  */
 package cz.muni.fi.xkeda.ltl_designer_prototype2.util;
 
+import com.google.common.base.Strings;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 
 /**
  *
@@ -24,4 +28,20 @@ public class JavaFxHelper {
 	}
 	
 	
+	public static double getWidth(Node node){
+		return node.getLayoutBounds().getMaxX() - node.getLayoutBounds().getMinX();
+	}
+	public static int countSubstringOccurencies(String text, String pattern){
+		if(Strings.isNullOrEmpty(text) || Strings.isNullOrEmpty(pattern)){
+			return 0;
+		}
+		Pattern pat = Pattern.compile(pattern);
+		Matcher mat = pat.matcher(text);
+		int result = 0;
+		while(mat.find()){
+			result++;
+		}
+
+		return result;
+	}
 }

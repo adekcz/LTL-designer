@@ -36,9 +36,6 @@ public class StartFormulaNode extends FormulaShape<Circle> {
 
 	}
 
-	public Circle getCircle() {
-		return getShape();
-	}
 
 	@Override
 	public final double getX() {
