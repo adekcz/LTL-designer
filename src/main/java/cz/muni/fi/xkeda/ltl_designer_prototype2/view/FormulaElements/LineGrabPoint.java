@@ -15,17 +15,12 @@ import javafx.scene.shape.Circle;
  */
 public class LineGrabPoint extends FormulaShape<Circle> {
 
-	private LineGrabPoint(double x, double y, CanvasController controller) {
+	protected LineGrabPoint(double x, double y, CanvasController controller) {
 		super(new Circle(x, y, 10, Color.BLACK), controller);
 
 	}
-	public static LineGrabPoint createLineGrabPoint(double x, double y, CanvasController controller){
-		LineGrabPoint created = new LineGrabPoint(x, y, controller);
-		created.init();
-		return created;
-	}
 
-	public void init(){
+	protected void init(){
 		PolygonalChain inLine = getController().getConnectingLine();
 		inLine.setEnd(this);
 		addToInEdges(inLine);

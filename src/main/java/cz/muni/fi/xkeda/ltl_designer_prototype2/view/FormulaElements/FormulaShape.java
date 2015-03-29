@@ -26,7 +26,7 @@ import javafx.scene.shape.Shape;
  */
 public abstract class FormulaShape<E extends Shape> {
 
-	public static void handleClickForLineCreation(CanvasController canvasController, FormulaShape node) {
+	protected static void handleClickForLineCreation(CanvasController canvasController, FormulaShape node) {
 		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
 			if (canvasController.getConnectingLine() == null) {
 				PolygonalChain line = new PolygonalChain(node);
@@ -38,7 +38,7 @@ public abstract class FormulaShape<E extends Shape> {
 		}
 	}
 
-	public static void handleClickForLineConnection(CanvasController canvasController, FormulaShape node) {
+	protected static void handleClickForLineConnection(CanvasController canvasController, FormulaShape node) {
 		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
 			if (canvasController.getConnectingLine() != null && !canvasController.getConnectingShape().equals(node)) {
 				PolygonalChain inEdge = canvasController.getConnectingLine();
@@ -55,6 +55,15 @@ public abstract class FormulaShape<E extends Shape> {
 	private List<PolygonalChain> inEdges;
 	private CanvasController controller;
 	private boolean  isSelected = false;
+	private int index = 0;
+
+	public int getIndex() {
+		return index;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
+	}
 
 	public boolean isIsSelected() {
 		return isSelected;
@@ -78,7 +87,7 @@ public abstract class FormulaShape<E extends Shape> {
 	}
 
 	 
-	public FormulaShape(E shape, CanvasController controller) {
+	protected FormulaShape(E shape, CanvasController controller) {
 		this();
 		this.shape = shape;
 		this.controller = controller;
@@ -86,6 +95,9 @@ public abstract class FormulaShape<E extends Shape> {
 
 		//TODO possible prone to be easily overwritten
 		shape.setFill(Color.GREEN);
+		
+	}
+	public void setupHandlers(){
 		shape.setOnMouseClicked((MouseEvent eventMouse) -> {
 			System.out.println("OnMouseClicked");
 			//TODO passing "this" to method in superclass really smells.

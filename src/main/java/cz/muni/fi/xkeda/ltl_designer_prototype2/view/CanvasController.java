@@ -8,9 +8,8 @@ package cz.muni.fi.xkeda.ltl_designer_prototype2.view;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.resources.ResourcesManager;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.FormulaNode;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.FormulaShape;
-import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.LineGrabPoint;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.FormulaShapeFactory;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.PolygonalChain;
-import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.StartFormulaNode;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,19 +94,19 @@ public class CanvasController implements Initializable {
 				break;
 			case CONNECTING_FORMULAE:
 				if (getConnectingShape() != null && !getConnectingShape().getShape().intersects(x, y, 2, 2)) {
-					LineGrabPoint.createLineGrabPoint(x, y, this);
+					FormulaShapeFactory.createLineGrabPoint(x, y, this);
 				}
 				break;
 			case CREATING_NEW_ELEMENT:
-				new FormulaNode(x, y, this);
+				FormulaShapeFactory.createFormulaNode(x, y, this);
 				setStatus(CanvasStatus.IDLE);
 				break;
 			case CREATING_DOT:
-				new StartFormulaNode(x, y, this);
+				FormulaShapeFactory.createStartFormulaNode(x, y, this);
 				setStatus(CanvasStatus.IDLE);
 				break;
 			case CREATING_TEXT:
-				FormulaNode formulaNode = new FormulaNode(x, y, this);
+				FormulaNode formulaNode = FormulaShapeFactory.createFormulaNode(x, y, this);
 				hbFormula.setVisible(true);
 				txtFormulae.setStyle("-fx-background-color: LavenderBlush;");
 				txtFormulae.requestFocus();

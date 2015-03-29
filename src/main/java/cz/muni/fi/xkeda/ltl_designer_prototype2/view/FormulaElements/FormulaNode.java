@@ -28,14 +28,13 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 
 	private String textualFormula;
 	private Text text;
-	private List<StartFormulaNode> startPoints;
+	private final List<StartFormulaNode> startPoints;
 
 	//possible more than one element
 	private FormulaShape parent;
-	private FormulaShape child;
 
 // records relative x and y co-ordinates.
-	public FormulaNode(double x, double y, CanvasController canvasController) {
+	protected FormulaNode(double x, double y, CanvasController canvasController) {
 		super(new Rectangle(x, y, 100, 30), canvasController);
 		startPoints = new ArrayList<>();
 		textualFormula = "";
@@ -51,9 +50,6 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 		//});
 	}
 
-	public FormulaShape getChild() {
-		return child;
-	}
 
 	public FormulaShape getMyParent() {
 		return parent;
@@ -71,6 +67,14 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 	@Override
 	public double getY() {
 		return getShape().getY() + getShape().getHeight() / 2;
+}
+
+	/**
+	 * 
+	 * @return unmodified text under this formula
+	 */
+	public String getText(){
+		return textualFormula;
 	}
 
 	//TODO Deltas will be better, after all, (it will get rid of magic constant;
@@ -149,7 +153,7 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 			Text textToComputeWidth = createNewText(textUsedSoFar);
 			textToComputeWidth.setFill(Color.SEASHELL);
 			double width = JavaFxHelper.getWidth(textToComputeWidth);
-			StartFormulaNode startNode = new StartFormulaNode(getShape().getX() + width, getShape().getY() + 10, getController());
+			StartFormulaNode startNode = FormulaShapeFactory.createStartFormulaNode(getShape().getX() + width, getShape().getY() + 10, getController());
 			startNode.getShape().setFill(Color.PINK);
 			startPoints.add(startNode);
 			handOverEvents(startNode.getShape());

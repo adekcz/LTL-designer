@@ -18,7 +18,7 @@
               <MenuItem mnemonicParsing="false" text="_New File" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" text="_Save" />
-                  <MenuItem mnemonicParsing="false" text="Save As" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleSaveAsAction" text="Save As" />
                   <Menu mnemonicParsing="false" text="_Export">
                     <items>
                         <MenuItem mnemonicParsing="false" text="_Latex" />

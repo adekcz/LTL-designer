@@ -23,19 +23,23 @@ public class StartFormulaNode extends FormulaShape<Circle> {
 	 * @param y y coordinate of center of circle
 	 * @param canvasController controller for specific stage
 	 */
-	public StartFormulaNode(double x, double y, CanvasController canvasController) {
+	protected StartFormulaNode(double x, double y, CanvasController canvasController) {
 		super(new Circle(x, y, 10, Color.PURPLE), canvasController);
+
+	}
+
+	@Override
+	public void setupHandlers() {
+		super.setupHandlers(); //To change body of generated methods, choose Tools | Templates.
 		getShape().setOnMouseClicked((MouseEvent eventMouse) -> {
-			FormulaShape.handleClickForLineCreation(canvasController, StartFormulaNode.this);
-			getShape().setFill(Color.BLUE);
+			FormulaShape.handleClickForLineCreation(getController(), StartFormulaNode.this);
+			
 			if (eventMouse.getClickCount() == 2) {
 				System.out.println("Double clicked");
 			}
 			//TODO handle if clicked not nothing (possibly in some higher layer
 		});
-
 	}
-
 
 	@Override
 	public final double getX() {

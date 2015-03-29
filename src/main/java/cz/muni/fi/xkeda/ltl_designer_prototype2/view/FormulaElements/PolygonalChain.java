@@ -40,10 +40,6 @@ public class PolygonalChain extends FormulaShape<Line>{
 		this.end = end;
 	}
 
-	
-
-
-
 
 	@Override
 	public double getX() {

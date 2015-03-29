@@ -11,6 +11,8 @@ import cz.muni.fi.xkeda.ltl_designer_prototype2.model.BinaryFormula;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.model.ChainedFormula;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.model.UnaryConjunction;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.model.UnaryFormula;
+import java.util.Arrays;
+import javax.json.Json;
 
 
 /**
@@ -20,7 +22,7 @@ import cz.muni.fi.xkeda.ltl_designer_prototype2.model.UnaryFormula;
 public class TestMain {
 
 	public static void main(String[] args){
-		System.out.println("asfj a flkasjd f XXX asdlfkj aofi XXXX sadofij asdXXXsakXXX".split("XXX"));
+		System.out.println(Arrays.toString("asfj a flkasjd f XXX asdlfkj aofi XXXX sadofij asdXXXsakXXX".split("XXX")));
 
 	}
 
@@ -44,6 +46,7 @@ public class TestMain {
 		UnaryFormula unaryFormula = new UnaryFormula(UnaryConjunction.REPEAT_INFINITELY, binaryFormula);
 
 
+		Json json = (Json) Json.createArrayBuilder();
 		System.out.println(unaryFormula);
 	}
 	
