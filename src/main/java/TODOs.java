@@ -11,4 +11,5 @@
 public class TODOs {
 	
 	//TODO connecting node can have multiple in or out edges  ... fix.
+	//You cna create multiple start formula -- you should not
 }

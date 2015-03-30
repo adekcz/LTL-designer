@@ -64,7 +64,7 @@ public class MainWindowController implements Initializable {
 
 	@FXML
 	void handleSaveAsAction(ActionEvent event) {
-			JsonObject json = JsonHelper.elementsToJson(canvasController.getAllNodes());
+			JsonObject json = JsonHelper.elementsToJson(canvasController.getAllNodes()).build();
 			JsonHelper.saveJson(json, "C:\\tmp\\neco.json");
 		/*System.out.println("neco");
 		FileChooser fileChooser = new FileChooser();

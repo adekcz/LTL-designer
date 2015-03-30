@@ -159,7 +159,7 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 			Text textToComputeWidth = createNewText(textUsedSoFar);
 			textToComputeWidth.setFill(Color.SEASHELL);
 			double width = JavaFxHelper.getWidth(textToComputeWidth);
-			ConnectingNode startNode = FormulaShapeFactory.createStartFormulaNode(getShape().getX() + width, getShape().getY() + 10, getController());
+			ConnectingNode startNode = FormulaShapeFactory.createInnerStartFormulaNode(getShape().getX() + width, getShape().getY() + 10, getController());
 			startNode.getShape().setFill(Color.PINK);
 			startPoints.add(startNode);
 			handOverEvents(startNode.getShape());
