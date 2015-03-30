@@ -29,16 +29,18 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 
 	private String textualFormula;
 	private Text text;
-	private final List<StartFormulaNode> startPoints;
+	private final List<ConnectingNode> startPoints;
 
-	public List<StartFormulaNode> getStartPoints() {
+	public List<ConnectingNode> getStartPoints() {
 		return Collections.unmodifiableList(startPoints);
 	}
 
 	//possible more than one element
 	private FormulaShape parent;
 
-// records relative x and y co-ordinates.
+	public FormulaNode(double x, double y) {
+		this(x, y, null);
+	}
 	protected FormulaNode(double x, double y, CanvasController canvasController) {
 		super(new Rectangle(x, y, 100, 30), canvasController);
 		startPoints = new ArrayList<>();
@@ -111,7 +113,7 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 			text.setY(deltaY + text.getY());
 		}
 
-		for (StartFormulaNode startNode : startPoints) {
+		for (ConnectingNode startNode : startPoints) {
 			startNode.moveBy(deltaX, deltaY);
 		}
 	}
@@ -157,7 +159,7 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 			Text textToComputeWidth = createNewText(textUsedSoFar);
 			textToComputeWidth.setFill(Color.SEASHELL);
 			double width = JavaFxHelper.getWidth(textToComputeWidth);
-			StartFormulaNode startNode = FormulaShapeFactory.createStartFormulaNode(getShape().getX() + width, getShape().getY() + 10, getController());
+			ConnectingNode startNode = FormulaShapeFactory.createStartFormulaNode(getShape().getX() + width, getShape().getY() + 10, getController());
 			startNode.getShape().setFill(Color.PINK);
 			startPoints.add(startNode);
 			handOverEvents(startNode.getShape());

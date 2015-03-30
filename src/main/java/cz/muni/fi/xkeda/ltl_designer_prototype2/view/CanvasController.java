@@ -9,8 +9,8 @@ import cz.muni.fi.xkeda.ltl_designer_prototype2.resources.ResourcesManager;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.FormulaNode;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.FormulaShape;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.FormulaShapeFactory;
-import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.LineGrabPoint;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.PolygonalChain;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.ConnectingNode;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +34,6 @@ import javafx.scene.shape.Shape;
  * @author adekcz
  */
 public class CanvasController implements Initializable {
-
 
 	@FXML
 	private BorderPane rootPane;
@@ -100,7 +99,16 @@ public class CanvasController implements Initializable {
 				break;
 			case CONNECTING_FORMULAE:
 				if (getConnectingShape() != null && !getConnectingShape().getShape().intersects(x, y, 2, 2)) {
-					LineGrabPoint createLineGrabPoint = FormulaShapeFactory.createLineGrabPoint(x, y, this);
+					ConnectingNode createLineGrabPoint = FormulaShapeFactory.createLineGrabPoint(x, y, this);
+					PolygonalChain inLine = getConnectingLine();
+					inLine.setEnd(createLineGrabPoint);
+					createLineGrabPoint.addToInEdges(inLine);
+
+					PolygonalChain outLine = FormulaShapeFactory.createPolygonalChain(createLineGrabPoint);
+					createLineGrabPoint.setOutEdge(outLine);
+					getCanvas().getChildren().add(outLine.getShape());
+					setConnectingLine(outLine);
+					setConnectingShape(createLineGrabPoint);
 				}
 				break;
 			case CREATING_NEW_ELEMENT:
@@ -263,6 +271,7 @@ public class CanvasController implements Initializable {
 	public void addToAll(FormulaShape shape) {
 		allNodes.add(shape);
 	}
+
 	public List<FormulaShape> getAllNodes() {
 		return Collections.unmodifiableList(allNodes);
 	}

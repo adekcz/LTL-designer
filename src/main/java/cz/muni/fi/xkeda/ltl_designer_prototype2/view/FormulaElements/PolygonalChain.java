@@ -15,10 +15,10 @@ public class PolygonalChain extends FormulaShape<Line>{
 	private FormulaShape start;
 	private FormulaShape end;
 
-	public PolygonalChain(FormulaShape start){
+	protected PolygonalChain(FormulaShape start){
 		this(start, start);
 	}
-	public PolygonalChain(FormulaShape start, FormulaShape end) {
+	protected PolygonalChain(FormulaShape start, FormulaShape end) {
 		setShape(new Line(start.getX(), start.getY(), end.getX(),end.getY()));
 		this.start = start;
 		this.end = end;

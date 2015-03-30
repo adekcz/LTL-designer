@@ -29,7 +29,7 @@ public abstract class FormulaShape<E extends Shape> {
 	protected static void handleClickForLineCreation(CanvasController canvasController, FormulaShape node) {
 		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
 			if (canvasController.getConnectingLine() == null) {
-				PolygonalChain line = new PolygonalChain(node);
+				PolygonalChain line = FormulaShapeFactory.createPolygonalChain(node);
 				node.setOutEdge(line);
 				canvasController.getCanvas().getChildren().add(line.getShape());
 				canvasController.setConnectingLine(line);
@@ -86,10 +86,9 @@ public abstract class FormulaShape<E extends Shape> {
 	}
 
 	protected FormulaShape(E shape, CanvasController controller) {
-		this();
+		inEdges = new ArrayList<>();
 		this.shape = shape;
 		this.controller = controller;
-		this.controller.add(shape);
 
 		//TODO possible prone to be easily overwritten
 		shape.setFill(Color.GREEN);

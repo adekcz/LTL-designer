@@ -15,30 +15,51 @@ import javafx.scene.shape.Circle;
  *
  * @author adekcz
  */
-public class StartFormulaNode extends FormulaShape<Circle> {
+public class ConnectingNode extends FormulaShape<Circle> {
 
 	/**
+	 * Construtctor that only initializes values, not behaviour of
+	 * interactions with canvas
 	 *
-	 * @param x x coordinate of center of circle
-	 * @param y y coordinate of center of circle
-	 * @param canvasController controller for specific stage
+	 * @param x
+	 * @param y
 	 */
-	protected StartFormulaNode(double x, double y, CanvasController canvasController) {
-		super(new Circle(x, y, 10, Color.PURPLE), canvasController);
+	public ConnectingNode(double x, double y) {
+		this(x, y, null);
+	}
 
+	protected ConnectingNode(double x, double y, CanvasController canvasController) {
+		super(new Circle(x, y, 10, Color.PURPLE), canvasController);
 	}
 
 	@Override
 	public void setupHandlers() {
 		super.setupHandlers(); //To change body of generated methods, choose Tools | Templates.
 		getShape().setOnMouseClicked((MouseEvent eventMouse) -> {
-			FormulaShape.handleClickForLineCreation(getController(), StartFormulaNode.this);
-			
+			FormulaShape.handleClickForLineCreation(getController(), ConnectingNode.this);
+
 			if (eventMouse.getClickCount() == 2) {
 				System.out.println("Double clicked");
 			}
 			//TODO handle if clicked not nothing (possibly in some higher layer
 		});
+	}
+
+	public void setupHandlersForGrabPoint() {
+		super.setupHandlers(); //To change body of generated methods, choose Tools | Templates.
+	}
+	@Override
+	public final void moveTo(double x, double y) {
+		moveLinesTo(x, y);
+		getShape().setCenterX(x);
+		getShape().setCenterY(y);
+	}
+
+	@Override
+	public final void moveBy(double deltaX, double detlaY) {
+		moveLinesBy(deltaX, detlaY);
+		getShape().setCenterX(deltaX + getShape().getCenterX());
+		getShape().setCenterY(detlaY + getShape().getCenterY());
 	}
 
 	@Override
@@ -50,20 +71,4 @@ public class StartFormulaNode extends FormulaShape<Circle> {
 	public final double getY() {
 		return getShape().getCenterY();
 	}
-
-	@Override
-	public final void moveTo(double x, double y) {
-		moveLinesTo(x, y);
-		getShape().setCenterX(x);
-		getShape().setCenterY(y);
-	}
-
-	@Override
-	public final void moveBy(double deltaX, double detlaY) {
-		//TODO create method for moving circles
-		moveLinesBy(deltaX, detlaY);
-		getShape().setCenterX(deltaX + getShape().getCenterX());
-		getShape().setCenterY(detlaY + getShape().getCenterY());
-	}
-
 }

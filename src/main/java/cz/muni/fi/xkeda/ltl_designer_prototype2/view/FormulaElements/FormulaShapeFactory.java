@@ -17,29 +17,32 @@ public class FormulaShapeFactory {
 		FormulaNode formulaNode = new FormulaNode(x, y, controller);
 		formulaNode.setupHandlers();
 		controller.addToAll(formulaNode);
+		controller.add(formulaNode.getShape());
 		return formulaNode;
 	}
 
-	public static LineGrabPoint createLineGrabPoint(double x, double y, CanvasController controller) {
-		LineGrabPoint created = new LineGrabPoint(x, y, controller);
+	public static ConnectingNode createLineGrabPoint(double x, double y, CanvasController controller) {
+		ConnectingNode created = new ConnectingNode(x, y, controller);
 		controller.addToAll(created);
-		created.setupHandlers();
-		created.init();
+		controller.add(created.getShape());
+		created.setupHandlersForGrabPoint();
 		return created;
 	}
 
+	public static ConnectingNode createStartFormulaNode(double x, double y, CanvasController controller) {
+		ConnectingNode formulaNode = new ConnectingNode(x, y, controller);
+		controller.addToAll(formulaNode);
+		controller.add(formulaNode.getShape());
+		formulaNode.setupHandlers();
+		return formulaNode;
+	}
 
 	public static PolygonalChain createPolygonalChain(FormulaShape start){
 		return createPolygonalChain(start, start);
 	}
 	public static PolygonalChain createPolygonalChain(FormulaShape start, FormulaShape end){
-		return createPolygonalChain(start, end);
-	}
-	public static StartFormulaNode createStartFormulaNode(double x, double y, CanvasController controller) {
-		StartFormulaNode formulaNode = new StartFormulaNode(x, y, controller);
-		controller.addToAll(formulaNode);
-		formulaNode.setupHandlers();
-		return formulaNode;
+		PolygonalChain polygonalChain = new PolygonalChain(start, end);
+		return polygonalChain;
 	}
 
 }
