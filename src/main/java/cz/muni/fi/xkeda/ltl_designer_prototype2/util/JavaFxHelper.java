@@ -9,6 +9,7 @@ import com.google.common.base.Strings;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Node;
 
 /**
@@ -24,6 +25,7 @@ public class JavaFxHelper {
 	public static FXMLLoader getLoader(Class clazz, String path){
 		FXMLLoader loader = new FXMLLoader();
 		loader.setLocation(clazz.getResource(path));
+		loader.setBuilderFactory(new JavaFXBuilderFactory());
 		return loader;
 	}
 	

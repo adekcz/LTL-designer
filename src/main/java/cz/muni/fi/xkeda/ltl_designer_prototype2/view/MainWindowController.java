@@ -6,8 +6,8 @@
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view;
 
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JavaFxHelper;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JsonHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.menu.AboutDialogController;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -21,7 +21,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.stage.FileChooser;
+import javax.json.JsonObject;
 
 /**
  *
@@ -34,12 +34,16 @@ public class MainWindowController implements Initializable {
 	@FXML
 	private Label label;
 
+	private CanvasController canvasController;
+
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		try {
 			FXMLLoader loader = JavaFxHelper.getLoader(this.getClass(), "/fxml/Canvas.fxml");
-			Pane load = (Pane) loader.load();
-			rootPane.setCenter(load);
+			Pane pane = (Pane) loader.load();
+			canvasController = (CanvasController) loader.getController();
+			
+			rootPane.setCenter(pane);
 		} catch (IOException ex) {
 			Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
 		}
@@ -60,12 +64,17 @@ public class MainWindowController implements Initializable {
 
 	@FXML
 	void handleSaveAsAction(ActionEvent event) {
-		System.out.println("neco");
+			JsonObject json = JsonHelper.elementsToJson(canvasController.getAllNodes());
+			JsonHelper.saveJson(json, "C:\\tmp\\neco.json");
+		/*System.out.println("neco");
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Save current view");
 		File file = fileChooser.showSaveDialog(rootPane.getScene().getWindow());
 		if (file != null) {
 			System.out.println(file.getAbsoluteFile());
+			JsonObject json = JsonHelper.elementsToJson(canvasController.getAllNodes());
+			JsonHelper.saveJson(json, "C:\\tmp\\neco.json");
 		}
+			*/
 	}
 }

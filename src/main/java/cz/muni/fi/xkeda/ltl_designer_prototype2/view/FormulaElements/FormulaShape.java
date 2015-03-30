@@ -30,7 +30,7 @@ public abstract class FormulaShape<E extends Shape> {
 		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
 			if (canvasController.getConnectingLine() == null) {
 				PolygonalChain line = new PolygonalChain(node);
-				node.addToOutEdges(line);
+				node.setOutEdge(line);
 				canvasController.getCanvas().getChildren().add(line.getShape());
 				canvasController.setConnectingLine(line);
 				canvasController.setConnectingShape(node);
@@ -51,10 +51,10 @@ public abstract class FormulaShape<E extends Shape> {
 		}
 	}
 
-	private List<PolygonalChain> outEdges;
+	private PolygonalChain outEdge;
 	private List<PolygonalChain> inEdges;
 	private CanvasController controller;
-	private boolean  isSelected = false;
+	private boolean isSelected = false;
 	private int index = 0;
 
 	public int getIndex() {
@@ -70,9 +70,9 @@ public abstract class FormulaShape<E extends Shape> {
 	}
 
 	public void setIsSelected(boolean isSelected) {
-		if(isSelected){
+		if (isSelected) {
 			shape.setFill(Color.YELLOW);
-		} else{
+		} else {
 			shape.setFill(Color.GREEN);
 		}
 		this.isSelected = isSelected;
@@ -82,11 +82,9 @@ public abstract class FormulaShape<E extends Shape> {
 	protected Point2D lastPosition;
 
 	public FormulaShape() {
-		outEdges = new ArrayList<>();
 		inEdges = new ArrayList<>();
 	}
 
-	 
 	protected FormulaShape(E shape, CanvasController controller) {
 		this();
 		this.shape = shape;
@@ -95,9 +93,10 @@ public abstract class FormulaShape<E extends Shape> {
 
 		//TODO possible prone to be easily overwritten
 		shape.setFill(Color.GREEN);
-		
+
 	}
-	public void setupHandlers(){
+
+	public void setupHandlers() {
 		shape.setOnMouseClicked((MouseEvent eventMouse) -> {
 			System.out.println("OnMouseClicked");
 			//TODO passing "this" to method in superclass really smells.
@@ -105,7 +104,7 @@ public abstract class FormulaShape<E extends Shape> {
 			handleClickForLineConnection(controller, this);
 		});
 		shape.setOnMousePressed((MouseEvent mouseEvent) -> {
-			if(mouseEvent.isControlDown()){
+			if (mouseEvent.isControlDown()) {
 				controller.addSelected(this);
 			}
 			System.out.println("Potential drag Started");
@@ -120,7 +119,7 @@ public abstract class FormulaShape<E extends Shape> {
 		});
 		shape.setOnMouseDragged((MouseEvent mouseEvent) -> {
 			System.out.println("handflajds");
-			
+
 			double deltaX = mouseEvent.getX() - lastPosition.getX();
 			double deltaY = mouseEvent.getY() - lastPosition.getY();
 			lastPosition = new Point2D(mouseEvent.getX(), mouseEvent.getY());
@@ -169,8 +168,8 @@ public abstract class FormulaShape<E extends Shape> {
 			line.setEndY(y);
 		}
 
-		for (PolygonalChain myLine : outEdges) {
-			Line line = myLine.getShape();
+		if (outEdge != null) {
+			Line line = outEdge.getShape();
 			line.setStartX(x);
 			line.setStartY(y);
 		}
@@ -186,9 +185,9 @@ public abstract class FormulaShape<E extends Shape> {
 			line.setEndY(deltaY + line.getEndY());
 		}
 
-		for (PolygonalChain myLine : outEdges) {
+		if (outEdge != null) {
 			System.out.println("moving outEdges -- starts");
-			Line line = myLine.getShape();
+			Line line = outEdge.getShape();
 			//line.setLayoutX(deltaX);
 			//line.setLayoutY(deltaY);
 			line.setStartX(deltaX + line.getStartX());
@@ -219,14 +218,13 @@ public abstract class FormulaShape<E extends Shape> {
 	public abstract double getY();
 
 	/**
-	 * @param line Adds line to outgoing edges. If line is null, nothing
-	 * happens;
+	 * @param line Sets line as only outgoing edge from this node.
 	 */
-	public void addToOutEdges(PolygonalChain line) {
-		if (line != null) {
-			this.outEdges.add(line);
-			//line.setStart(this);
-		}
+	public void setOutEdge(PolygonalChain line) {
+		this.outEdge = line;
+	}
+	public PolygonalChain getOutEdge(){
+		return outEdge;
 	}
 
 	/**

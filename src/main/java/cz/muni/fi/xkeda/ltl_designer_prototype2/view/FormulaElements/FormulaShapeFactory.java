@@ -16,11 +16,13 @@ public class FormulaShapeFactory {
 	public static FormulaNode createFormulaNode(double x, double y, CanvasController controller) {
 		FormulaNode formulaNode = new FormulaNode(x, y, controller);
 		formulaNode.setupHandlers();
+		controller.addToAll(formulaNode);
 		return formulaNode;
 	}
 
 	public static LineGrabPoint createLineGrabPoint(double x, double y, CanvasController controller) {
 		LineGrabPoint created = new LineGrabPoint(x, y, controller);
+		controller.addToAll(created);
 		created.setupHandlers();
 		created.init();
 		return created;
@@ -35,6 +37,7 @@ public class FormulaShapeFactory {
 	}
 	public static StartFormulaNode createStartFormulaNode(double x, double y, CanvasController controller) {
 		StartFormulaNode formulaNode = new StartFormulaNode(x, y, controller);
+		controller.addToAll(formulaNode);
 		formulaNode.setupHandlers();
 		return formulaNode;
 	}

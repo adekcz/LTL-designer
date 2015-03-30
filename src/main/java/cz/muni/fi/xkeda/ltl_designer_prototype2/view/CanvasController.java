@@ -9,9 +9,11 @@ import cz.muni.fi.xkeda.ltl_designer_prototype2.resources.ResourcesManager;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.FormulaNode;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.FormulaShape;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.FormulaShapeFactory;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.LineGrabPoint;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.PolygonalChain;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -33,6 +35,7 @@ import javafx.scene.shape.Shape;
  */
 public class CanvasController implements Initializable {
 
+
 	@FXML
 	private BorderPane rootPane;
 	@FXML
@@ -47,6 +50,8 @@ public class CanvasController implements Initializable {
 	private PolygonalChain connectingLine;
 	private FormulaShape connectingShape;
 	private List<FormulaShape> selectedNodes;
+	private List<FormulaShape> allNodes;
+
 	private double x;
 	private double y;
 
@@ -55,6 +60,7 @@ public class CanvasController implements Initializable {
 		// allow the label to be dragged around.
 
 		selectedNodes = new ArrayList<>();
+		allNodes = new ArrayList<>();
 		status = CanvasStatus.IDLE;
 		canvas.setOnMouseMoved((eventMoved) -> {
 			if (status == CanvasStatus.CONNECTING_FORMULAE && connectingLine != null) {
@@ -88,13 +94,13 @@ public class CanvasController implements Initializable {
 		y = event.getY();
 		switch (status) {
 			case IDLE:
-				if (event.getTarget().equals(canvas)){
+				if (event.getTarget().equals(canvas)) {
 					deselectAll();
 				}
 				break;
 			case CONNECTING_FORMULAE:
 				if (getConnectingShape() != null && !getConnectingShape().getShape().intersects(x, y, 2, 2)) {
-					FormulaShapeFactory.createLineGrabPoint(x, y, this);
+					LineGrabPoint createLineGrabPoint = FormulaShapeFactory.createLineGrabPoint(x, y, this);
 				}
 				break;
 			case CREATING_NEW_ELEMENT:
@@ -249,6 +255,18 @@ public class CanvasController implements Initializable {
 		}
 	}
 
+	/**
+	 * do not add same element twice
+	 *
+	 * @param shape
+	 */
+	public void addToAll(FormulaShape shape) {
+		allNodes.add(shape);
+	}
+	public List<FormulaShape> getAllNodes() {
+		return Collections.unmodifiableList(allNodes);
+	}
+
 	public void addSelected(FormulaShape shape) {
 		if (!shape.isIsSelected()) {
 			shape.setIsSelected(true);
@@ -262,6 +280,5 @@ public class CanvasController implements Initializable {
 		}
 		selectedNodes.clear();
 	}
-
 
 }

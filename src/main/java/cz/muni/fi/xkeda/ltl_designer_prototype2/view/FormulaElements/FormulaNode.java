@@ -8,6 +8,7 @@ package cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JavaFxHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javafx.event.Event;
 import javafx.scene.Node;
@@ -30,6 +31,10 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 	private Text text;
 	private final List<StartFormulaNode> startPoints;
 
+	public List<StartFormulaNode> getStartPoints() {
+		return Collections.unmodifiableList(startPoints);
+	}
+
 	//possible more than one element
 	private FormulaShape parent;
 
@@ -50,7 +55,6 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 		//});
 	}
 
-
 	public FormulaShape getMyParent() {
 		return parent;
 	}
@@ -67,13 +71,13 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 	@Override
 	public double getY() {
 		return getShape().getY() + getShape().getHeight() / 2;
-}
+	}
 
 	/**
-	 * 
+	 *
 	 * @return unmodified text under this formula
 	 */
-	public String getText(){
+	public String getText() {
 		return textualFormula;
 	}
 
@@ -107,7 +111,7 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 			text.setY(deltaY + text.getY());
 		}
 
-		for(StartFormulaNode startNode : startPoints){
+		for (StartFormulaNode startNode : startPoints) {
 			startNode.moveBy(deltaX, deltaY);
 		}
 	}
@@ -132,7 +136,7 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 		node.setOnMousePressed((MouseEvent event) -> {
 			Event.fireEvent(getShape(), event);
 		});
-		if(node instanceof Text){
+		if (node instanceof Text) {
 			node.setOnMouseClicked((event) -> {
 				Event.fireEvent(getShape(), event);
 			});

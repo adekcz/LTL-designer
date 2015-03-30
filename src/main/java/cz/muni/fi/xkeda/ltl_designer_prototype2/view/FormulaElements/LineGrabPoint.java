@@ -19,14 +19,15 @@ public class LineGrabPoint extends FormulaShape<Circle> {
 		super(new Circle(x, y, 10, Color.BLACK), controller);
 
 	}
+	//TODO You already have factory .... create this as variation of startformulanode .. .and rename that one.
 
-	protected void init(){
+	protected void init() {
 		PolygonalChain inLine = getController().getConnectingLine();
 		inLine.setEnd(this);
 		addToInEdges(inLine);
 
 		PolygonalChain outLine = new PolygonalChain(this);
-		addToOutEdges(outLine);
+		setOutEdge(outLine);
 		getController().getCanvas().getChildren().add(outLine.getShape());
 		getController().setConnectingLine(outLine);
 		getController().setConnectingShape(this);
@@ -40,18 +41,20 @@ public class LineGrabPoint extends FormulaShape<Circle> {
 		getShape().setCenterX(x);
 		getShape().setCenterY(y);
 	}
+
 	@Override
 	public final void moveBy(double deltaX, double detlaY) {
 		//TODO create method for moving circles
 		moveLinesBy(deltaX, detlaY);
-		getShape().setCenterX(deltaX+getShape().getCenterX());
-		getShape().setCenterY(detlaY+getShape().getCenterY());
+		getShape().setCenterX(deltaX + getShape().getCenterX());
+		getShape().setCenterY(detlaY + getShape().getCenterY());
 	}
 
 	@Override
 	public final double getX() {
 		return getShape().getCenterX();
 	}
+
 	@Override
 	public final double getY() {
 		return getShape().getCenterY();
