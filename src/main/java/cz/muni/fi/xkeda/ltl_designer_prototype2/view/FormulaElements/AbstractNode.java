@@ -24,9 +24,9 @@ import javafx.scene.shape.Shape;
  * @param <E> Underlying Shape that is somehow main graphical shape in specific
  * subclass;
  */
-public abstract class FormulaShape<E extends Shape> {
+public abstract class AbstractNode<E extends Shape> {
 
-	protected static void handleClickForLineCreation(CanvasController canvasController, FormulaShape node) {
+	protected static void handleClickForLineCreation(CanvasController canvasController, AbstractNode node) {
 		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
 			if (canvasController.getConnectingLine() == null) {
 				PolygonalChain line = FormulaShapeFactory.createPolygonalChain(node);
@@ -38,7 +38,7 @@ public abstract class FormulaShape<E extends Shape> {
 		}
 	}
 
-	protected static void handleClickForLineConnection(CanvasController canvasController, FormulaShape node) {
+	protected static void handleClickForLineConnection(CanvasController canvasController, AbstractNode node) {
 		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
 			if (canvasController.getConnectingLine() != null && !canvasController.getConnectingShape().equals(node)) {
 				PolygonalChain inEdge = canvasController.getConnectingLine();
@@ -81,11 +81,11 @@ public abstract class FormulaShape<E extends Shape> {
 	private E shape;
 	protected Point2D lastPosition;
 
-	public FormulaShape() {
+	public AbstractNode() {
 		inEdges = new ArrayList<>();
 	}
 
-	protected FormulaShape(E shape, CanvasController controller) {
+	protected AbstractNode(E shape, CanvasController controller) {
 		inEdges = new ArrayList<>();
 		this.shape = shape;
 		this.controller = controller;
@@ -137,7 +137,11 @@ public abstract class FormulaShape<E extends Shape> {
 	public void setController(CanvasController controller) {
 		this.controller = controller;
 	}
-
+	public void setupGUIinteractions() {
+		setupHandlers();
+		getController().addToAll(this);
+		getController().add(this.getShape());
+	}
 	/**
 	 *
 	 * @return
@@ -215,6 +219,12 @@ public abstract class FormulaShape<E extends Shape> {
 	 * reasonable (e.g. center for circle)
 	 */
 	public abstract double getY();
+
+	public void connectTo(AbstractNode other){
+		PolygonalChain line = FormulaShapeFactory.createPolygonalChain(this, other);
+		setOutEdge(line);
+		other.addToInEdges(line);
+	}
 
 	/**
 	 * @param line Sets line as only outgoing edge from this node.

@@ -23,7 +23,7 @@ import javafx.scene.text.TextAlignment;
  *
  * @author adekcz
  */
-public class FormulaNode extends FormulaShape<Rectangle> {
+public class TextNode extends AbstractNode<Rectangle> {
 
 	private final static String START_PLACEHOLDER = "XXX";
 
@@ -36,12 +36,13 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 	}
 
 	//possible more than one element
-	private FormulaShape parent;
+	private AbstractNode parent;
 
-	public FormulaNode(double x, double y) {
+	public TextNode(double x, double y) {
 		this(x, y, null);
 	}
-	protected FormulaNode(double x, double y, CanvasController canvasController) {
+
+	protected TextNode(double x, double y, CanvasController canvasController) {
 		super(new Rectangle(x, y, 100, 30), canvasController);
 		startPoints = new ArrayList<>();
 		textualFormula = "";
@@ -57,11 +58,11 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 		//});
 	}
 
-	public FormulaShape getMyParent() {
+	public AbstractNode getMyParent() {
 		return parent;
 	}
 
-	public void setMyParent(FormulaShape parent) {
+	public void setMyParent(AbstractNode parent) {
 		this.parent = parent;
 	}
 
@@ -118,12 +119,32 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 		}
 	}
 
-	public void setText(String textToAdd) {
+	/**
+	 * adds text and creates starting points
+	 *
+	 * @param textToAdd
+	 */
+	public void changeText(String textToAdd) {
 		textualFormula = textToAdd;
-		text = createNewText(textToAdd);
+		createGUItext();
+		createStartingPoints(textToAdd);
+	}
+
+	private void createGUItext(){
+		text = createNewText(textualFormula);
 		getShape().setWidth(JavaFxHelper.getWidth(text));
 		getController().add(text); // order of adding to canvas matter, text should be added before starting points (mouseeevent handlers rely on this..)
-		createStartingPoints(textToAdd);
+
+	}
+
+	public void setText(String text) {
+		this.textualFormula = text;
+	}
+
+	@Override
+	public void setupGUIinteractions() {
+		super.setupGUIinteractions();
+		createGUItext();
 	}
 
 	private Text createNewText(String textToAdd) {
@@ -132,6 +153,10 @@ public class FormulaNode extends FormulaShape<Rectangle> {
 		newText.setTextAlignment(TextAlignment.JUSTIFY);
 		handOverEvents(newText);
 		return newText;
+	}
+
+	public void addStartPoint(ConnectingNode node) {
+		startPoints.add(node);
 	}
 
 	private void handOverEvents(Node node) {

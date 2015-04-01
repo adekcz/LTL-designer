@@ -12,7 +12,7 @@
         <menus>
           <Menu text="_File">
             <items>
-                  <MenuItem text="_Open" />
+                  <MenuItem onAction="#handleOpenAction" text="_Open" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" text="New Project" />
               <MenuItem mnemonicParsing="false" text="_New File" />

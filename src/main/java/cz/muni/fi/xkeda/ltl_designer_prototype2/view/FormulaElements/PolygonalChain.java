@@ -11,32 +11,32 @@ import javafx.scene.shape.Line;
  *
  * @author adekcz
  */
-public class PolygonalChain extends FormulaShape<Line>{
-	private FormulaShape start;
-	private FormulaShape end;
+public class PolygonalChain extends AbstractNode<Line>{
+	private AbstractNode start;
+	private AbstractNode end;
 
-	protected PolygonalChain(FormulaShape start){
+	protected PolygonalChain(AbstractNode start){
 		this(start, start);
 	}
-	protected PolygonalChain(FormulaShape start, FormulaShape end) {
+	protected PolygonalChain(AbstractNode start, AbstractNode end) {
 		setShape(new Line(start.getX(), start.getY(), end.getX(),end.getY()));
 		this.start = start;
 		this.end = end;
 	}
 
-	public FormulaShape getStart() {
+	public AbstractNode getStart() {
 		return start;
 	}
 
-	public void setStart(FormulaShape start) {
+	public void setStart(AbstractNode start) {
 		this.start = start;
 	}
 
-	public FormulaShape getEnd() {
+	public AbstractNode getEnd() {
 		return end;
 	}
 
-	public void setEnd(FormulaShape end) {
+	public void setEnd(AbstractNode end) {
 		this.end = end;
 	}
 

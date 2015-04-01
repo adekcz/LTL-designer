@@ -6,11 +6,11 @@
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view;
 
 import cz.muni.fi.xkeda.ltl_designer_prototype2.resources.ResourcesManager;
-import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.FormulaNode;
-import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.FormulaShape;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.AbstractNode;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.ConnectingNode;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.FormulaShapeFactory;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.PolygonalChain;
-import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.ConnectingNode;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.TextNode;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,9 +47,9 @@ public class CanvasController implements Initializable {
 	private CanvasStatus status;
 
 	private PolygonalChain connectingLine;
-	private FormulaShape connectingShape;
-	private List<FormulaShape> selectedNodes;
-	private List<FormulaShape> allNodes;
+	private AbstractNode connectingShape;
+	private List<AbstractNode> selectedNodes;
+	private List<AbstractNode> allNodes;
 
 	private double x;
 	private double y;
@@ -120,14 +120,14 @@ public class CanvasController implements Initializable {
 				setStatus(CanvasStatus.IDLE);
 				break;
 			case CREATING_TEXT:
-				FormulaNode formulaNode = FormulaShapeFactory.createFormulaNode(x, y, this);
+				TextNode formulaNode = FormulaShapeFactory.createFormulaNode(x, y, this);
 				hbFormula.setVisible(true);
 				txtFormulae.setStyle("-fx-background-color: LavenderBlush;");
 				txtFormulae.requestFocus();
 				txtFormulae.setOnKeyPressed((eventPressed) -> {
 					if (eventPressed.getCode() == KeyCode.ENTER) {
 
-						formulaNode.setText(txtFormulae.getText());
+						formulaNode.changeText(txtFormulae.getText());
 						txtFormulae.setText("");
 						hbFormula.setVisible(false);
 						setStatus(CanvasStatus.IDLE);
@@ -237,11 +237,11 @@ public class CanvasController implements Initializable {
 		return status;
 	}
 
-	public FormulaShape getConnectingShape() {
+	public AbstractNode getConnectingShape() {
 		return connectingShape;
 	}
 
-	public void setConnectingShape(FormulaShape connectingShape) {
+	public void setConnectingShape(AbstractNode connectingShape) {
 		this.connectingShape = connectingShape;
 	}
 
@@ -258,7 +258,7 @@ public class CanvasController implements Initializable {
 	}
 
 	public void moveSelectedBy(double deltaX, double deltaY) {
-		for (FormulaShape shape : selectedNodes) {
+		for (AbstractNode shape : selectedNodes) {
 			shape.moveBy(deltaX, deltaY);
 		}
 	}
@@ -268,15 +268,18 @@ public class CanvasController implements Initializable {
 	 *
 	 * @param shape
 	 */
-	public void addToAll(FormulaShape shape) {
+	public void addToAll(AbstractNode shape) {
 		allNodes.add(shape);
 	}
 
-	public List<FormulaShape> getAllNodes() {
+	public List<AbstractNode> getAllNodes() {
 		return Collections.unmodifiableList(allNodes);
 	}
+	public void removeFromAllNodes(AbstractNode node){
+		allNodes.remove(node);
+	}
 
-	public void addSelected(FormulaShape shape) {
+	public void addSelected(AbstractNode shape) {
 		if (!shape.isIsSelected()) {
 			shape.setIsSelected(true);
 			selectedNodes.add(shape);
@@ -284,7 +287,7 @@ public class CanvasController implements Initializable {
 	}
 
 	public void deselectAll() {
-		for (FormulaShape selectedNode : selectedNodes) {
+		for (AbstractNode selectedNode : selectedNodes) {
 			selectedNode.setIsSelected(false);
 		}
 		selectedNodes.clear();

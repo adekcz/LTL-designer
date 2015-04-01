@@ -6,7 +6,6 @@
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements;
 
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
@@ -15,7 +14,7 @@ import javafx.scene.shape.Circle;
  *
  * @author adekcz
  */
-public class ConnectingNode extends FormulaShape<Circle> {
+public class ConnectingNode extends AbstractNode<Circle> {
 
 	/**
 	 * Construtctor that only initializes values, not behaviour of
@@ -32,22 +31,7 @@ public class ConnectingNode extends FormulaShape<Circle> {
 		super(new Circle(x, y, 10, Color.PURPLE), canvasController);
 	}
 
-	@Override
-	public void setupHandlers() {
-		super.setupHandlers(); //To change body of generated methods, choose Tools | Templates.
-		getShape().setOnMouseClicked((MouseEvent eventMouse) -> {
-			FormulaShape.handleClickForLineCreation(getController(), ConnectingNode.this);
 
-			if (eventMouse.getClickCount() == 2) {
-				System.out.println("Double clicked");
-			}
-			//TODO handle if clicked not nothing (possibly in some higher layer
-		});
-	}
-
-	public void setupHandlersForGrabPoint() {
-		super.setupHandlers(); //To change body of generated methods, choose Tools | Templates.
-	}
 	@Override
 	public final void moveTo(double x, double y) {
 		moveLinesTo(x, y);

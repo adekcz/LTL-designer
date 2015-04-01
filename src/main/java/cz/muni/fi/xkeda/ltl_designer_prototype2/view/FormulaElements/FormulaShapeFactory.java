@@ -19,11 +19,9 @@ public class FormulaShapeFactory {
 	 * @param controller
 	 * @return Returns formula node. Rectangle with text, that might contain connectors to another formulas.
 	 */
-	public static FormulaNode createFormulaNode(double x, double y, CanvasController controller) {
-		FormulaNode formulaNode = new FormulaNode(x, y, controller);
-		formulaNode.setupHandlers();
-		controller.addToAll(formulaNode);
-		controller.add(formulaNode.getShape());
+	public static TextNode createFormulaNode(double x, double y, CanvasController controller) {
+		TextNode formulaNode = new TextNode(x, y, controller);
+		formulaNode.setupGUIinteractions();
 		return formulaNode;
 	}
 
@@ -36,9 +34,7 @@ public class FormulaShapeFactory {
 	 */
 	public static ConnectingNode createLineGrabPoint(double x, double y, CanvasController controller) {
 		ConnectingNode created = new ConnectingNode(x, y, controller);
-		controller.addToAll(created);
-		controller.add(created.getShape());
-		created.setupHandlersForGrabPoint();
+		created.setupGUIinteractions();
 		return created;
 	}
 
@@ -50,13 +46,13 @@ public class FormulaShapeFactory {
 	 * @return 
 	 */
 	public static ConnectingNode createStartFormulaNode(double x, double y, CanvasController controller) {
-		ConnectingNode formulaNode = createInnerStartFormulaNode(x, y, controller);
-		controller.addToAll(formulaNode);
+		ConnectingNode formulaNode = new ConnectingNode(x, y, controller);
+		formulaNode.setupGUIinteractions();
 		return formulaNode;
 	}
 
 	/**
-	 * Basically startFormula nested over FormulaNode.Text
+	 * Basically startFormula nested over TextNode.Text
 	 * @param x
 	 * @param y
 	 * @param controller
@@ -64,8 +60,8 @@ public class FormulaShapeFactory {
 	 */
 	public static ConnectingNode createInnerStartFormulaNode(double x, double y, CanvasController controller) {
 		ConnectingNode formulaNode = new ConnectingNode(x, y, controller);
-		controller.add(formulaNode.getShape());
-		formulaNode.setupHandlers();
+		formulaNode.setupGUIinteractions();
+		controller.removeFromAllNodes(formulaNode);
 		return formulaNode;
 	}
 
@@ -74,7 +70,7 @@ public class FormulaShapeFactory {
 	 * @param start
 	 * @return 
 	 */
-	public static PolygonalChain createPolygonalChain(FormulaShape start) {
+	public static PolygonalChain createPolygonalChain(AbstractNode start) {
 		return createPolygonalChain(start, start);
 	}
 
@@ -83,7 +79,7 @@ public class FormulaShapeFactory {
 	 * @param start
 	 * @return 
 	 */
-	public static PolygonalChain createPolygonalChain(FormulaShape start, FormulaShape end) {
+	public static PolygonalChain createPolygonalChain(AbstractNode start, AbstractNode end) {
 		PolygonalChain polygonalChain = new PolygonalChain(start, end);
 		return polygonalChain;
 	}
