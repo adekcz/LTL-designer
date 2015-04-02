@@ -47,7 +47,6 @@ public class CanvasController implements Initializable {
 	private CanvasStatus status;
 
 	private PolygonalChain connectingLine;
-	private AbstractNode connectingShape;
 	private List<AbstractNode> selectedNodes;
 	private List<AbstractNode> allNodes;
 
@@ -98,17 +97,16 @@ public class CanvasController implements Initializable {
 				}
 				break;
 			case CONNECTING_FORMULAE:
-				if (getConnectingShape() != null && !getConnectingShape().getShape().intersects(x, y, 2, 2)) {
-					ConnectingNode createLineGrabPoint = FormulaShapeFactory.createLineGrabPoint(x, y, this);
+				if (isClickedIntoEmptySpace()) {
+					ConnectingNode grabPoiont = FormulaShapeFactory.createLineGrabPoint(x, y, this);
 					PolygonalChain inLine = getConnectingLine();
-					inLine.setEnd(createLineGrabPoint);
-					createLineGrabPoint.addToInEdges(inLine);
+					inLine.setEnd(grabPoiont);
+					grabPoiont.addToInEdges(inLine);
 
-					PolygonalChain outLine = FormulaShapeFactory.createPolygonalChain(createLineGrabPoint);
-					createLineGrabPoint.setOutEdge(outLine);
+					PolygonalChain outLine = FormulaShapeFactory.createPolygonalChain(grabPoiont);
+					grabPoiont.setOutEdge(outLine);
 					getCanvas().getChildren().add(outLine.getShape());
 					setConnectingLine(outLine);
-					setConnectingShape(createLineGrabPoint);
 				}
 				break;
 			case CREATING_NEW_ELEMENT:
@@ -140,6 +138,8 @@ public class CanvasController implements Initializable {
 
 		}
 	}
+
+
 
 	@FXML
 	void handleTextAction(ActionEvent event) {
@@ -198,6 +198,11 @@ public class CanvasController implements Initializable {
 //       ##     ##  ##        ## ##       
 //       ##     ##  ##  ##    ## ##    ## 
 //       ##     ## ####  ######   ###### 
+
+	private boolean isClickedInside(AbstractNode node) {
+		return node.getShape().intersects(x, y, 2, 2);
+	}
+
 	public void setStatus(CanvasStatus status) {
 		this.status = status;
 		switch (status) {
@@ -225,24 +230,53 @@ public class CanvasController implements Initializable {
 
 	}
 
+	private void resetCursor() {
+		rootPane.setCursor(Cursor.DEFAULT);
+	}
+
+	public void moveSelectedBy(double deltaX, double deltaY) {
+		for (AbstractNode shape : selectedNodes) {
+			shape.moveBy(deltaX, deltaY);
+		}
+	}
+
+	//todo write in ascii: ACCESSORS
+
+	public void addSelected(AbstractNode shape) {
+		if (!shape.isIsSelected()) {
+			shape.setIsSelected(true);
+			selectedNodes.add(shape);
+		}
+	}
+
+	public void deselectAll() {
+		for (AbstractNode selectedNode : selectedNodes) {
+			selectedNode.setIsSelected(false);
+		}
+		selectedNodes.clear();
+	}
+	private boolean isClickedIntoEmptySpace() {
+		//todo give this rething. I think that there was reason for this. Give explanation when you figure it out.
+		return getConnectingShape() != null && !isClickedInside(getConnectingShape());
+	}
 	public void add(Shape shape) {
 		canvas.getChildren().add(shape);
 	}
 
-	private void resetCursor() {
-		rootPane.setCursor(Cursor.DEFAULT);
-	}
 
 	public CanvasStatus getStatus() {
 		return status;
 	}
 
+	/**
+	 * 
+	 * @return Start node in current attempt to connect two nodes.
+	 */
 	public AbstractNode getConnectingShape() {
-		return connectingShape;
-	}
-
-	public void setConnectingShape(AbstractNode connectingShape) {
-		this.connectingShape = connectingShape;
+		if(connectingLine != null){
+			return connectingLine.getStart();
+		}
+		return null;
 	}
 
 	public void setConnectingLine(PolygonalChain line) {
@@ -256,13 +290,6 @@ public class CanvasController implements Initializable {
 	public Pane getCanvas() {
 		return canvas;
 	}
-
-	public void moveSelectedBy(double deltaX, double deltaY) {
-		for (AbstractNode shape : selectedNodes) {
-			shape.moveBy(deltaX, deltaY);
-		}
-	}
-
 	/**
 	 * do not add same element twice
 	 *
@@ -277,20 +304,6 @@ public class CanvasController implements Initializable {
 	}
 	public void removeFromAllNodes(AbstractNode node){
 		allNodes.remove(node);
-	}
-
-	public void addSelected(AbstractNode shape) {
-		if (!shape.isIsSelected()) {
-			shape.setIsSelected(true);
-			selectedNodes.add(shape);
-		}
-	}
-
-	public void deselectAll() {
-		for (AbstractNode selectedNode : selectedNodes) {
-			selectedNode.setIsSelected(false);
-		}
-		selectedNodes.clear();
 	}
 
 }

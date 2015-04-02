@@ -10,6 +10,11 @@
  */
 public class TODOs {
 	
-	//TODO connecting node can have multiple in or out edges  ... fix.
+	//TODO connecting node can have multiple in or out edges
+	//connecting node inside textNode can have inner edge
 	//You cna create multiple start formula -- you should not
+	//TODO unify using formulae, formulas, formula etc
+
+
+	//refractor 3 lines from connecting formula handler cration part
 }

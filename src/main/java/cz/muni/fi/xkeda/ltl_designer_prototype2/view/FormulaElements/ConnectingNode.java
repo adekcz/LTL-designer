@@ -47,12 +47,12 @@ public class ConnectingNode extends AbstractNode<Circle> {
 	}
 
 	@Override
-	public final double getX() {
+	public final double getRepresentativeX() {
 		return getShape().getCenterX();
 	}
 
 	@Override
-	public final double getY() {
+	public final double getRepresentativeY() {
 		return getShape().getCenterY();
 	}
 }

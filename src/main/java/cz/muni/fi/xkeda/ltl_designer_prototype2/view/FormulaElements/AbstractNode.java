@@ -33,7 +33,6 @@ public abstract class AbstractNode<E extends Shape> {
 				node.setOutEdge(line);
 				canvasController.getCanvas().getChildren().add(line.getShape());
 				canvasController.setConnectingLine(line);
-				canvasController.setConnectingShape(node);
 			}
 		}
 	}
@@ -42,10 +41,10 @@ public abstract class AbstractNode<E extends Shape> {
 		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
 			if (canvasController.getConnectingLine() != null && !canvasController.getConnectingShape().equals(node)) {
 				PolygonalChain inEdge = canvasController.getConnectingLine();
-				node.addToInEdges(inEdge);
-				inEdge.setEnd(node);
+				inEdge.getStart().connectTo(node);
+				canvasController.getCanvas().getChildren().remove(inEdge.getShape());
+				canvasController.add(inEdge.getStart().getOutEdge().getShape());
 				canvasController.setConnectingLine(null);
-				canvasController.setConnectingShape(null);
 				canvasController.setStatus(CanvasStatus.IDLE);
 			}
 		}
@@ -212,13 +211,13 @@ public abstract class AbstractNode<E extends Shape> {
 	 * @return returns X coordinate for this element. Should be somehow
 	 * reasonable (e.g. center for circle)
 	 */
-	public abstract double getX();
+	public abstract double getRepresentativeX();
 
 	/**
 	 * @return returns Y coordinate for this element. Should be somehow
 	 * reasonable (e.g. center for circle)
 	 */
-	public abstract double getY();
+	public abstract double getRepresentativeY();
 
 	public void connectTo(AbstractNode other){
 		PolygonalChain line = FormulaShapeFactory.createPolygonalChain(this, other);

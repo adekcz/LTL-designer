@@ -8,6 +8,8 @@ package cz.muni.fi.xkeda.ltl_designer_prototype2.view;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JavaFxHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JsonHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.menu.AboutDialogController;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -21,6 +23,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
 import javax.json.JsonObject;
 
 /**
@@ -36,13 +39,15 @@ public class MainWindowController implements Initializable {
 
 	private CanvasController canvasController;
 
+	private File lastDirectory;
+
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		try {
 			FXMLLoader loader = JavaFxHelper.getLoader(this.getClass(), "/fxml/Canvas.fxml");
 			Pane pane = (Pane) loader.load();
 			canvasController = (CanvasController) loader.getController();
-			
+
 			rootPane.setCenter(pane);
 		} catch (IOException ex) {
 			Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
@@ -63,23 +68,54 @@ public class MainWindowController implements Initializable {
 	}
 
 	@FXML
-	void handleOpenAction(ActionEvent event){
-		JsonHelper.loadJson("", canvasController);
-
+	void handleOpenAction(ActionEvent event) {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Open file");
+		fileChooser.setInitialDirectory(lastDirectory);
+		fileChooser.setInitialFileName("");
+		fileChooser.getExtensionFilters().addAll(
+			new FileChooser.ExtensionFilter("Project file", "*.json"),
+			new FileChooser.ExtensionFilter("Project file", "*.*")
+		);
+		File chosenFile = fileChooser.showOpenDialog(rootPane.getScene().getWindow());
+		try {
+			if (chosenFile != null) {
+				lastDirectory = chosenFile.getParentFile();
+				JsonHelper.loadJson(chosenFile, canvasController);
+			}
+		} catch (FileNotFoundException ex) { //should not normally happen since filechooser does not allow to select nonexisting object
+			Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
+			JavaFxHelper.showErrorDialog(ex);
+		}
 	}
+
 	@FXML
 	void handleSaveAsAction(ActionEvent event) {
-			JsonObject json = JsonHelper.elementsToJson(canvasController.getAllNodes()).build();
-			JsonHelper.saveJson(json, "C:\\tmp\\neco.json");
-		/*System.out.println("neco");
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Save current view");
-		File file = fileChooser.showSaveDialog(rootPane.getScene().getWindow());
-		if (file != null) {
-			System.out.println(file.getAbsoluteFile());
-			JsonObject json = JsonHelper.elementsToJson(canvasController.getAllNodes());
-			JsonHelper.saveJson(json, "C:\\tmp\\neco.json");
+
+		fileChooser.setInitialFileName("formulae.json");
+		fileChooser.setInitialDirectory(lastDirectory);
+		fileChooser.getExtensionFilters().addAll(
+			new FileChooser.ExtensionFilter("Project file", "*.json"),
+			new FileChooser.ExtensionFilter("Project file", "*.*")
+		);
+		File chosenFile = fileChooser.showSaveDialog(rootPane.getScene().getWindow());
+		// decide how to save file based on this:
+		//System.out.println(fileChooser.getSelectedExtensionFilter().getExtensions());
+		if (chosenFile != null) {
+			lastDirectory = chosenFile.getParentFile();
+			try {
+				System.out.println(chosenFile.getAbsoluteFile());
+				JsonObject json = JsonHelper.elementsToJson(canvasController.getAllNodes()).build();
+				JsonHelper.saveJson(json, chosenFile);
+			} catch (FileNotFoundException ex) {
+				Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
+				JavaFxHelper.showErrorDialog(ex);
+
+			}
 		}
-			*/
+
 	}
+
 }

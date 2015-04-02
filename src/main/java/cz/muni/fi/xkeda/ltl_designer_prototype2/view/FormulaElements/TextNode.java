@@ -50,8 +50,8 @@ public class TextNode extends AbstractNode<Rectangle> {
 		//todo this also into super class as static or somehow better method
 		//getShape().setOnMouseDragged((eventDragged) -> {
 		//if (eventDragged.isPrimaryButtonDown()) {
-		//double x1 = eventDragged.getX();
-		//double y1 = eventDragged.getY();
+		//double x1 = eventDragged.getRepresentativeX();
+		//double y1 = eventDragged.getRepresentativeY();
 		//moveTo(x1, y1);
 		//}
 //
@@ -67,13 +67,13 @@ public class TextNode extends AbstractNode<Rectangle> {
 	}
 
 	@Override
-	public double getX() {
-		return getShape().getX() + getShape().getWidth() / 2;
+	public double getRepresentativeX() {
+		return getShape().getX();
 	}
 
 	@Override
-	public double getY() {
-		return getShape().getY() + getShape().getHeight() / 2;
+	public double getRepresentativeY() {
+		return getShape().getY();
 	}
 
 	/**

@@ -19,7 +19,7 @@ public class PolygonalChain extends AbstractNode<Line>{
 		this(start, start);
 	}
 	protected PolygonalChain(AbstractNode start, AbstractNode end) {
-		setShape(new Line(start.getX(), start.getY(), end.getX(),end.getY()));
+		setShape(new Line(start.getRepresentativeX(), start.getRepresentativeY(), end.getRepresentativeX(),end.getRepresentativeY()));
 		this.start = start;
 		this.end = end;
 	}
@@ -42,12 +42,12 @@ public class PolygonalChain extends AbstractNode<Line>{
 
 
 	@Override
-	public double getX() {
+	public double getRepresentativeX() {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
 	@Override
-	public double getY() {
+	public double getRepresentativeY() {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
