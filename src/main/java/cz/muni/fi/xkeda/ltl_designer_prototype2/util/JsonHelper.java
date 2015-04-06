@@ -40,6 +40,7 @@ public class JsonHelper {
 	private static final String KEY_CONNECTING_POINTS = "ConnectingPoints";
 	private static final String KEY_FORMULA_NODES = "FormulaNodes";
 
+	private static final String KEY_TYPE = "type";
 	private static final String KEY_INDEX = "index";
 	private static final String KEY_TEXT = "text";
 	private static final String KEY_Y = "Y";
@@ -78,7 +79,8 @@ public class JsonHelper {
 			JsonNumber x = (JsonNumber) startPointJson.get(KEY_X);
 			JsonNumber y = (JsonNumber) startPointJson.get(KEY_Y);
 			JsonNumber index = (JsonNumber) startPointJson.get(KEY_INDEX);
-			ConnectingNode startPoint = new ConnectingNode(x.doubleValue(), y.doubleValue());
+			ConnectingNode.Type type = ConnectingNode.Type.valueOf(startPointJson.getJsonString(KEY_TYPE).getString());
+			ConnectingNode startPoint = new ConnectingNode(x.doubleValue(), y.doubleValue(), type);
 			nodes.put(index.intValue(), startPoint);
 		}
 		for (JsonValue jsonvalue : formulas) {
@@ -96,7 +98,9 @@ public class JsonHelper {
 				JsonNumber x2 = (JsonNumber) connectingPoint.get(KEY_X);
 				JsonNumber y2 = (JsonNumber) connectingPoint.get(KEY_Y);
 				JsonNumber index2 = (JsonNumber) connectingPoint.get(KEY_INDEX);
-				ConnectingNode startPoint = new ConnectingNode(x2.doubleValue(), y2.doubleValue());
+				//should always be startpoint
+				ConnectingNode.Type type = ConnectingNode.Type.valueOf(connectingPoint.getJsonString(KEY_TYPE).getString());
+				ConnectingNode startPoint = new ConnectingNode(x2.doubleValue(), y2.doubleValue(), type);
 				formulaNode.addStartPoint(startPoint);
 				nodes.put(index2.intValue(), startPoint);
 			}
@@ -212,7 +216,8 @@ public class JsonHelper {
 		JsonObjectBuilder jsonNode = Json.createObjectBuilder();
 		jsonNode.add(KEY_X, currNode.getRepresentativeX())
 			.add(KEY_Y, currNode.getRepresentativeY())
-			.add("index", currNode.getIndex());
+			.add(KEY_TYPE, currNode.getType().toString())
+			.add(KEY_INDEX, currNode.getIndex());
 		return jsonNode;
 	}
 

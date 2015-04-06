@@ -5,6 +5,7 @@
  */
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements;
 
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 
 /**
@@ -59,6 +60,11 @@ public class PolygonalChain extends AbstractNode<Line>{
 	public final void moveBy(double deltaX, double detlaY) {
 		//TODO create method for moving circles
 		moveLinesBy(deltaX, detlaY);
+	}
+
+	@Override
+	public void setDefaultFill() {
+		getShape().setFill(Color.BLACK);
 	}
 
 }

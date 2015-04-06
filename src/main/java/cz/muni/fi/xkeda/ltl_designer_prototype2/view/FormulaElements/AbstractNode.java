@@ -5,6 +5,7 @@
  */
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements;
 
+import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.Settings;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasStatus;
 import java.util.ArrayList;
@@ -70,9 +71,9 @@ public abstract class AbstractNode<E extends Shape> {
 
 	public void setIsSelected(boolean isSelected) {
 		if (isSelected) {
-			shape.setFill(Color.YELLOW);
+			shape.setFill(Color.web(Settings.get(Settings.SELECTED_COLOR)));
 		} else {
-			shape.setFill(Color.GREEN);
+			setDefaultFill();
 		}
 		this.isSelected = isSelected;
 	}
@@ -88,13 +89,10 @@ public abstract class AbstractNode<E extends Shape> {
 		inEdges = new ArrayList<>();
 		this.shape = shape;
 		this.controller = controller;
-
-		//TODO possible prone to be easily overwritten
-		shape.setFill(Color.GREEN);
-
 	}
 
 	public void setupHandlers() {
+		setDefaultFill();
 		shape.setOnMouseClicked((MouseEvent eventMouse) -> {
 			System.out.println("OnMouseClicked");
 			//TODO passing "this" to method in superclass really smells.
@@ -218,6 +216,8 @@ public abstract class AbstractNode<E extends Shape> {
 	 * reasonable (e.g. center for circle)
 	 */
 	public abstract double getRepresentativeY();
+
+	public abstract  void setDefaultFill();
 
 	public void connectTo(AbstractNode other){
 		PolygonalChain line = FormulaShapeFactory.createPolygonalChain(this, other);

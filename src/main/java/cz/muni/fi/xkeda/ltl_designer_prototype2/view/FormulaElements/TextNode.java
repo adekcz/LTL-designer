@@ -5,6 +5,7 @@
  */
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements;
 
+import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.Settings;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JavaFxHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
 import java.util.ArrayList;
@@ -189,6 +190,11 @@ public class TextNode extends AbstractNode<Rectangle> {
 			startPoints.add(startNode);
 			handOverEvents(startNode.getShape());
 		}
+	}
+
+	@Override
+	public void setDefaultFill() {
+		getShape().setFill(Color.web(Settings.get(Settings.FORMULA_COLOR)));
 	}
 
 }

@@ -5,7 +5,7 @@
  */
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view;
 
-import cz.muni.fi.xkeda.ltl_designer_prototype2.resources.ResourcesManager;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.util.ResourcesHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.AbstractNode;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.ConnectingNode;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.FormulaShapeFactory;
@@ -218,7 +218,7 @@ public class CanvasController implements Initializable {
 				break;
 			case CREATING_DOT:
 				System.out.println("WORKING");
-				rootPane.setCursor(Cursor.cursor(ResourcesManager.getResourceAsString("/images/Cursor3.png")));
+				rootPane.setCursor(Cursor.cursor(ResourcesHelper.getResourceAsString("/images/Cursor3.png")));
 				break;
 			case CREATING_TEXT:
 				rootPane.setCursor(Cursor.TEXT);

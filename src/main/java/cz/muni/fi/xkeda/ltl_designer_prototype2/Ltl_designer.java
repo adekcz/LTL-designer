@@ -5,6 +5,8 @@
  */
 package cz.muni.fi.xkeda.ltl_designer_prototype2;
 
+import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.Settings;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.util.ResourcesHelper;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -21,7 +23,6 @@ public class Ltl_designer extends Application {
 	private BorderPane rootLayout;
 
 	//start from helloWorld maven template
-
 // @Override
 //    public void start(Stage stage) throws Exception {
 //		Parent root = FXMLLoader.load(getClass().getResource("/fxml/Scene.fxml"));
@@ -35,11 +36,14 @@ public class Ltl_designer extends Application {
 //    }
 	@Override
 	public void start(Stage stage) throws Exception {
+		Settings.initSettings();
+		System.out.println("Working Directory = "
+			+ System.getProperty("user.dir"));
 		this.primaryStage = stage;
 		this.primaryStage.setTitle("LTL Designer");
 
 		FXMLLoader loader = new FXMLLoader();
-		loader.setLocation(Ltl_designer.class.getResource("/fxml/MainWindow.fxml"));
+		loader.setLocation(ResourcesHelper.getResource("/fxml/MainWindow.fxml"));
 		rootLayout = (BorderPane) loader.load();
 
 		Scene scene = new Scene(rootLayout);

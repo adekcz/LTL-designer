@@ -5,6 +5,7 @@
  */
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view;
 
+import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.Settings;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JavaFxHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JsonHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.menu.AboutDialogController;
@@ -20,6 +21,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -62,6 +64,17 @@ public class MainWindowController implements Initializable {
 //        ##     ## ##       ##  #### ##     ## 
 //        ##     ## ##       ##   ### ##     ## 
 //        ##     ## ######## ##    ##  #######  
+	@FXML
+	void handleSettingsAction(ActionEvent event) {
+		Alert settingsDialog = new Alert(Alert.AlertType.INFORMATION);
+		settingsDialog.setTitle("Settings");
+		settingsDialog.setContentText("Settings file can be found at: " + Settings.get(Settings.SETTINGS_PATH) + "\n" + 
+			"Edit it and restart LTL Designer\n\n\n" +
+			"(settings dialog v0.001)");
+		settingsDialog.showAndWait();
+
+	}
+
 	@FXML
 	void handleHelpAboutAction(ActionEvent event) {
 		AboutDialogController.createAboutDialog((Node) rootPane).show();
