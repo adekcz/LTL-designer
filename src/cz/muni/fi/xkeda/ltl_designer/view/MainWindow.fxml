@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="548.0" prefWidth="778.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.muni.fi.xkeda.ltl_designer.view.MainWindowController">
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu text="_File">
+            <items>
+                  <MenuItem text="_Open" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" text="New Project" />
+              <MenuItem mnemonicParsing="false" text="_New File" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" text="_Save" />
+                  <MenuItem mnemonicParsing="false" text="Save As" />
+                  <Menu mnemonicParsing="false" text="_Export">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="_Latex" />
+                      <MenuItem mnemonicParsing="false" text="_PlaintText" />
+                    </items>
+                  </Menu>
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" text="_Quit" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="_Edit">
+            <items>
+                  <SeparatorMenuItem mnemonicParsing="false" text="Logical operations" />
+                  <MenuItem mnemonicParsing="false" text="Negate Formula" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" text="Undo" />
+              <MenuItem mnemonicParsing="false" text="Redo" />
+                  <MenuItem mnemonicParsing="false" text="Copy" />
+                  <MenuItem mnemonicParsing="false" text="Paste" />
+            </items>
+          </Menu>
+            <Menu mnemonicParsing="false" text="_View">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Action 1" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Tools">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Action 1" />
+              </items>
+            </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+                  <MenuItem mnemonicParsing="false" text="LTL Designer Manual" />
+              <MenuItem mnemonicParsing="false" onAction="#handleHelpAboutAction" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+</BorderPane>
