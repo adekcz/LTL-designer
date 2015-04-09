@@ -16,5 +16,20 @@ public class TODOs {
 	//TODO unify using formulae, formulas, formula etc
 
 
+	//remember last Open file,  and stuff across sessions.
 	//refractor 3 lines from connecting formula handler cration part
+
+
+	//set apptitle according to currently named File/Project
+	//Either make main formulas undeleteble or add mechanism to resave them after accidental delete
+
+	//don't do whole jar search if settings folder is already created.
+
+
+	//cURRENT TODO  ListView for pernament formulaes, list view for cutom saved formulae
+
+
+	//TextNode.START_PLACEHOLDER to Settings
+	
+
 }

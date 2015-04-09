@@ -40,22 +40,43 @@ public class MainWindowController implements Initializable {
 	private Label label;
 
 	private CanvasController canvasController;
+	private FormulaListsController formulaListsController;
 
 	private File lastDirectory;
 
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
-		try {
-			FXMLLoader loader = JavaFxHelper.getLoader(this.getClass(), "/fxml/Canvas.fxml");
-			Pane pane = (Pane) loader.load();
-			canvasController = (CanvasController) loader.getController();
+		reloadCanvas();
 
-			rootPane.setCenter(pane);
+	}
+
+	private void reloadCanvas() {
+		try {
+			Pane canvas = loadCanvas();
+
+			Pane formulaLists = loadLists();
+
+			rootPane.setCenter(canvas);
+			rootPane.setLeft(formulaLists);
 		} catch (IOException ex) {
 			Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
 		}
-
 	}
+
+	private Pane loadLists() throws IOException {
+		FXMLLoader loaderLists = JavaFxHelper.getLoader(this.getClass(), "/fxml/FormulaLists.fxml");
+		Pane formulaLists = (Pane) loaderLists.load();
+		formulaListsController = (FormulaListsController) loaderLists.getController();
+		return formulaLists;
+	}
+
+	private Pane loadCanvas() throws IOException {
+		FXMLLoader loaderCanvas = JavaFxHelper.getLoader(this.getClass(), "/fxml/Canvas.fxml");
+		Pane canvas = (Pane) loaderCanvas.load();
+		canvasController = (CanvasController) loaderCanvas.getController();
+		return canvas;
+	}
+	
 
 //        ##     ## ######## ##    ## ##     ## 
 //        ###   ### ##       ###   ## ##     ## 
@@ -65,12 +86,17 @@ public class MainWindowController implements Initializable {
 //        ##     ## ##       ##   ### ##     ## 
 //        ##     ## ######## ##    ##  #######  
 	@FXML
+	void handleNewProjectAction(ActionEvent event) {
+		reloadCanvas();
+	}
+
+	@FXML
 	void handleSettingsAction(ActionEvent event) {
 		Alert settingsDialog = new Alert(Alert.AlertType.INFORMATION);
 		settingsDialog.setTitle("Settings");
-		settingsDialog.setContentText("Settings file can be found at: " + Settings.get(Settings.SETTINGS_PATH) + "\n" + 
-			"Edit it and restart LTL Designer\n\n\n" +
-			"(settings dialog v0.001)");
+		settingsDialog.setContentText("Settings file can be found at: " + Settings.SETTINGS_FILE_PATH + "\n"
+			+ "Edit it and restart LTL Designer\n\n\n"
+			+ "(settings dialog v0.001)");
 		settingsDialog.showAndWait();
 
 	}
@@ -82,6 +108,24 @@ public class MainWindowController implements Initializable {
 
 	@FXML
 	void handleOpenAction(ActionEvent event) {
+		FileChooser fileChooser = createOpenDialog();
+		File chosenFile = fileChooser.showOpenDialog(rootPane.getScene().getWindow());
+		loadJson(chosenFile);
+	}
+
+	private void loadJson(File chosenFile) {
+		if (chosenFile != null) {
+			lastDirectory = chosenFile.getParentFile();
+			try {
+				JsonHelper.loadJson(chosenFile, canvasController);
+			} catch (FileNotFoundException ex) { //should not normally happen since filechooser does not allow to select nonexisting object
+				Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
+				JavaFxHelper.showErrorDialog(ex);
+			}
+		}
+	}
+
+	private FileChooser createOpenDialog() {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Open file");
 		fileChooser.setInitialDirectory(lastDirectory);
@@ -90,32 +134,18 @@ public class MainWindowController implements Initializable {
 			new FileChooser.ExtensionFilter("Project file", "*.json"),
 			new FileChooser.ExtensionFilter("Project file", "*.*")
 		);
-		File chosenFile = fileChooser.showOpenDialog(rootPane.getScene().getWindow());
-		try {
-			if (chosenFile != null) {
-				lastDirectory = chosenFile.getParentFile();
-				JsonHelper.loadJson(chosenFile, canvasController);
-			}
-		} catch (FileNotFoundException ex) { //should not normally happen since filechooser does not allow to select nonexisting object
-			Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
-			JavaFxHelper.showErrorDialog(ex);
-		}
+		return fileChooser;
 	}
 
 	@FXML
 	void handleSaveAsAction(ActionEvent event) {
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Save current view");
-
-		fileChooser.setInitialFileName("formulae.json");
-		fileChooser.setInitialDirectory(lastDirectory);
-		fileChooser.getExtensionFilters().addAll(
-			new FileChooser.ExtensionFilter("Project file", "*.json"),
-			new FileChooser.ExtensionFilter("Project file", "*.*")
-		);
+		FileChooser fileChooser = createSaveDialog();
 		File chosenFile = fileChooser.showSaveDialog(rootPane.getScene().getWindow());
-		// decide how to save file based on this:
-		//System.out.println(fileChooser.getSelectedExtensionFilter().getExtensions());
+		saveJson(chosenFile);
+
+	}
+
+	private void saveJson(File chosenFile) {
 		if (chosenFile != null) {
 			lastDirectory = chosenFile.getParentFile();
 			try {
@@ -128,7 +158,17 @@ public class MainWindowController implements Initializable {
 
 			}
 		}
-
 	}
 
+	private FileChooser createSaveDialog() {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Save current view");
+		fileChooser.setInitialFileName("formulae.json");
+		fileChooser.setInitialDirectory(lastDirectory);
+		fileChooser.getExtensionFilters().addAll(
+			new FileChooser.ExtensionFilter("Project file", "*.json"),
+			new FileChooser.ExtensionFilter("Project file", "*.*")
+		);
+		return fileChooser;
+	}
 }

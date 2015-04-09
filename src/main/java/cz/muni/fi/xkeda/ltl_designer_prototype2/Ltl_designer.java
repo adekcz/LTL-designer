@@ -6,7 +6,9 @@
 package cz.muni.fi.xkeda.ltl_designer_prototype2;
 
 import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.Settings;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JavaFxHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.ResourcesHelper;
+import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -36,18 +38,25 @@ public class Ltl_designer extends Application {
 //    }
 	@Override
 	public void start(Stage stage) throws Exception {
+		ResourcesHelper.initAllFiles();
 		Settings.initSettings();
-		System.out.println("Working Directory = "
-			+ System.getProperty("user.dir"));
+		
+		loadLayoutFromFxml();
+		displayStage(stage);
+	}
+
+	private void loadLayoutFromFxml() throws IOException {
+		FXMLLoader loader = JavaFxHelper.getLoader(this.getClass(), "/fxml/MainWindow.fxml");
+		rootLayout = (BorderPane) loader.load();
+	}
+
+	private void displayStage(Stage stage) {
+
 		this.primaryStage = stage;
 		this.primaryStage.setTitle("LTL Designer");
 
-		FXMLLoader loader = new FXMLLoader();
-		loader.setLocation(ResourcesHelper.getResource("/fxml/MainWindow.fxml"));
-		rootLayout = (BorderPane) loader.load();
-
 		Scene scene = new Scene(rootLayout);
-
+		
 		stage.setScene(scene);
 		stage.show();
 	}

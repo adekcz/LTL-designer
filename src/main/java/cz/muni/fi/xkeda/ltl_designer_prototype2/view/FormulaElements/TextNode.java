@@ -104,19 +104,30 @@ public class TextNode extends AbstractNode<Rectangle> {
 	public void moveBy(double deltaX, double deltaY) {
 		System.out.println("DeltaX: " + deltaX + " " + "DeltaY: " + deltaY);
 		moveLinesBy(deltaX, deltaY);
-		if (getShape() != null) {
-			System.out.println("Shape X: " + getShape().getX() + " Y: " + getShape().getY());
-			getShape().setX(getShape().getX() + deltaX);
-			getShape().setY(getShape().getY() + deltaY);
+		moveShapeBy(deltaX, deltaY);
+		moveTextBy(deltaX, deltaY);
+		moveStartNodesBy(deltaX, deltaY);
+	}
+
+	private void moveStartNodesBy(double deltaX, double deltaY) {
+		for (ConnectingNode startNode : startPoints) {
+			startNode.moveBy(deltaX, deltaY);
 		}
+	}
+
+	private void moveTextBy(double deltaX, double deltaY) {
 		if (text != null) {
 			System.out.println("Text X: " + getShape().getX() + " Y: " + getShape().getY());
 			text.setX(deltaX + text.getX());
 			text.setY(deltaY + text.getY());
 		}
+	}
 
-		for (ConnectingNode startNode : startPoints) {
-			startNode.moveBy(deltaX, deltaY);
+	private void moveShapeBy(double deltaX, double deltaY) {
+		if (getShape() != null) {
+			System.out.println("Shape X: " + getShape().getX() + " Y: " + getShape().getY());
+			getShape().setX(getShape().getX() + deltaX);
+			getShape().setY(getShape().getY() + deltaY);
 		}
 	}
 
@@ -173,23 +184,35 @@ public class TextNode extends AbstractNode<Rectangle> {
 			Event.fireEvent(getShape(), event);
 		});
 	}
-// prvni XXX druhy XXX treti XXX ocasek
 
 	private void createStartingPoints(String textToAdd) {
 		String[] textFragments = textToAdd.split(START_PLACEHOLDER);
 		int count = JavaFxHelper.countSubstringOccurencies(textToAdd, START_PLACEHOLDER);
 
+		createInnerElements(count, textFragments);
+	}
+
+	private void createInnerElements(int count, String[] textFragments) {
 		String textUsedSoFar = "";
 		for (int i = 0; i < count; i++) {
 			textUsedSoFar += textFragments[i] + "   ";
-			Text textToComputeWidth = createNewText(textUsedSoFar);
-			textToComputeWidth.setFill(Color.SEASHELL);
-			double width = JavaFxHelper.getWidth(textToComputeWidth);
-			ConnectingNode startNode = FormulaShapeFactory.createInnerStartFormulaNode(getShape().getX() + width, getShape().getY() + 10, getController());
-			startNode.getShape().setFill(Color.PINK);
-			startPoints.add(startNode);
-			handOverEvents(startNode.getShape());
+			double width = createInnerText(textUsedSoFar);
+			createInnerFormula(width);
 		}
+	}
+
+	private void createInnerFormula(double width) {
+		ConnectingNode startNode = FormulaShapeFactory.createInnerStartFormulaNode(getShape().getX() + width, getShape().getY() + 10, getController());
+		startNode.getShape().setFill(Color.PINK);
+		startPoints.add(startNode);
+		handOverEvents(startNode.getShape());
+	}
+
+	private double createInnerText(String textUsedSoFar) {
+		Text textToComputeWidth = createNewText(textUsedSoFar);
+		textToComputeWidth.setFill(Color.SEASHELL);
+		double width = JavaFxHelper.getWidth(textToComputeWidth);
+		return width;
 	}
 
 	@Override

@@ -57,10 +57,9 @@ public class JsonHelper {
 		properties.put(JsonGenerator.PRETTY_PRINTING, true);
 
 		JsonWriterFactory createWriterFactory = Json.createWriterFactory(properties);
-		JsonWriter writer = createWriterFactory.createWriter(new FileOutputStream(file));
-
-		writer.writeObject(json);
-		writer.close();
+		try(JsonWriter writer = createWriterFactory.createWriter(new FileOutputStream(file))){
+			writer.writeObject(json);
+		}
 
 	}
 
@@ -189,10 +188,7 @@ public class JsonHelper {
 	//TODO refractor so thtat it returns jsonobject
 	private static void convertOutEdges(PolygonalChain outEdge, JsonArrayBuilder edges) throws IllegalStateException {
 		if (outEdge != null) {
-			edges.add(Json.createObjectBuilder()
-				.add(KEY_EDGE_START, outEdge.getStart().getIndex())
-				.add(KEY_EDGE_END, outEdge.getEnd().getIndex()));
-
+			edges.add(convertLine(outEdge));
 		}
 	}
 

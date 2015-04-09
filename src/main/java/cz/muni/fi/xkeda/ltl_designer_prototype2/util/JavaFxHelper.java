@@ -6,7 +6,6 @@
 package cz.muni.fi.xkeda.ltl_designer_prototype2.util;
 
 import com.google.common.base.Strings;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.regex.Matcher;
@@ -25,49 +24,47 @@ import javafx.scene.layout.Priority;
  * @author adekcz
  */
 public class JavaFxHelper {
+
 	/**
 	 * @param clazz that will be used access resource
 	 * @param path to *.fxml file
-	 * @return 
+	 * @return
 	 */
-	public static FXMLLoader getLoader(Class clazz, String path){
+	public static FXMLLoader getLoader(Class clazz, String path) {
 		FXMLLoader loader = new FXMLLoader();
 		loader.setLocation(clazz.getResource(path));
 		loader.setBuilderFactory(new JavaFXBuilderFactory());
 		return loader;
 	}
-	
-	
-	public static double getWidth(Node node){
+
+	public static double getWidth(Node node) {
 		return node.getLayoutBounds().getMaxX() - node.getLayoutBounds().getMinX();
 	}
-	public static int countSubstringOccurencies(String text, String pattern){
-		if(Strings.isNullOrEmpty(text) || Strings.isNullOrEmpty(pattern)){
+
+	public static int countSubstringOccurencies(String text, String pattern) {
+		if (Strings.isNullOrEmpty(text) || Strings.isNullOrEmpty(pattern)) {
 			return 0;
 		}
 		Pattern pat = Pattern.compile(pattern);
 		Matcher mat = pat.matcher(text);
 		int result = 0;
-		while(mat.find()){
+		while (mat.find()) {
 			result++;
 		}
 
 		return result;
 	}
 
-	public static GridPane createExpandableExceptionRegion(Exception ex) {
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-		ex.printStackTrace(pw);
-		String exceptionText = sw.toString();
+	private static GridPane createExpandableExceptionRegion(Exception ex) {
+		String exceptionText = getExceptionText(ex);
 		Label label = new Label("The exception stacktrace was:");
-		TextArea textArea = new TextArea(exceptionText);
-		textArea.setEditable(false);
-		textArea.setWrapText(true);
-		textArea.setMaxWidth(Double.MAX_VALUE);
-		textArea.setMaxHeight(Double.MAX_VALUE);
-		GridPane.setVgrow(textArea, Priority.ALWAYS);
-		GridPane.setHgrow(textArea, Priority.ALWAYS);
+		TextArea textArea = getTextAreaForExceptionRegion(exceptionText);
+		
+		GridPane expContent = createExceptionContentPane(label, textArea);
+		return expContent;
+	}
+
+	private static GridPane createExceptionContentPane(Label label, TextArea textArea) {
 		GridPane expContent = new GridPane();
 		expContent.setMaxWidth(Double.MAX_VALUE);
 		expContent.add(label, 0, 0);
@@ -75,15 +72,34 @@ public class JavaFxHelper {
 		return expContent;
 	}
 
-		public static void showErrorDialog(FileNotFoundException ex) {
+	private static TextArea getTextAreaForExceptionRegion(String exceptionText) {
+		TextArea textArea = new TextArea(exceptionText);
+		textArea.setEditable(false);
+		textArea.setWrapText(true);
+		textArea.setMaxWidth(Double.MAX_VALUE);
+		textArea.setMaxHeight(Double.MAX_VALUE);
+		GridPane.setVgrow(textArea, Priority.ALWAYS);
+		GridPane.setHgrow(textArea, Priority.ALWAYS);
+		return textArea;
+	}
+
+	private static String getExceptionText(Exception ex) {
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		ex.printStackTrace(pw);
+		String exceptionText = sw.toString();
+		return exceptionText;
+	}
+
+	public static void showErrorDialog(Exception ex) {
 		Alert errorDialog = new Alert(Alert.AlertType.ERROR);
 		errorDialog.setTitle("File was not saved.");
 		errorDialog.setContentText("File not found");
-		GridPane expContent = JavaFxHelper.createExpandableExceptionRegion(ex);
-		
+		GridPane expContent = createExpandableExceptionRegion(ex);
+
 // Set expandable Exception into the dialog pane.
 		errorDialog.getDialogPane().setExpandableContent(expContent);
-		
+
 		errorDialog.showAndWait();
 	}
 }

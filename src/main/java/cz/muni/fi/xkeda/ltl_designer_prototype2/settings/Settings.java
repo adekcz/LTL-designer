@@ -24,30 +24,29 @@ import java.util.logging.Logger;
 //todo move this to custom editable file
 public class Settings {
 
+	public static final String SETTINGS_FOLDER_PATH = System.getProperty("user.dir");
+	public static final String SETTINGS_FILE_PATH = SETTINGS_FOLDER_PATH + File.separator + "settings.properties";
+
 	//keys to map
 	public static final String FORMULA_COLOR = "FORMULA_COLOR";
 	public static final String START_POINT_COLOR = "START_POINT_COLOR";
 	public static final String GRAB_POINT_COLOR = "GRAB_POINT_COLOR";
 	public static final String SELECTED_COLOR = "SELECTED_COLOR";
-	public static final String SETTINGS_PATH = System.getProperty("user.dir") + File.separator + "settings.properties";
 
 	private static final Properties currentSettings = new Properties();
 
-	private static final String SETTINGS_PROPERTIES_PATH = "/various/defaultProperties.properties";
+	public static final String SETTINGS_RESOURCE_FOLDER_PATH = "various";
+	public static final String SETTINGS_RESOURCE_FILE_PATH = SETTINGS_RESOURCE_FOLDER_PATH + "/defaultProperties.properties";
 
 	/**
-	 * Creates file with defaults if it does not exists and reads it. Reads
-	 * existing file otherwise.
+	 * Reads settings from default location. If it does not exists, tries to
+	 * create it.
 	 */
 	public static void initSettings() {
-		File settingsFile = new File(SETTINGS_PATH);
+		File settingsFile = new File(SETTINGS_FILE_PATH);
 		Properties loaded = null;
 		if (settingsFile.exists()) {
-			try {
-				 loaded = loadSettings(new FileInputStream(settingsFile));
-			} catch (FileNotFoundException ex) {
-				Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
-			}
+			loaded = loadFromExistingFile(settingsFile);
 		} else {
 			loaded = loadDefaultSettings();
 			saveSettings(loaded);
@@ -56,8 +55,18 @@ public class Settings {
 
 	}
 
+	private static Properties loadFromExistingFile(File settingsFile) {
+		Properties loaded = null;
+		try {
+			loaded = loadSettings(new FileInputStream(settingsFile));
+		} catch (FileNotFoundException ex) {
+			Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
+		}
+		return loaded;
+	}
+
 	private static Properties loadDefaultSettings() {
-		InputStream input = ResourcesHelper.getResourceAsInputStream(SETTINGS_PROPERTIES_PATH);
+		InputStream input = ResourcesHelper.getResourceAsInputStream("/" + SETTINGS_RESOURCE_FILE_PATH);
 		Properties prop = loadSettings(input);
 		return prop;
 	}
@@ -69,7 +78,6 @@ public class Settings {
 			prop.load(input);
 		} catch (IOException ex) {
 			Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, "Could not load default settings", ex);
-			System.exit(-1);
 		}
 		return prop;
 	}
@@ -80,9 +88,7 @@ public class Settings {
 	}
 
 	private static void saveSettings(Properties prop) {
-		try {
-			OutputStream output = null;
-			output = new FileOutputStream(SETTINGS_PATH);
+		try (OutputStream output = new FileOutputStream(SETTINGS_FILE_PATH)) {
 			// save properties to project root folder
 			prop.store(output, "Contains all customizable settings in LTL Designer. Edit _Sensibly_.");
 		} catch (FileNotFoundException ex) {

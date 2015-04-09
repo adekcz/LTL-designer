@@ -28,37 +28,37 @@ public class AboutDialogController implements Initializable {
 
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
-	}	
-    private Stage dialogStage;
+	}
+	private Stage dialogStage;
 
-    /**
-     * Sets the stage of this dialog.
-     * 
-     * @param dialogStage
-     */
-    public void setDialogStage(Stage dialogStage) {
-        this.dialogStage = dialogStage;
-    }
+	/**
+	 * Sets the stage of this dialog.
+	 *
+	 * @param dialogStage
+	 */
+	public void setDialogStage(Stage dialogStage) {
+		this.dialogStage = dialogStage;
+	}
 
 	/**
 	 * Closes dialog
 	 */
 	@FXML
-	public void handleCloseAction(){
+	public void handleCloseAction() {
 		dialogStage.close();
 	}
 
-
 	/**
-	 * Returns <b> modal </b> Stage with about dialog. Just call stage.show()
+	 * Returns <b> modal </b> Stage with about dialog. Just call
+	 * stage.show()
+	 *
 	 * @param parent
-	 * @return 
+	 * @return
 	 */
 	public static Stage createAboutDialog(Node parent) {
-		  Stage stage = new Stage();
-    Parent root;
+		Stage stage = new Stage();
 		try {
-			root = FXMLLoader.load(AboutDialogController.class.getResource("AboutDialog.fxml"));
+			Parent root = FXMLLoader.load(AboutDialogController.class.getResource("AboutDialog.fxml"));
 			stage.setScene(new Scene(root));
 			stage.setTitle("About");
 			stage.initModality(Modality.WINDOW_MODAL);
@@ -67,8 +67,8 @@ public class AboutDialogController implements Initializable {
 		} catch (IOException ex) {
 			Logger.getLogger(AboutDialogController.class.getName()).log(Level.SEVERE, null, ex);
 		}
-	return stage;
+		return stage;
 
 	}
-	
+
 }

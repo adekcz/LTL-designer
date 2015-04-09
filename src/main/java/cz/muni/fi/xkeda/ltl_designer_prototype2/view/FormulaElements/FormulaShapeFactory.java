@@ -76,8 +76,6 @@ public class FormulaShapeFactory {
 
 	/**
 	 * Just Line, from one node to another. 
-	 * @param start
-	 * @return 
 	 */
 	public static PolygonalChain createPolygonalChain(AbstractNode start, AbstractNode end) {
 		PolygonalChain polygonalChain = new PolygonalChain(start, end);

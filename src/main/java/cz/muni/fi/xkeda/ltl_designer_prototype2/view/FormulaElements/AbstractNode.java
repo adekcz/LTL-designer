@@ -10,6 +10,7 @@ import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasStatus;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.input.MouseEvent;
@@ -93,13 +94,33 @@ public abstract class AbstractNode<E extends Shape> {
 
 	public void setupHandlers() {
 		setDefaultFill();
-		shape.setOnMouseClicked((MouseEvent eventMouse) -> {
-			System.out.println("OnMouseClicked");
-			//TODO passing "this" to method in superclass really smells.
-			handleClickForLineCreation(controller, this);
-			handleClickForLineConnection(controller, this);
-		});
-		shape.setOnMousePressed((MouseEvent mouseEvent) -> {
+		shape.setOnMouseClicked(clickOnShape());
+		shape.setOnMousePressed(pressOnShape());
+		shape.setOnMouseReleased(setHandCursorHandler());
+		shape.setOnMouseDragged(dragOnShape());
+		shape.setOnMouseEntered(setHandCursorHandler());
+
+	}
+
+	private EventHandler<MouseEvent> setHandCursorHandler() {
+		return (MouseEvent mouseEvent) -> {
+			shape.setCursor(Cursor.HAND);
+		};
+	}
+
+	private EventHandler<MouseEvent> dragOnShape() {
+		return (MouseEvent mouseEvent) -> {
+			System.out.println("handflajds");
+			
+			double deltaX = mouseEvent.getX() - lastPosition.getX();
+			double deltaY = mouseEvent.getY() - lastPosition.getY();
+			lastPosition = new Point2D(mouseEvent.getX(), mouseEvent.getY());
+			controller.moveSelectedBy(deltaX, deltaY);
+		};
+	}
+
+	private EventHandler<MouseEvent> pressOnShape() {
+		return (MouseEvent mouseEvent) -> {
 			if (mouseEvent.isControlDown()) {
 				controller.addSelected(this);
 			}
@@ -109,22 +130,16 @@ public abstract class AbstractNode<E extends Shape> {
 			double y = mouseEvent.getY();
 			lastPosition = new Point2D(x, y);
 			shape.setCursor(Cursor.MOVE);
-		});
-		shape.setOnMouseReleased((MouseEvent mouseEvent) -> {
-			shape.setCursor(Cursor.HAND);
-		});
-		shape.setOnMouseDragged((MouseEvent mouseEvent) -> {
-			System.out.println("handflajds");
+		};
+	}
 
-			double deltaX = mouseEvent.getX() - lastPosition.getX();
-			double deltaY = mouseEvent.getY() - lastPosition.getY();
-			lastPosition = new Point2D(mouseEvent.getX(), mouseEvent.getY());
-			controller.moveSelectedBy(deltaX, deltaY);
-		});
-		shape.setOnMouseEntered((MouseEvent mouseEvent) -> {
-			shape.setCursor(Cursor.HAND);
-		});
-
+	private EventHandler<MouseEvent> clickOnShape() {
+		return (MouseEvent eventMouse) -> {
+			System.out.println("OnMouseClicked");
+			//TODO passing "this" to method in superclass really smells.
+			handleClickForLineCreation(controller, this);
+			handleClickForLineConnection(controller, this);
+		};
 	}
 
 	public CanvasController getController() {
@@ -176,15 +191,11 @@ public abstract class AbstractNode<E extends Shape> {
 	}
 
 	protected void moveLinesBy(double deltaX, double deltaY) {
-		for (PolygonalChain myLine : inEdges) {
-			System.out.println("moving inEdges -- ends");
-			Line line = myLine.getShape();
-			//line.setLayoutX(deltaX);
-			//line.setLayoutY(deltaY);
-			line.setEndX(deltaX + line.getEndX());
-			line.setEndY(deltaY + line.getEndY());
-		}
+		moveInEdges(deltaX, deltaY);
+		moveOutEdge(deltaX, deltaY);
+	}
 
+	private void moveOutEdge(double deltaX, double deltaY) {
 		if (outEdge != null) {
 			System.out.println("moving outEdges -- starts");
 			Line line = outEdge.getShape();
@@ -192,6 +203,17 @@ public abstract class AbstractNode<E extends Shape> {
 			//line.setLayoutY(deltaY);
 			line.setStartX(deltaX + line.getStartX());
 			line.setStartY(deltaY + line.getStartY());
+		}
+	}
+
+	private void moveInEdges(double deltaX, double deltaY) {
+		for (PolygonalChain myLine : inEdges) {
+			System.out.println("moving inEdges -- ends");
+			Line line = myLine.getShape();
+			//line.setLayoutX(deltaX);
+			//line.setLayoutY(deltaY);
+			line.setEndX(deltaX + line.getEndX());
+			line.setEndY(deltaY + line.getEndY());
 		}
 	}
 

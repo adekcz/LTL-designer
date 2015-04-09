@@ -27,9 +27,6 @@ public class ConnectingNode extends AbstractNode<Circle> {
 	/**
 	 * Construtctor that only initializes values, not behaviour of
 	 * interactions with canvas
-	 *
-	 * @param x
-	 * @param y
 	 */
 	public ConnectingNode(double x, double y, Type type) {
 		this(x, y, null, type);

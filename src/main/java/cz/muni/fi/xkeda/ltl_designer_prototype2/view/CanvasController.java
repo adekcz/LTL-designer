@@ -17,11 +17,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -50,8 +52,6 @@ public class CanvasController implements Initializable {
 	private List<AbstractNode> selectedNodes;
 	private List<AbstractNode> allNodes;
 
-	private double x;
-	private double y;
 
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
@@ -88,8 +88,8 @@ public class CanvasController implements Initializable {
 
 	@FXML
 	void handleCanvasClick(MouseEvent event) {
-		x = event.getX();
-		y = event.getY();
+		double x = event.getX();
+		double y = event.getY();
 		switch (status) {
 			case IDLE:
 				if (event.getTarget().equals(canvas)) {
@@ -97,16 +97,8 @@ public class CanvasController implements Initializable {
 				}
 				break;
 			case CONNECTING_FORMULAE:
-				if (isClickedIntoEmptySpace()) {
-					ConnectingNode grabPoiont = FormulaShapeFactory.createLineGrabPoint(x, y, this);
-					PolygonalChain inLine = getConnectingLine();
-					inLine.setEnd(grabPoiont);
-					grabPoiont.addToInEdges(inLine);
-
-					PolygonalChain outLine = FormulaShapeFactory.createPolygonalChain(grabPoiont);
-					grabPoiont.setOutEdge(outLine);
-					getCanvas().getChildren().add(outLine.getShape());
-					setConnectingLine(outLine);
+				if (isClickedIntoEmptySpace(x, y)) {
+					addGrabPoint(x, y);
 				}
 				break;
 			case CREATING_NEW_ELEMENT:
@@ -118,25 +110,43 @@ public class CanvasController implements Initializable {
 				setStatus(CanvasStatus.IDLE);
 				break;
 			case CREATING_TEXT:
-				TextNode formulaNode = FormulaShapeFactory.createFormulaNode(x, y, this);
-				hbFormula.setVisible(true);
-				txtFormulae.setStyle("-fx-background-color: LavenderBlush;");
-				txtFormulae.requestFocus();
-				txtFormulae.setOnKeyPressed((eventPressed) -> {
-					if (eventPressed.getCode() == KeyCode.ENTER) {
-
-						formulaNode.changeText(txtFormulae.getText());
-						txtFormulae.setText("");
-						hbFormula.setVisible(false);
-						setStatus(CanvasStatus.IDLE);
-					}
-
-				});
+				addTextNode(x, y);
 				break;
 			default:
 				throw new AssertionError(status.name());
-
 		}
+	}
+
+	private void addTextNode(double x, double y) {
+		TextNode formulaNode = FormulaShapeFactory.createFormulaNode(x, y, this);
+		hbFormula.setVisible(true);
+		txtFormulae.setStyle("-fx-background-color: LavenderBlush;");
+		txtFormulae.requestFocus();
+		txtFormulae.setOnKeyPressed(formulaEnterPressed(formulaNode));
+	}
+
+	private EventHandler<? super KeyEvent> formulaEnterPressed(TextNode formulaNode) {
+		return (eventPressed) -> {
+			if (eventPressed.getCode() == KeyCode.ENTER) {
+				formulaNode.changeText(txtFormulae.getText());
+				txtFormulae.setText("");
+				hbFormula.setVisible(false);
+				setStatus(CanvasStatus.IDLE);
+			}
+			
+		};
+	}
+
+	private void addGrabPoint(double x, double y) {
+		ConnectingNode grabPoiont = FormulaShapeFactory.createLineGrabPoint(x, y, this);
+		PolygonalChain inLine = getConnectingLine();
+		inLine.setEnd(grabPoiont);
+		grabPoiont.addToInEdges(inLine);
+		
+		PolygonalChain outLine = FormulaShapeFactory.createPolygonalChain(grabPoiont);
+		grabPoiont.setOutEdge(outLine);
+		getCanvas().getChildren().add(outLine.getShape());
+		setConnectingLine(outLine);
 	}
 
 
@@ -199,7 +209,7 @@ public class CanvasController implements Initializable {
 //       ##     ##  ##  ##    ## ##    ## 
 //       ##     ## ####  ######   ###### 
 
-	private boolean isClickedInside(AbstractNode node) {
+	private boolean isClickedInside(double x, double y, AbstractNode node) {
 		return node.getShape().intersects(x, y, 2, 2);
 	}
 
@@ -225,7 +235,6 @@ public class CanvasController implements Initializable {
 				break;
 			default:
 				throw new AssertionError(status.name());
-
 		}
 
 	}
@@ -255,9 +264,9 @@ public class CanvasController implements Initializable {
 		}
 		selectedNodes.clear();
 	}
-	private boolean isClickedIntoEmptySpace() {
+	private boolean isClickedIntoEmptySpace(double x, double y) {
 		//todo give this rething. I think that there was reason for this. Give explanation when you figure it out.
-		return getConnectingShape() != null && !isClickedInside(getConnectingShape());
+		return getConnectingShape() != null && !isClickedInside(x, y, getConnectingShape());
 	}
 	public void add(Shape shape) {
 		canvas.getChildren().add(shape);
