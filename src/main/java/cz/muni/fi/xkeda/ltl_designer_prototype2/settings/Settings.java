@@ -24,8 +24,6 @@ import java.util.logging.Logger;
 //todo move this to custom editable file
 public class Settings {
 
-	public static final String SETTINGS_FOLDER_PATH = System.getProperty("user.dir");
-	public static final String SETTINGS_FILE_PATH = SETTINGS_FOLDER_PATH + File.separator + "settings.properties";
 
 	//keys to map
 	public static final String FORMULA_COLOR = "FORMULA_COLOR";
@@ -35,8 +33,12 @@ public class Settings {
 
 	private static final Properties currentSettings = new Properties();
 
-	public static final String SETTINGS_RESOURCE_FOLDER_PATH = "various";
+
+	public static final String SETTINGS_RESOURCE_FOLDER_PATH = "saved";
 	public static final String SETTINGS_RESOURCE_FILE_PATH = SETTINGS_RESOURCE_FOLDER_PATH + "/defaultProperties.properties";
+
+	public static final String SETTINGS_FOLDER_PATH = System.getProperty("user.dir");
+	public static final String SETTINGS_FILE_PATH = SETTINGS_FOLDER_PATH + File.separator + SETTINGS_RESOURCE_FOLDER_PATH + File.separator + "defaultProperties.properties";
 
 	/**
 	 * Reads settings from default location. If it does not exists, tries to

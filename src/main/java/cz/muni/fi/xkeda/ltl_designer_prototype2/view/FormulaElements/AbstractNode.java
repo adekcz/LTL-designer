@@ -70,7 +70,7 @@ public abstract class AbstractNode<E extends Shape> {
 		return isSelected;
 	}
 
-	public void setIsSelected(boolean isSelected) {
+	public void setSelected(boolean isSelected) {
 		if (isSelected) {
 			shape.setFill(Color.web(Settings.get(Settings.SELECTED_COLOR)));
 		} else {
@@ -93,10 +93,11 @@ public abstract class AbstractNode<E extends Shape> {
 	}
 
 	public void setupHandlers() {
+		System.out.println("default handlers");
 		setDefaultFill();
 		shape.setOnMouseClicked(clickOnShape());
 		shape.setOnMousePressed(pressOnShape());
-		shape.setOnMouseReleased(setHandCursorHandler());
+		shape.setOnMouseReleased(releasedOnShape());
 		shape.setOnMouseDragged(dragOnShape());
 		shape.setOnMouseEntered(setHandCursorHandler());
 
@@ -105,26 +106,37 @@ public abstract class AbstractNode<E extends Shape> {
 	private EventHandler<MouseEvent> setHandCursorHandler() {
 		return (MouseEvent mouseEvent) -> {
 			shape.setCursor(Cursor.HAND);
+
+		};
+	}
+
+	private EventHandler<MouseEvent> releasedOnShape() {
+		return (MouseEvent mouseEvent) -> {
+			System.out.println("RELEASED");
+			shape.setCursor(Cursor.HAND);
+			if (!controller.containsSelected(this)) {
+				setSelected(false);
+			}
 		};
 	}
 
 	private EventHandler<MouseEvent> dragOnShape() {
 		return (MouseEvent mouseEvent) -> {
-			System.out.println("handflajds");
-			
 			double deltaX = mouseEvent.getX() - lastPosition.getX();
 			double deltaY = mouseEvent.getY() - lastPosition.getY();
 			lastPosition = new Point2D(mouseEvent.getX(), mouseEvent.getY());
-			controller.moveSelectedBy(deltaX, deltaY);
+
+			controller.moveSelectedBy(deltaX, deltaY, this);
 		};
 	}
 
 	private EventHandler<MouseEvent> pressOnShape() {
 		return (MouseEvent mouseEvent) -> {
+			System.out.println("PRESSED");
+			setSelected(true);
 			if (mouseEvent.isControlDown()) {
 				controller.addSelected(this);
 			}
-			System.out.println("Potential drag Started");
 			// record a delta distance for the drag and drop operation.
 			double x = mouseEvent.getX();
 			double y = mouseEvent.getY();
@@ -149,11 +161,13 @@ public abstract class AbstractNode<E extends Shape> {
 	public void setController(CanvasController controller) {
 		this.controller = controller;
 	}
+
 	public void setupGUIinteractions() {
 		setupHandlers();
 		getController().addToAll(this);
 		getController().add(this.getShape());
 	}
+
 	/**
 	 *
 	 * @return
@@ -197,7 +211,6 @@ public abstract class AbstractNode<E extends Shape> {
 
 	private void moveOutEdge(double deltaX, double deltaY) {
 		if (outEdge != null) {
-			System.out.println("moving outEdges -- starts");
 			Line line = outEdge.getShape();
 			//line.setLayoutX(deltaX);
 			//line.setLayoutY(deltaY);
@@ -208,7 +221,6 @@ public abstract class AbstractNode<E extends Shape> {
 
 	private void moveInEdges(double deltaX, double deltaY) {
 		for (PolygonalChain myLine : inEdges) {
-			System.out.println("moving inEdges -- ends");
 			Line line = myLine.getShape();
 			//line.setLayoutX(deltaX);
 			//line.setLayoutY(deltaY);
@@ -239,9 +251,9 @@ public abstract class AbstractNode<E extends Shape> {
 	 */
 	public abstract double getRepresentativeY();
 
-	public abstract  void setDefaultFill();
+	public abstract void setDefaultFill();
 
-	public void connectTo(AbstractNode other){
+	public void connectTo(AbstractNode other) {
 		PolygonalChain line = FormulaShapeFactory.createPolygonalChain(this, other);
 		setOutEdge(line);
 		other.addToInEdges(line);
@@ -253,7 +265,8 @@ public abstract class AbstractNode<E extends Shape> {
 	public void setOutEdge(PolygonalChain line) {
 		this.outEdge = line;
 	}
-	public PolygonalChain getOutEdge(){
+
+	public PolygonalChain getOutEdge() {
 		return outEdge;
 	}
 

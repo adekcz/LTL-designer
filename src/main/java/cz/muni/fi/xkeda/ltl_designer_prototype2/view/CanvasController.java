@@ -11,6 +11,7 @@ import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.ConnectingN
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.FormulaShapeFactory;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.PolygonalChain;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.TextNode;
+import java.math.BigInteger;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,14 +21,22 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.control.TextField;
+import javafx.scene.input.DragEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
 /**
@@ -52,7 +61,6 @@ public class CanvasController implements Initializable {
 	private List<AbstractNode> selectedNodes;
 	private List<AbstractNode> allNodes;
 
-
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		// allow the label to be dragged around.
@@ -68,6 +76,50 @@ public class CanvasController implements Initializable {
 			}
 		});
 
+
+		canvas.setBackground(new Background(new BackgroundFill(Color.GREY, CornerRadii.EMPTY, Insets.EMPTY)));
+
+		canvas.setScaleX(0.5);
+		canvas.setScaleY(0.5);
+
+		canvas.setOnDragOver(new EventHandler<DragEvent>() {
+			public void handle(DragEvent event) {
+				System.out.println("Handling dragOver");
+				/* data is dragged over the target */
+				/* accept it only if it is not dragged from the same node 
+				 * and if it has a string data */
+				if (event.getGestureSource() != canvas
+					&& event.getDragboard().hasString()) {
+					/* allow for both copying and moving, whatever user chooses */
+					event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+				}
+				//double x = event.getX();
+				//double y = event.getY();
+//
+				//Rectangle rectangle = new Rectangle(x, y, 10, 20);
+				//rectangle.setFill(Color.web(event.getDragboard().getString()));
+				//add(rectangle);
+
+				event.consume();
+			}
+		});
+		canvas.setOnDragDropped(new EventHandler<DragEvent>() {
+			public void handle(DragEvent event) {
+				System.out.println("Handling DROPPED");
+				/* data is dragged over the target */
+				/* accept it only if it is not dragged from the same node 
+				 * and if it has a string data */
+				double x = event.getX();
+				double y = event.getY();
+
+				Rectangle rectangle = new Rectangle(x, y, 10, 20);
+				BigInteger p = (BigInteger) event.getDragboard().getContent(Zxxxxxxxxx.dataformat);
+				rectangle.setFill(Color.web(event.getDragboard().getString()));
+				add(rectangle);
+				event.setDropCompleted(true);
+				event.consume();
+			}
+		});
 	}
 //             ######## ##     ## ######## ##    ## ######## 
 //             ##       ##     ## ##       ###   ##    ##    
@@ -133,7 +185,7 @@ public class CanvasController implements Initializable {
 				hbFormula.setVisible(false);
 				setStatus(CanvasStatus.IDLE);
 			}
-			
+
 		};
 	}
 
@@ -142,14 +194,12 @@ public class CanvasController implements Initializable {
 		PolygonalChain inLine = getConnectingLine();
 		inLine.setEnd(grabPoiont);
 		grabPoiont.addToInEdges(inLine);
-		
+
 		PolygonalChain outLine = FormulaShapeFactory.createPolygonalChain(grabPoiont);
 		grabPoiont.setOutEdge(outLine);
 		getCanvas().getChildren().add(outLine.getShape());
 		setConnectingLine(outLine);
 	}
-
-
 
 	@FXML
 	void handleTextAction(ActionEvent event) {
@@ -208,7 +258,6 @@ public class CanvasController implements Initializable {
 //       ##     ##  ##        ## ##       
 //       ##     ##  ##  ##    ## ##    ## 
 //       ##     ## ####  ######   ###### 
-
 	private boolean isClickedInside(double x, double y, AbstractNode node) {
 		return node.getShape().intersects(x, y, 2, 2);
 	}
@@ -227,7 +276,6 @@ public class CanvasController implements Initializable {
 				rootPane.setCursor(Cursor.HAND);
 				break;
 			case CREATING_DOT:
-				System.out.println("WORKING");
 				rootPane.setCursor(Cursor.cursor(ResourcesHelper.getResourceAsString("/images/Cursor3.png")));
 				break;
 			case CREATING_TEXT:
@@ -249,40 +297,54 @@ public class CanvasController implements Initializable {
 		}
 	}
 
-	//todo write in ascii: ACCESSORS
-
-	public void addSelected(AbstractNode shape) {
-		if (!shape.isIsSelected()) {
-			shape.setIsSelected(true);
-			selectedNodes.add(shape);
+	public void moveSelectedBy(double deltaX, double deltaY, AbstractNode current) {
+		if (!selectedNodes.contains(current)) {
+			current.moveBy(deltaX, deltaY);
 		}
+		moveSelectedBy(deltaX, deltaY);
+	}
+
+   //###     ######   ######  ########  ######   ######   #######  ########   ######  
+	//## ##   ##    ## ##    ## ##       ##    ## ##    ## ##     ## ##     ## ##    ## 
+	//##   ##  ##       ##       ##       ##       ##       ##     ## ##     ## ##       
+//##     ## ##       ##       ######    ######   ######  ##     ## ########   ######  
+//######### ##       ##       ##             ##       ## ##     ## ##   ##         ## 
+//##     ## ##    ## ##    ## ##       ##    ## ##    ## ##     ## ##    ##  ##    ## 
+//##     ##  ######   ######  ########  ######   ######   #######  ##     ##  ######  
+	public void addSelected(AbstractNode shape) {
+		selectedNodes.add(shape);
+	}
+
+	public boolean containsSelected(AbstractNode shape) {
+		return selectedNodes.contains(shape);
 	}
 
 	public void deselectAll() {
 		for (AbstractNode selectedNode : selectedNodes) {
-			selectedNode.setIsSelected(false);
+			selectedNode.setSelected(false);
 		}
 		selectedNodes.clear();
 	}
+
 	private boolean isClickedIntoEmptySpace(double x, double y) {
 		//todo give this rething. I think that there was reason for this. Give explanation when you figure it out.
 		return getConnectingShape() != null && !isClickedInside(x, y, getConnectingShape());
 	}
+
 	public void add(Shape shape) {
 		canvas.getChildren().add(shape);
 	}
-
 
 	public CanvasStatus getStatus() {
 		return status;
 	}
 
 	/**
-	 * 
+	 *
 	 * @return Start node in current attempt to connect two nodes.
 	 */
 	public AbstractNode getConnectingShape() {
-		if(connectingLine != null){
+		if (connectingLine != null) {
 			return connectingLine.getStart();
 		}
 		return null;
@@ -299,6 +361,7 @@ public class CanvasController implements Initializable {
 	public Pane getCanvas() {
 		return canvas;
 	}
+
 	/**
 	 * do not add same element twice
 	 *
@@ -311,7 +374,8 @@ public class CanvasController implements Initializable {
 	public List<AbstractNode> getAllNodes() {
 		return Collections.unmodifiableList(allNodes);
 	}
-	public void removeFromAllNodes(AbstractNode node){
+
+	public void removeFromAllNodes(AbstractNode node) {
 		allNodes.remove(node);
 	}
 

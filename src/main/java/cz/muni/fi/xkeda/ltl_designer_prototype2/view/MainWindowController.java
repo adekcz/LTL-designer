@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -89,7 +90,10 @@ public class MainWindowController implements Initializable {
 	void handleNewProjectAction(ActionEvent event) {
 		reloadCanvas();
 	}
-
+	@FXML
+	void handleQuitAction(ActionEvent event) {
+		Platform.exit();
+	}
 	@FXML
 	void handleSettingsAction(ActionEvent event) {
 		Alert settingsDialog = new Alert(Alert.AlertType.INFORMATION);
@@ -149,7 +153,6 @@ public class MainWindowController implements Initializable {
 		if (chosenFile != null) {
 			lastDirectory = chosenFile.getParentFile();
 			try {
-				System.out.println(chosenFile.getAbsoluteFile());
 				JsonObject json = JsonHelper.elementsToJson(canvasController.getAllNodes()).build();
 				JsonHelper.saveJson(json, chosenFile);
 			} catch (FileNotFoundException ex) {

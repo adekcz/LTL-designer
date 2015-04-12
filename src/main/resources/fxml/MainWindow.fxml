@@ -15,34 +15,35 @@
                   <MenuItem onAction="#handleOpenAction" text="_Open" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" onAction="#handleNewProjectAction" text="New Project" />
-              <MenuItem mnemonicParsing="false" text="_New File" />
+              <MenuItem mnemonicParsing="false" text="_New File - Not Implemented Yet" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="_Save" />
+                  <MenuItem mnemonicParsing="false" text="_Save - Not Implemented Yet" />
                   <MenuItem mnemonicParsing="false" onAction="#handleSaveAsAction" text="Save As" />
-                  <Menu mnemonicParsing="false" text="_Export">
+                  <Menu mnemonicParsing="false" text="_Export - Not Implemented Yet">
                     <items>
                         <MenuItem mnemonicParsing="false" text="_Latex" />
                       <MenuItem mnemonicParsing="false" text="_PlaintText" />
                     </items>
                   </Menu>
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="_Quit" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleQuitAction" text="_Quit" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="_Edit">
             <items>
                   <SeparatorMenuItem mnemonicParsing="false" text="Logical operations" />
-                  <MenuItem mnemonicParsing="false" text="Negate Formula" />
+                  <MenuItem mnemonicParsing="false" text="Negate Selected Formula - Not Implemented Yet" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="Undo" />
-              <MenuItem mnemonicParsing="false" text="Redo" />
-                  <MenuItem mnemonicParsing="false" text="Copy" />
-                  <MenuItem mnemonicParsing="false" text="Paste" />
+                  <MenuItem mnemonicParsing="false" text="Undo - Not Implemented Yet" />
+              <MenuItem mnemonicParsing="false" text="Redo - Not Implemented Yet" />
+                  <MenuItem mnemonicParsing="false" text="Copy - Not Implemented Yet" />
+                  <MenuItem mnemonicParsing="false" text="Paste - Not Implemented Yet" />
             </items>
           </Menu>
             <Menu mnemonicParsing="false" text="_View">
               <items>
-                <MenuItem mnemonicParsing="false" text="Action 1" />
+                <MenuItem mnemonicParsing="false" text="Zoom In - Not Implemented Yet" />
+                  <MenuItem mnemonicParsing="false" text="Zoom Out - - Not Implemented Yet" />
               </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Tools">

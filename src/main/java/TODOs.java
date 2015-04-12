@@ -30,6 +30,10 @@ public class TODOs {
 
 
 	//TextNode.START_PLACEHOLDER to Settings
+	//rewrite this todos to papers
+
+
+	//formula saved to "Saved" must be Valid
 	
 
 }

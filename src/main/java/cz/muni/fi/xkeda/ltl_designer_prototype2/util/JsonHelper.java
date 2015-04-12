@@ -119,7 +119,6 @@ public class JsonHelper {
 				controller.add(aNode.getOutEdge().getShape());
 			}
 		}
-		System.out.println("");
 	}
 
 	private static void indexElements(List<AbstractNode> nodes) {

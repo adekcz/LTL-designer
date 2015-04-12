@@ -102,7 +102,6 @@ public class TextNode extends AbstractNode<Rectangle> {
 
 	@Override
 	public void moveBy(double deltaX, double deltaY) {
-		System.out.println("DeltaX: " + deltaX + " " + "DeltaY: " + deltaY);
 		moveLinesBy(deltaX, deltaY);
 		moveShapeBy(deltaX, deltaY);
 		moveTextBy(deltaX, deltaY);
@@ -117,7 +116,6 @@ public class TextNode extends AbstractNode<Rectangle> {
 
 	private void moveTextBy(double deltaX, double deltaY) {
 		if (text != null) {
-			System.out.println("Text X: " + getShape().getX() + " Y: " + getShape().getY());
 			text.setX(deltaX + text.getX());
 			text.setY(deltaY + text.getY());
 		}
@@ -125,7 +123,6 @@ public class TextNode extends AbstractNode<Rectangle> {
 
 	private void moveShapeBy(double deltaX, double deltaY) {
 		if (getShape() != null) {
-			System.out.println("Shape X: " + getShape().getX() + " Y: " + getShape().getY());
 			getShape().setX(getShape().getX() + deltaX);
 			getShape().setY(getShape().getY() + deltaY);
 		}
@@ -181,6 +178,9 @@ public class TextNode extends AbstractNode<Rectangle> {
 			});
 		}
 		node.setOnMouseDragged((event) -> {
+			Event.fireEvent(getShape(), event);
+		});
+		node.setOnMouseReleased((event) -> {
 			Event.fireEvent(getShape(), event);
 		});
 	}
