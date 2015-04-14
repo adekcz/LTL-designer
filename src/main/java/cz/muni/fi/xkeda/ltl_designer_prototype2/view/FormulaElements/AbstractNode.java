@@ -8,8 +8,6 @@ package cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.Settings;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasStatus;
-import java.util.ArrayList;
-import java.util.List;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
@@ -19,7 +17,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 
 /**
- * class that should be used as parent for all graphical formulae subclasses.
+ * class that should be used as parent for all graphical formulas subclasses.
  * provides basic operations and sets "interface" for other classes.
  *
  * @author adekcz
@@ -29,23 +27,21 @@ import javafx.scene.shape.Shape;
 public abstract class AbstractNode<E extends Shape> {
 
 	protected static void handleClickForLineCreation(CanvasController canvasController, AbstractNode node) {
-		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
+		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAS) {
 			if (canvasController.getConnectingLine() == null) {
-				PolygonalChain line = FormulaShapeFactory.createPolygonalChain(node);
-				node.setOutEdge(line);
-				canvasController.getCanvas().getChildren().add(line.getShape());
-				canvasController.setConnectingLine(line);
+				canvasController.addConnectingLine(node);
+				
 			}
 		}
 	}
 
 	protected static void handleClickForLineConnection(CanvasController canvasController, AbstractNode node) {
-		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAE) {
+		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAS) {
 			if (canvasController.getConnectingLine() != null && !canvasController.getConnectingShape().equals(node)) {
-				PolygonalChain inEdge = canvasController.getConnectingLine();
-				inEdge.getStart().connectTo(node);
-				canvasController.getCanvas().getChildren().remove(inEdge.getShape());
-				canvasController.add(inEdge.getStart().getOutEdge().getShape());
+				AbstractNode start = canvasController.getConnectingLine().getStart();
+				start.connectTo(node);
+				canvasController.removeCompletely(canvasController.getConnectingLine());
+
 				canvasController.setConnectingLine(null);
 				canvasController.setStatus(CanvasStatus.IDLE);
 			}
@@ -53,7 +49,7 @@ public abstract class AbstractNode<E extends Shape> {
 	}
 
 	private PolygonalChain outEdge;
-	private List<PolygonalChain> inEdges;
+	private PolygonalChain inEdge;
 	private CanvasController controller;
 	private boolean isSelected = false;
 	private int index = 0;
@@ -82,12 +78,7 @@ public abstract class AbstractNode<E extends Shape> {
 	private E shape;
 	protected Point2D lastPosition;
 
-	public AbstractNode() {
-		inEdges = new ArrayList<>();
-	}
-
 	protected AbstractNode(E shape, CanvasController controller) {
-		inEdges = new ArrayList<>();
 		this.shape = shape;
 		this.controller = controller;
 	}
@@ -191,8 +182,8 @@ public abstract class AbstractNode<E extends Shape> {
 	 * @param y where to move
 	 */
 	protected void moveLinesTo(double x, double y) {
-		for (PolygonalChain myLine : inEdges) {
-			Line line = myLine.getShape();
+		if (inEdge != null) {
+			Line line = inEdge.getShape();
 			line.setEndX(x);
 			line.setEndY(y);
 		}
@@ -205,25 +196,21 @@ public abstract class AbstractNode<E extends Shape> {
 	}
 
 	protected void moveLinesBy(double deltaX, double deltaY) {
-		moveInEdges(deltaX, deltaY);
+		moveInEdge(deltaX, deltaY);
 		moveOutEdge(deltaX, deltaY);
 	}
 
 	private void moveOutEdge(double deltaX, double deltaY) {
 		if (outEdge != null) {
 			Line line = outEdge.getShape();
-			//line.setLayoutX(deltaX);
-			//line.setLayoutY(deltaY);
 			line.setStartX(deltaX + line.getStartX());
 			line.setStartY(deltaY + line.getStartY());
 		}
 	}
 
-	private void moveInEdges(double deltaX, double deltaY) {
-		for (PolygonalChain myLine : inEdges) {
-			Line line = myLine.getShape();
-			//line.setLayoutX(deltaX);
-			//line.setLayoutY(deltaY);
+	private void moveInEdge(double deltaX, double deltaY) {
+		if (inEdge != null) {
+			Line line = inEdge.getShape();
 			line.setEndX(deltaX + line.getEndX());
 			line.setEndY(deltaY + line.getEndY());
 		}
@@ -253,10 +240,12 @@ public abstract class AbstractNode<E extends Shape> {
 
 	public abstract void setDefaultFill();
 
-	public void connectTo(AbstractNode other) {
+	
+
+	public PolygonalChain connectTo(AbstractNode other) {
 		PolygonalChain line = FormulaShapeFactory.createPolygonalChain(this, other);
-		setOutEdge(line);
-		other.addToInEdges(line);
+		getController().add(line.getShape());
+		return line;
 	}
 
 	/**
@@ -269,17 +258,27 @@ public abstract class AbstractNode<E extends Shape> {
 	public PolygonalChain getOutEdge() {
 		return outEdge;
 	}
+	public PolygonalChain getInEdge() {
+		return inEdge;
+	}
 
-	/**
-	 * @param line Adds line to outgoing edges. If line is null, nothing
-	 * happens;
-	 *
-	 */
-	public void addToInEdges(PolygonalChain line) {
-		if (line != null) {
-			this.inEdges.add(line);
-			//line.setEnd(this);
+	public void setInEdge(PolygonalChain line) {
+		this.inEdge = line;
+	}
+
+	public void delete() {
+		controller.removeCompletely(this);
+		if (inEdge != null) {
+			inEdge.delete();
 		}
+		if (outEdge != null) {
+			outEdge.delete();
+		}
+		disconnect();
+	}
+	protected void disconnect(){
+		outEdge = null;
+		inEdge = null;
 	}
 
 }

@@ -26,7 +26,7 @@ import javafx.scene.text.TextAlignment;
  */
 public class TextNode extends AbstractNode<Rectangle> {
 
-	private final static String START_PLACEHOLDER = "XXX";
+	private final static String START_PLACEHOLDER = Settings.get(Settings.PLACEHOLDER_FOR_FORMULA_START);
 
 	private String textualFormula;
 	private Text text;
@@ -218,6 +218,17 @@ public class TextNode extends AbstractNode<Rectangle> {
 	@Override
 	public void setDefaultFill() {
 		getShape().setFill(Color.web(Settings.get(Settings.FORMULA_COLOR)));
+	}
+
+	@Override
+	public void delete() {
+		super.delete();
+		for(ConnectingNode cn: startPoints){
+			cn.delete();
+		}
+		getController().removeFromCanvas(text);
+		disconnect();
+		
 	}
 
 }

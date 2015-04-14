@@ -15,17 +15,22 @@
             <Button mnemonicParsing="false" onAction="#handleStartAction" text="Start" />
             <Button mnemonicParsing="false" onAction="#handleArrowAction" text="Arrow" />
             <Button mnemonicParsing="false" onAction="#handleTextAction" text="Text" />
+            <Button mnemonicParsing="false" onMouseClicked="#handleDeleteSelected" text="Delete Selected" />
          </children>
       </HBox>
    </top>
    <center>
-      <Pane fx:id="canvas" onMouseClicked="#handleCanvasClick" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+      <AnchorPane style="-fx-background-color: #00fff0;">
+         <children>
+            <Pane fx:id="canvas" onKeyTyped="#handleKeyTyped" onMouseClicked="#handleCanvasClick" style="-fx-background-color: #ff0000;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER" />
+         </children>
+      </AnchorPane>
    </center>
    <bottom>
       <HBox fx:id="hbFormula" alignment="CENTER" prefHeight="34.0" prefWidth="600.0" visible="false" BorderPane.alignment="CENTER">
          <children>
             <Label text="Write formula Here:" />
-            <TextField fx:id="txtFormulae" prefHeight="31.0" prefWidth="433.0" />
+            <TextField fx:id="txtInputFormula" prefHeight="31.0" prefWidth="433.0" />
          </children>
       </HBox>
    </bottom>

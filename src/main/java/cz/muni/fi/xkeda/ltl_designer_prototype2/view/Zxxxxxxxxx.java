@@ -5,6 +5,7 @@
  */
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view;
 
+import java.io.File;
 import java.math.BigInteger;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -12,14 +13,12 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
 /**
  *
  * @author adekcz
  */
-public class Zxxxxxxxxx extends javafx.scene.control.ListCell<String> implements ChangeListener<String> {
+public class Zxxxxxxxxx extends javafx.scene.control.ListCell<File> implements ChangeListener<File> {
 
 	public static final DataFormat dataformat = new DataFormat("bigInt");
 
@@ -42,19 +41,20 @@ public class Zxxxxxxxxx extends javafx.scene.control.ListCell<String> implements
 	}
 
 	@Override
-	public void updateItem(String item, boolean empty) {
+	public void updateItem(File item, boolean empty) {
 		super.updateItem(item, empty);
-		setText(item);
-		Rectangle rect = new Rectangle(100, 20);
-		if (item != null) {
-			rect.setFill(Color.web(item));
-			setGraphic(rect);
+		if(item != null){
+			setText(item.getName());
+		} 
+		if(empty){
+			setText("empty line");
 		}
 	}
 //Basic mind making I'm adding up to the cell so that
 
 	@Override
-	public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+	public void changed(ObservableValue<? extends File> observable, File oldValue, File newValue) {
+		System.out.println("Changed");
 
 	}
 }

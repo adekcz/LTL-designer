@@ -7,6 +7,8 @@ package cz.muni.fi.xkeda.ltl_designer_prototype2.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -26,6 +28,15 @@ public class FileHelper {
 			}
 		}
 
+	}
+	public static List<File> getAllFiles(File dir, String suffix){
+		List<File> filesInDir = new ArrayList<>();
+		for(File current: dir.listFiles()){
+			if(current.isFile() && current.getAbsolutePath().endsWith(suffix)){
+				filesInDir.add(current);
+			}
+		}
+		return filesInDir;
 	}
 
 }

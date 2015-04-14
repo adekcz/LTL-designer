@@ -36,8 +36,8 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
 
 /**
  * FXML Controller class
@@ -51,7 +51,7 @@ public class CanvasController implements Initializable {
 	@FXML
 	private Pane canvas;
 	@FXML
-	private TextField txtFormulae;
+	private TextField txtInputFormula;
 	@FXML
 	private HBox hbFormula;
 
@@ -59,28 +59,37 @@ public class CanvasController implements Initializable {
 
 	private PolygonalChain connectingLine;
 	private List<AbstractNode> selectedNodes;
-	private List<AbstractNode> allNodes;
+	private List<AbstractNode> allNodesNotEmbedded;
 
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		// allow the label to be dragged around.
 
 		selectedNodes = new ArrayList<>();
-		allNodes = new ArrayList<>();
+		allNodesNotEmbedded = new ArrayList<>();
 		status = CanvasStatus.IDLE;
 		canvas.setOnMouseMoved((eventMoved) -> {
-			if (status == CanvasStatus.CONNECTING_FORMULAE && connectingLine != null) {
+			if (status == CanvasStatus.CONNECTING_FORMULAS && connectingLine != null) {
 				//-2 because clicking on element does not propagate throught line if line is directly under cursor... OPTIONALY try to find better solution
 				connectingLine.getShape().setEndX(eventMoved.getX() - 2);
 				connectingLine.getShape().setEndY(eventMoved.getY() - 2);
 			}
 		});
 
-
+		// EXPERMINETAL AREA
+		canvas.requestFocus();
+		canvas.setFocusTraversable(true);
+		//you can delete everything up to end of method
 		canvas.setBackground(new Background(new BackgroundFill(Color.GREY, CornerRadii.EMPTY, Insets.EMPTY)));
+		canvas.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+			System.out.println("filter: " + event.getCode());
+		});
+		canvas.setOnKeyPressed((event) -> {
+			System.out.println("Pressed: " + event.getCode());
+		});
 
-		canvas.setScaleX(0.5);
-		canvas.setScaleY(0.5);
+		canvas.setScaleX(0.9);
+		canvas.setScaleY(0.9);
 
 		canvas.setOnDragOver(new EventHandler<DragEvent>() {
 			public void handle(DragEvent event) {
@@ -112,10 +121,9 @@ public class CanvasController implements Initializable {
 				double x = event.getX();
 				double y = event.getY();
 
-				Rectangle rectangle = new Rectangle(x, y, 10, 20);
 				BigInteger p = (BigInteger) event.getDragboard().getContent(Zxxxxxxxxx.dataformat);
-				rectangle.setFill(Color.web(event.getDragboard().getString()));
-				add(rectangle);
+				Text droppedText = new Text(x, y, event.getDragboard().getString());
+				add(droppedText);
 				event.setDropCompleted(true);
 				event.consume();
 			}
@@ -139,6 +147,19 @@ public class CanvasController implements Initializable {
 //             ##     ## ##     ## ##    ## ########  ######## ######## ##     ##  ###### 
 
 	@FXML
+	void handleKeyTyped(KeyEvent event) {
+		System.out.println("event keyTyped" + event.getCode());
+		if (event.getCode() == KeyCode.DELETE) {
+			removeAllSelected();
+		}
+	}
+
+	@FXML
+	void handleDeleteSelected(MouseEvent event) {
+		removeAllSelected();
+	}
+
+	@FXML
 	void handleCanvasClick(MouseEvent event) {
 		double x = event.getX();
 		double y = event.getY();
@@ -148,7 +169,7 @@ public class CanvasController implements Initializable {
 					deselectAll();
 				}
 				break;
-			case CONNECTING_FORMULAE:
+			case CONNECTING_FORMULAS:
 				if (isClickedIntoEmptySpace(x, y)) {
 					addGrabPoint(x, y);
 				}
@@ -172,16 +193,16 @@ public class CanvasController implements Initializable {
 	private void addTextNode(double x, double y) {
 		TextNode formulaNode = FormulaShapeFactory.createFormulaNode(x, y, this);
 		hbFormula.setVisible(true);
-		txtFormulae.setStyle("-fx-background-color: LavenderBlush;");
-		txtFormulae.requestFocus();
-		txtFormulae.setOnKeyPressed(formulaEnterPressed(formulaNode));
+		txtInputFormula.setStyle("-fx-background-color: LavenderBlush;");
+		txtInputFormula.requestFocus();
+		txtInputFormula.setOnKeyPressed(formulaEnterPressed(formulaNode));
 	}
 
 	private EventHandler<? super KeyEvent> formulaEnterPressed(TextNode formulaNode) {
 		return (eventPressed) -> {
 			if (eventPressed.getCode() == KeyCode.ENTER) {
-				formulaNode.changeText(txtFormulae.getText());
-				txtFormulae.setText("");
+				formulaNode.changeText(txtInputFormula.getText());
+				txtInputFormula.setText("");
 				hbFormula.setVisible(false);
 				setStatus(CanvasStatus.IDLE);
 			}
@@ -191,15 +212,21 @@ public class CanvasController implements Initializable {
 
 	private void addGrabPoint(double x, double y) {
 		ConnectingNode grabPoiont = FormulaShapeFactory.createLineGrabPoint(x, y, this);
-		PolygonalChain inLine = getConnectingLine();
-		inLine.setEnd(grabPoiont);
-		grabPoiont.addToInEdges(inLine);
+		AbstractNode start = getConnectingLine().getStart();
+		start.connectTo(grabPoiont);
+		removeCompletely(getConnectingLine());
 
-		PolygonalChain outLine = FormulaShapeFactory.createPolygonalChain(grabPoiont);
-		grabPoiont.setOutEdge(outLine);
-		getCanvas().getChildren().add(outLine.getShape());
-		setConnectingLine(outLine);
+		addConnectingLine(grabPoiont);
 	}
+//		ConnectingNode grabPoiont = FormulaShapeFactory.createLineGrabPoint(x, y, this);
+//		PolygonalChain inLine = getConnectingLine();
+//		inLine.setEnd(grabPoiont);
+//		grabPoiont.addToInEdges(inLine);
+//
+//		PolygonalChain outLine = FormulaShapeFactory.createPolygonalChain(grabPoiont);
+//		grabPoiont.setOutEdge(outLine);
+//		getCanvas().getChildren().add(outLine.getShape());
+//		setConnectingLine(outLine);
 
 	@FXML
 	void handleTextAction(ActionEvent event) {
@@ -218,7 +245,7 @@ public class CanvasController implements Initializable {
 
 	@FXML
 	void handleArrowAction(ActionEvent event) {
-		setStatus(CanvasStatus.CONNECTING_FORMULAE);
+		setStatus(CanvasStatus.CONNECTING_FORMULAS);
 	}
 
 	@FXML
@@ -269,7 +296,7 @@ public class CanvasController implements Initializable {
 				resetCursor();
 				break;
 			}
-			case CONNECTING_FORMULAE:
+			case CONNECTING_FORMULAS:
 				rootPane.setCursor(Cursor.CROSSHAIR);
 				break;
 			case CREATING_NEW_ELEMENT:
@@ -368,15 +395,43 @@ public class CanvasController implements Initializable {
 	 * @param shape
 	 */
 	public void addToAll(AbstractNode shape) {
-		allNodes.add(shape);
+		allNodesNotEmbedded.add(shape);
 	}
 
 	public List<AbstractNode> getAllNodes() {
-		return Collections.unmodifiableList(allNodes);
+		return Collections.unmodifiableList(allNodesNotEmbedded);
 	}
 
 	public void removeFromAllNodes(AbstractNode node) {
-		allNodes.remove(node);
+		allNodesNotEmbedded.remove(node);
 	}
 
+	/**
+	 * from canvas and from internal lists
+	 *
+	 * @param node
+	 */
+	public void removeCompletely(AbstractNode node) {
+		if (node != null) {
+			canvas.getChildren().remove(node.getShape());
+			allNodesNotEmbedded.remove(node);
+			selectedNodes.remove(node);
+		}
+	}
+
+	private void removeAllSelected() {
+		while (!selectedNodes.isEmpty()) {
+			selectedNodes.get(0).delete();
+		}
+	}
+
+	public void removeFromCanvas(Text text) {
+		canvas.getChildren().remove(text);
+	}
+
+	public void addConnectingLine(AbstractNode start) {
+		PolygonalChain line = FormulaShapeFactory.createPolygonalChain(start);
+		getCanvas().getChildren().add(line.getShape());
+		setConnectingLine(line);
+	}
 }

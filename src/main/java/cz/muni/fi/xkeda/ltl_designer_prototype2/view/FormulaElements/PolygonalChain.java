@@ -5,6 +5,7 @@
  */
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements;
 
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 
@@ -16,11 +17,11 @@ public class PolygonalChain extends AbstractNode<Line>{
 	private AbstractNode start;
 	private AbstractNode end;
 
-	protected PolygonalChain(AbstractNode start){
-		this(start, start);
+	protected PolygonalChain(AbstractNode start, CanvasController controller){
+		this(start, start, controller);
 	}
-	protected PolygonalChain(AbstractNode start, AbstractNode end) {
-		setShape(new Line(start.getRepresentativeX(), start.getRepresentativeY(), end.getRepresentativeX(),end.getRepresentativeY()));
+	protected PolygonalChain(AbstractNode start, AbstractNode end, CanvasController controller) {
+		super(new Line(start.getRepresentativeX(), start.getRepresentativeY(), end.getRepresentativeX(),end.getRepresentativeY()), controller);
 		this.start = start;
 		this.end = end;
 	}
@@ -41,17 +42,6 @@ public class PolygonalChain extends AbstractNode<Line>{
 		this.end = end;
 	}
 
-
-	@Override
-	public double getRepresentativeX() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public double getRepresentativeY() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
 	@Override
 	public void moveTo(double x, double y) {
 		moveLinesTo(x, y);
@@ -65,6 +55,21 @@ public class PolygonalChain extends AbstractNode<Line>{
 	@Override
 	public void setDefaultFill() {
 		getShape().setFill(Color.BLACK);
+	}
+
+	@Override
+	public double getRepresentativeX() {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public double getRepresentativeY() {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public void delete() {
+		super.delete();
 	}
 
 }

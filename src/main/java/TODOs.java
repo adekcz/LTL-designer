@@ -12,12 +12,12 @@ public class TODOs {
 	
 	//TODO connecting node can have multiple in or out edges
 	//connecting node inside textNode can have inner edge
+
+	
 	//You cna create multiple start formula -- you should not
-	//TODO unify using formulae, formulas, formula etc
 
 
 	//remember last Open file,  and stuff across sessions.
-	//refractor 3 lines from connecting formula handler cration part
 
 
 	//set apptitle according to currently named File/Project
@@ -26,10 +26,9 @@ public class TODOs {
 	//don't do whole jar search if settings folder is already created.
 
 
-	//cURRENT TODO  ListView for pernament formulaes, list view for cutom saved formulae
+	//cURRENT TODO  ListView for pernament formulas, list view for cutom saved formulas
 
 
-	//TextNode.START_PLACEHOLDER to Settings
 	//rewrite this todos to papers
 
 

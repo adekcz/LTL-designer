@@ -78,7 +78,11 @@ public class FormulaShapeFactory {
 	 * Just Line, from one node to another. 
 	 */
 	public static PolygonalChain createPolygonalChain(AbstractNode start, AbstractNode end) {
-		PolygonalChain polygonalChain = new PolygonalChain(start, end);
+		PolygonalChain polygonalChain = new PolygonalChain(start, end, start.getController());
+		start.setOutEdge(polygonalChain);
+		if(end!=null && !end.equals(start)){
+			end.setInEdge(polygonalChain);
+		}
 		return polygonalChain;
 	}
 

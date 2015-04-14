@@ -72,11 +72,13 @@ public class ResourcesHelper {
 	 * @throws Exception
 	 */
 	static public String exportResource(String resourceName) {
-		File toBeCreated = new File(Settings.SETTINGS_FOLDER_PATH + resourceName.replace('\\', '/'));
-		FileHelper.createPredecessorFolderStructure(toBeCreated);
-		
-		writeResource(resourceName, toBeCreated);
-		return Settings.SETTINGS_FOLDER_PATH + resourceName;
+		File toBeCreated = new File(Settings.APP_HOME_FOLDER_PATH + resourceName.replace('\\', '/'));
+		if (!toBeCreated.exists()) {
+			FileHelper.createPredecessorFolderStructure(toBeCreated);
+
+			writeResource(resourceName, toBeCreated);
+		}
+		return Settings.APP_HOME_FOLDER_PATH + resourceName;
 	}
 
 	private static void writeResource(String resourceName, File toBeCreated) {

@@ -11,7 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 /**
- * class representing "dot". Start point for formulae and subformulae.
+ * class representing "dot". Start point for formulas and subformulas.
  *
  * @author adekcz
  */
@@ -70,6 +70,21 @@ public class ConnectingNode extends AbstractNode<Circle> {
 			case StartPoint:
 				getShape().setFill(Color.web(Settings.get(Settings.START_POINT_COLOR)));
 				break;
+		}
+	}
+
+	@Override
+	public void delete() {
+		if (type == Type.GrabPoint) {
+			AbstractNode start = getInEdge().getStart();
+			AbstractNode end = getOutEdge().getEnd();
+			super.delete();
+			if (start != null && end != null) {
+				start.connectTo(end);
+			}
+		}
+		if (type == Type.StartPoint) {
+			super.delete();
 		}
 	}
 

@@ -70,17 +70,17 @@ public class JsonHelper {
 		jsonReader.close();
 
 		JsonArray formulas = object.getJsonArray(KEY_FORMULA_NODES);
-		JsonArray startPoints = object.getJsonArray(KEY_CONNECTING_POINTS);
+		JsonArray connectingPoints = object.getJsonArray(KEY_CONNECTING_POINTS);
 		JsonArray edges = object.getJsonArray(KEY_EDGES);
 
-		for (JsonValue jsonvalue : startPoints) {
-			JsonObject startPointJson = (JsonObject) jsonvalue;
-			JsonNumber x = (JsonNumber) startPointJson.get(KEY_X);
-			JsonNumber y = (JsonNumber) startPointJson.get(KEY_Y);
-			JsonNumber index = (JsonNumber) startPointJson.get(KEY_INDEX);
-			ConnectingNode.Type type = ConnectingNode.Type.valueOf(startPointJson.getJsonString(KEY_TYPE).getString());
-			ConnectingNode startPoint = new ConnectingNode(x.doubleValue(), y.doubleValue(), type);
-			nodes.put(index.intValue(), startPoint);
+		for (JsonValue jsonvalue : connectingPoints) {
+			JsonObject connectingPoin = (JsonObject) jsonvalue;
+			JsonNumber x = (JsonNumber) connectingPoin.get(KEY_X);
+			JsonNumber y = (JsonNumber) connectingPoin.get(KEY_Y);
+			JsonNumber index = (JsonNumber) connectingPoin.get(KEY_INDEX);
+			ConnectingNode.Type type = ConnectingNode.Type.valueOf(connectingPoin.getJsonString(KEY_TYPE).getString());
+			ConnectingNode connectingPoint = new ConnectingNode(x.doubleValue(), y.doubleValue(), type);
+			nodes.put(index.intValue(), connectingPoint);
 		}
 		for (JsonValue jsonvalue : formulas) {
 			JsonObject formulaJson = (JsonObject) jsonvalue;
@@ -117,6 +117,7 @@ public class JsonHelper {
 			aNode.setupGUIinteractions();
 			if (aNode.getOutEdge() != null) {
 				controller.add(aNode.getOutEdge().getShape());
+				aNode.getOutEdge().setController(controller);
 			}
 		}
 	}

@@ -48,6 +48,10 @@ public class MainWindowController implements Initializable {
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		reloadCanvas();
+		String lastDirFromSettings = Settings.get(Settings.LAST_OPEN_DIRECTORY);
+		if(lastDirFromSettings!=null){
+			lastDirectory = new File(lastDirFromSettings);
+		}
 
 	}
 
