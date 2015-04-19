@@ -33,7 +33,7 @@ public class FormulaShapeFactory {
 	 * @return 
 	 */
 	public static ConnectingNode createLineGrabPoint(double x, double y, CanvasController controller) {
-		ConnectingNode created = new ConnectingNode(x, y, controller, ConnectingNode.Type.GrabPoint);
+		ConnectingNode created = new ConnectingNode(x, y, controller);
 		created.setupGUIinteractions();
 		return created;
 	}
@@ -45,8 +45,8 @@ public class FormulaShapeFactory {
 	 * @param controller
 	 * @return 
 	 */
-	public static ConnectingNode createStartFormulaNode(double x, double y, CanvasController controller) {
-		ConnectingNode formulaNode = new ConnectingNode(x, y, controller, ConnectingNode.Type.StartPoint);
+	public static StartingNode createStartFormulaNode(double x, double y, CanvasController controller) {
+		StartingNode formulaNode = new StartingNode(x, y, controller);
 		formulaNode.setupGUIinteractions();
 		return formulaNode;
 	}
@@ -58,10 +58,10 @@ public class FormulaShapeFactory {
 	 * @param controller
 	 * @return 
 	 */
-	public static ConnectingNode createInnerStartFormulaNode(double x, double y, CanvasController controller) {
-		ConnectingNode formulaNode = new ConnectingNode(x, y, controller, ConnectingNode.Type.StartPoint);
+	public static StartingNode createInnerStartFormulaNode(double x, double y, CanvasController controller) {
+		StartingNode formulaNode = new StartingNode(x, y, controller);
+		formulaNode.setInner(true);
 		formulaNode.setupGUIinteractions();
-		controller.removeFromAllNodes(formulaNode);
 		return formulaNode;
 	}
 

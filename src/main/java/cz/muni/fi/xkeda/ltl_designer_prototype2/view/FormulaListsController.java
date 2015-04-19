@@ -33,6 +33,7 @@ public class FormulaListsController implements Initializable {
 
 	@FXML
 	private ListView<File> defaultFormulasLV;
+	private CanvasController canvasController;
 
 	/**
 	 * Initializes the controller class.
@@ -44,6 +45,7 @@ public class FormulaListsController implements Initializable {
 		System.out.println(Settings.SETTINGS_FOLDER_PATH);
 		List<File> files = FileHelper.getAllFiles(new File(Settings.SETTINGS_FOLDER_PATH), "json");
 		data.addAll(files);
+		defaultFormulasLV.setItems(data);
 		
 		//= FXCollections.observableArrayList(
 			//"chocolate", "salmon", "gold", "coral", "darkorchid",
@@ -53,9 +55,8 @@ public class FormulaListsController implements Initializable {
 		defaultFormulasLV.setCellFactory(new Callback<ListView<File>, ListCell<File>>() {
 			@Override
 			public ListCell<File> call(ListView<File> list) {
-				Zxxxxxxxxx zxxxxxxxxx = new Zxxxxxxxxx();
-
-				return zxxxxxxxxx;
+				ListFileCell cell = new ListFileCell(canvasController);
+				return cell;
 			}
 		}
 		);
@@ -66,9 +67,12 @@ public class FormulaListsController implements Initializable {
 					//String old_val, String new_val) {
 				//}
 			//});
-		defaultFormulasLV.setItems(data);
 
 		// TODO
+	}
+
+	void setCanvasController(CanvasController canvasController) {
+		this.canvasController = canvasController;
 	}
 
 }

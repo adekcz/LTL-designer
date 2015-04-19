@@ -91,10 +91,10 @@ public class JavaFxHelper {
 		return exceptionText;
 	}
 
-	public static void showErrorDialog(Exception ex) {
+	public static void showErrorDialog(String title, Exception ex) {
 		Alert errorDialog = new Alert(Alert.AlertType.ERROR);
-		errorDialog.setTitle("File was not saved.");
-		errorDialog.setContentText("File not found");
+		errorDialog.setTitle(title);
+		errorDialog.setContentText(ex.getMessage());
 		GridPane expContent = createExpandableExceptionRegion(ex);
 
 // Set expandable Exception into the dialog pane.

@@ -17,24 +17,22 @@ import javafx.scene.shape.Circle;
  */
 public class ConnectingNode extends AbstractNode<Circle> {
 
+
 	public enum Type {
 
 		StartPoint, GrabPoint
 	}
 
-	private Type type;
-
 	/**
 	 * Construtctor that only initializes values, not behaviour of
 	 * interactions with canvas
 	 */
-	public ConnectingNode(double x, double y, Type type) {
-		this(x, y, null, type);
+	public ConnectingNode(double x, double y) {
+		this(x, y, null);
 	}
 
-	protected ConnectingNode(double x, double y, CanvasController canvasController, Type type) {
+	protected ConnectingNode(double x, double y, CanvasController canvasController) {
 		super(new Circle(x, y, 10), canvasController);
-		this.type = type;
 	}
 
 	@Override
@@ -63,32 +61,27 @@ public class ConnectingNode extends AbstractNode<Circle> {
 
 	@Override
 	public void setDefaultFill() {
-		switch (type) {
-			case GrabPoint:
-				getShape().setFill(Color.web(Settings.get(Settings.GRAB_POINT_COLOR)));
-				break;
-			case StartPoint:
-				getShape().setFill(Color.web(Settings.get(Settings.START_POINT_COLOR)));
-				break;
-		}
+		getShape().setFill(Color.web(Settings.get(Settings.GRAB_POINT_COLOR)));
 	}
 
 	@Override
 	public void delete() {
-		if (type == Type.GrabPoint) {
-			AbstractNode start = getInEdge().getStart();
-			AbstractNode end = getOutEdge().getEnd();
-			super.delete();
-			if (start != null && end != null) {
-				start.connectTo(end);
-			}
-		}
-		if (type == Type.StartPoint) {
-			super.delete();
+		AbstractNode start = getInEdge().getStart();
+		AbstractNode end = getOutEdge().getEnd();
+		super.delete();
+		if (start != null && end != null) {
+			start.connectGraphicallyTo(end);
 		}
 	}
 
-	public Type getType() {
-		return type;
+	@Override
+	public void setupGUIinteractions() {
+		super.setupGUIinteractions(); 
+	//	EventHandler<? super MouseEvent> mouseClickedHandler = getShape().getOnMouseClicked(); 
+	//	getShape().setOnMouseClicked((event) -> {
+	//		mouseClickedHandler.handle(event);
+	//		//TODO FIGURE OUT WHAT you wanted to write here ??? (if I undestand this correctly now, this does nothing..)
+	//	});
 	}
+
 }

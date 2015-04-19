@@ -5,23 +5,29 @@
  */
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view;
 
+import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JsonHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.ResourcesHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.AbstractNode;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.ConnectingNode;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.FormulaShapeFactory;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.PolygonalChain;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.TextNode;
-import java.math.BigInteger;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.control.TextField;
 import javafx.scene.input.DragEvent;
@@ -61,6 +67,8 @@ public class CanvasController implements Initializable {
 	private List<AbstractNode> selectedNodes;
 	private List<AbstractNode> allNodesNotEmbedded;
 
+	private Point2D lastPosition;
+
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		// allow the label to be dragged around.
@@ -77,28 +85,21 @@ public class CanvasController implements Initializable {
 		});
 
 		// EXPERMINETAL AREA
-		canvas.requestFocus();
 		canvas.setFocusTraversable(true);
+		canvas.requestFocus();
+
 		//you can delete everything up to end of method
 		canvas.setBackground(new Background(new BackgroundFill(Color.GREY, CornerRadii.EMPTY, Insets.EMPTY)));
-		canvas.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-			System.out.println("filter: " + event.getCode());
-		});
-		canvas.setOnKeyPressed((event) -> {
-			System.out.println("Pressed: " + event.getCode());
-		});
 
-		canvas.setScaleX(0.9);
-		canvas.setScaleY(0.9);
+
 
 		canvas.setOnDragOver(new EventHandler<DragEvent>() {
 			public void handle(DragEvent event) {
-				System.out.println("Handling dragOver");
 				/* data is dragged over the target */
 				/* accept it only if it is not dragged from the same node 
 				 * and if it has a string data */
 				if (event.getGestureSource() != canvas
-					&& event.getDragboard().hasString()) {
+				    && event.getDragboard().hasString()) {
 					/* allow for both copying and moving, whatever user chooses */
 					event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
 				}
@@ -114,16 +115,22 @@ public class CanvasController implements Initializable {
 		});
 		canvas.setOnDragDropped(new EventHandler<DragEvent>() {
 			public void handle(DragEvent event) {
-				System.out.println("Handling DROPPED");
+				System.out.println("Handling DROPPED Canvas drop");
 				/* data is dragged over the target */
 				/* accept it only if it is not dragged from the same node 
 				 * and if it has a string data */
 				double x = event.getX();
 				double y = event.getY();
 
-				BigInteger p = (BigInteger) event.getDragboard().getContent(Zxxxxxxxxx.dataformat);
+				File draggedFile = (File) event.getDragboard().getContent(ListFileCell.fileDragFormat);
 				Text droppedText = new Text(x, y, event.getDragboard().getString());
 				add(droppedText);
+				try {
+					Map<Integer, AbstractNode> loadJson = JsonHelper.loadJson(draggedFile);
+					addToControler(loadJson);
+				} catch (FileNotFoundException ex) {
+					Logger.getLogger(CanvasController.class.getName()).log(Level.SEVERE, null, ex);
+				}
 				event.setDropCompleted(true);
 				event.consume();
 			}
@@ -147,8 +154,7 @@ public class CanvasController implements Initializable {
 //             ##     ## ##     ## ##    ## ########  ######## ######## ##     ##  ###### 
 
 	@FXML
-	void handleKeyTyped(KeyEvent event) {
-		System.out.println("event keyTyped" + event.getCode());
+	void handleKeyPressed(KeyEvent event) {
 		if (event.getCode() == KeyCode.DELETE) {
 			removeAllSelected();
 		}
@@ -160,7 +166,33 @@ public class CanvasController implements Initializable {
 	}
 
 	@FXML
+	void handleCanvasDrag(MouseEvent mouseEvent) {
+		if (!mouseEvent.getTarget().equals(canvas)) {
+			return;
+		}
+		double deltaX = mouseEvent.getX() - lastPosition.getX();
+		double deltaY = mouseEvent.getY() - lastPosition.getY();
+		lastPosition = new Point2D(mouseEvent.getX(), mouseEvent.getY());
+
+		moveAll(deltaX, deltaY);
+		mouseEvent.consume();
+	}
+
+	@FXML
+	void handleCanvasPress(MouseEvent event) {
+		System.out.println("press");
+		rootPane.setCursor(Cursor.CLOSED_HAND);
+		lastPosition = new Point2D(event.getX(), event.getY());
+	}
+
+	@FXML
+	void handleCanvasRelease(MouseEvent event) {
+		System.out.println("released");
+		resetCursor();
+	}
+	@FXML
 	void handleCanvasClick(MouseEvent event) {
+		canvas.requestFocus();
 		double x = event.getX();
 		double y = event.getY();
 		switch (status) {
@@ -184,6 +216,9 @@ public class CanvasController implements Initializable {
 				break;
 			case CREATING_TEXT:
 				addTextNode(x, y);
+				break;
+			case DRAGGING_SAVED_FORMULA:
+				setStatus(CanvasStatus.IDLE);
 				break;
 			default:
 				throw new AssertionError(status.name());
@@ -213,7 +248,7 @@ public class CanvasController implements Initializable {
 	private void addGrabPoint(double x, double y) {
 		ConnectingNode grabPoiont = FormulaShapeFactory.createLineGrabPoint(x, y, this);
 		AbstractNode start = getConnectingLine().getStart();
-		start.connectTo(grabPoiont);
+		start.connectGraphicallyTo(grabPoiont);
 		removeCompletely(getConnectingLine());
 
 		addConnectingLine(grabPoiont);
@@ -275,7 +310,6 @@ public class CanvasController implements Initializable {
 
 	@FXML
 	void handleReleaseAction(ActionEvent event) {
-
 	}
 
 //       ##     ## ####  ######   ######  
@@ -308,6 +342,10 @@ public class CanvasController implements Initializable {
 			case CREATING_TEXT:
 				rootPane.setCursor(Cursor.TEXT);
 				break;
+			case DRAGGING_SAVED_FORMULA:
+				rootPane.setCursor(Cursor.HAND);
+				break;
+
 			default:
 				throw new AssertionError(status.name());
 		}
@@ -331,9 +369,26 @@ public class CanvasController implements Initializable {
 		moveSelectedBy(deltaX, deltaY);
 	}
 
-   //###     ######   ######  ########  ######   ######   #######  ########   ######  
-	//## ##   ##    ## ##    ## ##       ##    ## ##    ## ##     ## ##     ## ##    ## 
-	//##   ##  ##       ##       ##       ##       ##       ##     ## ##     ## ##       
+	private void moveAll(double deltaX, double deltaY) {
+		for (AbstractNode shape : allNodesNotEmbedded) {
+			shape.moveBy(deltaX, deltaY);
+		}
+	}
+
+	public void addToControler(Map<Integer, AbstractNode> nodes) {
+		for (AbstractNode aNode : nodes.values()) {
+			aNode.setController(this);
+			aNode.setupGUIinteractions();
+			if (aNode.getOutEdge() != null) {
+				add(aNode.getOutEdge().getShape());
+				aNode.getOutEdge().setController(this);
+			}
+		}
+	}
+
+//   ###     ######   ######  ########  ######   ######   #######  ########   ######  
+//  ## ##   ##    ## ##    ## ##       ##    ## ##    ## ##     ## ##     ## ##    ## 
+// ##   ##  ##       ##       ##       ##       ##       ##     ## ##     ## ##       
 //##     ## ##       ##       ######    ######   ######  ##     ## ########   ######  
 //######### ##       ##       ##             ##       ## ##     ## ##   ##         ## 
 //##     ## ##    ## ##    ## ##       ##    ## ##    ## ##     ## ##    ##  ##    ## 
@@ -434,4 +489,5 @@ public class CanvasController implements Initializable {
 		getCanvas().getChildren().add(line.getShape());
 		setConnectingLine(line);
 	}
+
 }

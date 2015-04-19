@@ -24,7 +24,8 @@ public class FileHelper {
 		if (!parent.exists()) {
 			boolean parentCreated = parent.mkdirs();
 			if (!parentCreated) {
-				JavaFxHelper.showErrorDialog(new IOException("Folder structure for file: " + file.getAbsolutePath() +" could not be created. Please do it manually.\n"));
+				IOException ioException = new IOException("Folder structure for file: " + file.getAbsolutePath() +" could not be created. Please do it manually.\n");
+				JavaFxHelper.showErrorDialog("Folder structure could not be crated." , ioException);
 			}
 		}
 

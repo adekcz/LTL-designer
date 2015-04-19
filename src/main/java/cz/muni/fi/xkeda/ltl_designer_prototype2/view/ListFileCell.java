@@ -6,7 +6,6 @@
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view;
 
 import java.io.File;
-import java.math.BigInteger;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.input.ClipboardContent;
@@ -18,21 +17,23 @@ import javafx.scene.input.TransferMode;
  *
  * @author adekcz
  */
-public class Zxxxxxxxxx extends javafx.scene.control.ListCell<File> implements ChangeListener<File> {
+public class ListFileCell extends javafx.scene.control.ListCell<File> implements ChangeListener<File> {
 
-	public static final DataFormat dataformat = new DataFormat("bigInt");
+	public static final DataFormat fileDragFormat = new DataFormat("file");
+	private File file;
 
-	public Zxxxxxxxxx() {
+
+	ListFileCell(CanvasController canvasController) {
 		setOnDragDetected((event) -> {
 			/* drag was detected, start a drag-and-drop gesture*/
 			/* allow any transfer mode */
-			Dragboard db = Zxxxxxxxxx.this.startDragAndDrop(TransferMode.ANY);
+			Dragboard db = ListFileCell.this.startDragAndDrop(TransferMode.ANY);
 
 			/* Put a string on a dragboard */
 			ClipboardContent content = new ClipboardContent();
-			BigInteger p = new BigInteger("12343");
-			content.put(dataformat, p);
-			content.putString(Zxxxxxxxxx.this.getText());
+			content.put(fileDragFormat, file);
+			content.putString(ListFileCell.this.getText());
+			canvasController.setStatus(CanvasStatus.DRAGGING_SAVED_FORMULA);
 			db.setContent(content);
 
 			event.consume();
@@ -40,9 +41,11 @@ public class Zxxxxxxxxx extends javafx.scene.control.ListCell<File> implements C
 		});
 	}
 
+
 	@Override
 	public void updateItem(File item, boolean empty) {
 		super.updateItem(item, empty);
+		file = item;
 		if(item != null){
 			setText(item.getName());
 		} 

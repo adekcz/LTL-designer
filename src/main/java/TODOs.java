@@ -35,4 +35,9 @@ public class TODOs {
 	//formula saved to "Saved" must be Valid
 	
 
+	//Best Practice: Run Tasks on a Background Thread
+	//https://docs.oracle.com/javafx/2/best_practices/jfxpub-best_practices.htm
+	
+
+	//keyhandle for delete: http://stackoverflow.com/questions/13246211/javafx-how-to-get-stage-from-controller-during-initialization
 }

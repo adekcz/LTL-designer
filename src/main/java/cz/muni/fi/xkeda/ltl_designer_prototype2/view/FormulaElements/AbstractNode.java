@@ -30,7 +30,7 @@ public abstract class AbstractNode<E extends Shape> {
 		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAS) {
 			if (canvasController.getConnectingLine() == null) {
 				canvasController.addConnectingLine(node);
-				
+
 			}
 		}
 	}
@@ -39,7 +39,7 @@ public abstract class AbstractNode<E extends Shape> {
 		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAS) {
 			if (canvasController.getConnectingLine() != null && !canvasController.getConnectingShape().equals(node)) {
 				AbstractNode start = canvasController.getConnectingLine().getStart();
-				start.connectTo(node);
+				start.connectGraphicallyTo(node);
 				canvasController.removeCompletely(canvasController.getConnectingLine());
 
 				canvasController.setConnectingLine(null);
@@ -118,12 +118,12 @@ public abstract class AbstractNode<E extends Shape> {
 			lastPosition = new Point2D(mouseEvent.getX(), mouseEvent.getY());
 
 			controller.moveSelectedBy(deltaX, deltaY, this);
+			mouseEvent.consume();
 		};
 	}
 
 	private EventHandler<MouseEvent> pressOnShape() {
 		return (MouseEvent mouseEvent) -> {
-			System.out.println("PRESSED");
 			setSelected(true);
 			if (mouseEvent.isControlDown()) {
 				controller.addSelected(this);
@@ -132,13 +132,12 @@ public abstract class AbstractNode<E extends Shape> {
 			double x = mouseEvent.getX();
 			double y = mouseEvent.getY();
 			lastPosition = new Point2D(x, y);
-			shape.setCursor(Cursor.MOVE);
+			shape.setCursor(Cursor.CLOSED_HAND);
 		};
 	}
 
 	private EventHandler<MouseEvent> clickOnShape() {
 		return (MouseEvent eventMouse) -> {
-			System.out.println("OnMouseClicked");
 			//TODO passing "this" to method in superclass really smells.
 			handleClickForLineCreation(controller, this);
 			handleClickForLineConnection(controller, this);
@@ -240,11 +239,14 @@ public abstract class AbstractNode<E extends Shape> {
 
 	public abstract void setDefaultFill();
 
-	
-
-	public PolygonalChain connectTo(AbstractNode other) {
+	public PolygonalChain connectGraphicallyTo(AbstractNode other) {
 		PolygonalChain line = FormulaShapeFactory.createPolygonalChain(this, other);
 		getController().add(line.getShape());
+		return line;
+	}
+
+	public PolygonalChain connectSymbolically(AbstractNode other) {
+		PolygonalChain line = FormulaShapeFactory.createPolygonalChain(this, other);
 		return line;
 	}
 
@@ -258,6 +260,7 @@ public abstract class AbstractNode<E extends Shape> {
 	public PolygonalChain getOutEdge() {
 		return outEdge;
 	}
+
 	public PolygonalChain getInEdge() {
 		return inEdge;
 	}
@@ -276,7 +279,8 @@ public abstract class AbstractNode<E extends Shape> {
 		}
 		disconnect();
 	}
-	protected void disconnect(){
+
+	protected void disconnect() {
 		outEdge = null;
 		inEdge = null;
 	}

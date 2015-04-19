@@ -154,6 +154,11 @@ public class TextNode extends AbstractNode<Rectangle> {
 	public void setupGUIinteractions() {
 		super.setupGUIinteractions();
 		createGUItext();
+		//TODO FIXME BUG does not work, for some peculiar reason, if loaded from json, you can grab start points and move them individually,
+		// even thought this code is definitely run 
+		for (ConnectingNode startPoint : startPoints) {
+			handOverEvents(startPoint.getShape());
+		}
 	}
 
 	private Text createNewText(String textToAdd) {
@@ -170,13 +175,12 @@ public class TextNode extends AbstractNode<Rectangle> {
 
 	private void handOverEvents(Node node) {
 		node.setOnMousePressed((MouseEvent event) -> {
+			System.out.println("Event hadoverd");
 			Event.fireEvent(getShape(), event);
 		});
-		if (node instanceof Text) {
 			node.setOnMouseClicked((event) -> {
 				Event.fireEvent(getShape(), event);
 			});
-		}
 		node.setOnMouseDragged((event) -> {
 			Event.fireEvent(getShape(), event);
 		});
@@ -202,8 +206,7 @@ public class TextNode extends AbstractNode<Rectangle> {
 	}
 
 	private void createInnerFormula(double width) {
-		ConnectingNode startNode = FormulaShapeFactory.createInnerStartFormulaNode(getShape().getX() + width, getShape().getY() + 10, getController());
-		startNode.getShape().setFill(Color.PINK);
+		StartingNode startNode = FormulaShapeFactory.createInnerStartFormulaNode(getShape().getX() + width, getShape().getY() + 10, getController());
 		startPoints.add(startNode);
 		handOverEvents(startNode.getShape());
 	}

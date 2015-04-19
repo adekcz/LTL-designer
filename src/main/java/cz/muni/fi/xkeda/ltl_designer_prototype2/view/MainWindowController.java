@@ -8,11 +8,13 @@ package cz.muni.fi.xkeda.ltl_designer_prototype2.view;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.Settings;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JavaFxHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JsonHelper;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.AbstractNode;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.menu.AboutDialogController;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,7 +49,7 @@ public class MainWindowController implements Initializable {
 
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
-		reloadCanvas();
+		reloadComponents();
 		String lastDirFromSettings = Settings.get(Settings.LAST_OPEN_DIRECTORY);
 		if(lastDirFromSettings!=null){
 			lastDirectory = new File(lastDirFromSettings);
@@ -55,11 +57,11 @@ public class MainWindowController implements Initializable {
 
 	}
 
-	private void reloadCanvas() {
+	private void reloadComponents() {
 		try {
-			Pane canvas = loadCanvas();
-
-			Pane formulaLists = loadLists();
+			Pane canvas = loadCanvasAndController();
+			Pane formulaLists = loadListsAndController();
+			formulaListsController.setCanvasController(canvasController);
 
 			rootPane.setCenter(canvas);
 			rootPane.setLeft(formulaLists);
@@ -68,14 +70,14 @@ public class MainWindowController implements Initializable {
 		}
 	}
 
-	private Pane loadLists() throws IOException {
+	private Pane loadListsAndController() throws IOException {
 		FXMLLoader loaderLists = JavaFxHelper.getLoader(this.getClass(), "/fxml/FormulaLists.fxml");
 		Pane formulaLists = (Pane) loaderLists.load();
 		formulaListsController = (FormulaListsController) loaderLists.getController();
 		return formulaLists;
 	}
 
-	private Pane loadCanvas() throws IOException {
+	private Pane loadCanvasAndController() throws IOException {
 		FXMLLoader loaderCanvas = JavaFxHelper.getLoader(this.getClass(), "/fxml/Canvas.fxml");
 		Pane canvas = (Pane) loaderCanvas.load();
 		canvasController = (CanvasController) loaderCanvas.getController();
@@ -92,7 +94,7 @@ public class MainWindowController implements Initializable {
 //        ##     ## ######## ##    ##  #######  
 	@FXML
 	void handleNewProjectAction(ActionEvent event) {
-		reloadCanvas();
+		reloadComponents();
 	}
 	@FXML
 	void handleQuitAction(ActionEvent event) {
@@ -125,10 +127,12 @@ public class MainWindowController implements Initializable {
 		if (chosenFile != null) {
 			lastDirectory = chosenFile.getParentFile();
 			try {
-				JsonHelper.loadJson(chosenFile, canvasController);
+				Map<Integer, AbstractNode> loadJson = JsonHelper.loadJson(chosenFile);
+				canvasController.addToControler(loadJson);
+				
 			} catch (FileNotFoundException ex) { //should not normally happen since filechooser does not allow to select nonexisting object
 				Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
-				JavaFxHelper.showErrorDialog(ex);
+				JavaFxHelper.showErrorDialog("File not Found", ex);
 			}
 		}
 	}
@@ -161,7 +165,7 @@ public class MainWindowController implements Initializable {
 				JsonHelper.saveJson(json, chosenFile);
 			} catch (FileNotFoundException ex) {
 				Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
-				JavaFxHelper.showErrorDialog(ex);
+				JavaFxHelper.showErrorDialog("Could not create selected file.", ex);
 
 			}
 		}
