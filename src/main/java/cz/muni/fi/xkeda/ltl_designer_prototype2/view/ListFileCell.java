@@ -22,34 +22,34 @@ public class ListFileCell extends javafx.scene.control.ListCell<File> implements
 	public static final DataFormat fileDragFormat = new DataFormat("file");
 	private File file;
 
-
 	ListFileCell(CanvasController canvasController) {
 		setOnDragDetected((event) -> {
-			/* drag was detected, start a drag-and-drop gesture*/
-			/* allow any transfer mode */
-			Dragboard db = ListFileCell.this.startDragAndDrop(TransferMode.ANY);
+			if (!isEmpty()) {
+				/* drag was detected, start a drag-and-drop gesture*/
+				/* allow any transfer mode */
+				Dragboard db = ListFileCell.this.startDragAndDrop(TransferMode.ANY);
 
-			/* Put a string on a dragboard */
-			ClipboardContent content = new ClipboardContent();
-			content.put(fileDragFormat, file);
-			content.putString(ListFileCell.this.getText());
-			canvasController.setStatus(CanvasStatus.DRAGGING_SAVED_FORMULA);
-			db.setContent(content);
+				/* Put a string on a dragboard */
+				ClipboardContent content = new ClipboardContent();
+				content.put(fileDragFormat, file);
+				content.putString(ListFileCell.this.getText());
+				canvasController.setStatus(CanvasStatus.DRAGGING_SAVED_FORMULA);
+				db.setContent(content);
 
-			event.consume();
+				event.consume();
 
+			}
 		});
 	}
-
 
 	@Override
 	public void updateItem(File item, boolean empty) {
 		super.updateItem(item, empty);
 		file = item;
-		if(item != null){
+		if (item != null) {
 			setText(item.getName());
-		} 
-		if(empty){
+		}
+		if (empty) {
 			setText("empty line");
 		}
 	}

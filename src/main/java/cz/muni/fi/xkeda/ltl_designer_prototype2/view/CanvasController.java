@@ -26,7 +26,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.control.TextField;
@@ -35,13 +34,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 
@@ -89,10 +84,6 @@ public class CanvasController implements Initializable {
 		canvas.requestFocus();
 
 		//you can delete everything up to end of method
-		canvas.setBackground(new Background(new BackgroundFill(Color.GREY, CornerRadii.EMPTY, Insets.EMPTY)));
-
-
-
 		canvas.setOnDragOver(new EventHandler<DragEvent>() {
 			public void handle(DragEvent event) {
 				/* data is dragged over the target */
@@ -122,7 +113,7 @@ public class CanvasController implements Initializable {
 				double x = event.getX();
 				double y = event.getY();
 
-				File draggedFile = (File) event.getDragboard().getContent(ListFileCell.fileDragFormat);
+				File draggedFile = (File) event.getDragboard().getContent(ListFileCell.fileDragFormat);;
 				Text droppedText = new Text(x, y, event.getDragboard().getString());
 				add(droppedText);
 				try {
@@ -167,6 +158,7 @@ public class CanvasController implements Initializable {
 
 	@FXML
 	void handleCanvasDrag(MouseEvent mouseEvent) {
+		System.out.println("canvas drag");
 		if (!mouseEvent.getTarget().equals(canvas)) {
 			return;
 		}
@@ -218,6 +210,9 @@ public class CanvasController implements Initializable {
 				addTextNode(x, y);
 				break;
 			case DRAGGING_SAVED_FORMULA:
+				setStatus(CanvasStatus.IDLE);
+				break;
+			case CREATING_SELF_LOOP:
 				setStatus(CanvasStatus.IDLE);
 				break;
 			default:
@@ -282,6 +277,11 @@ public class CanvasController implements Initializable {
 	void handleArrowAction(ActionEvent event) {
 		setStatus(CanvasStatus.CONNECTING_FORMULAS);
 	}
+	
+	@FXML 
+	void handleSelfLoopClicked(ActionEvent event) {
+		setStatus(CanvasStatus.CREATING_SELF_LOOP);
+	}
 
 	@FXML
 	void handleConnectAction(ActionEvent event) {
@@ -345,7 +345,9 @@ public class CanvasController implements Initializable {
 			case DRAGGING_SAVED_FORMULA:
 				rootPane.setCursor(Cursor.HAND);
 				break;
-
+			case CREATING_SELF_LOOP:
+				rootPane.setCursor(Cursor.CROSSHAIR);
+				break;
 			default:
 				throw new AssertionError(status.name());
 		}
@@ -403,7 +405,7 @@ public class CanvasController implements Initializable {
 
 	public void deselectAll() {
 		for (AbstractNode selectedNode : selectedNodes) {
-			selectedNode.setSelected(false);
+			selectedNode.changeSelected(false);
 		}
 		selectedNodes.clear();
 	}
@@ -480,8 +482,8 @@ public class CanvasController implements Initializable {
 		}
 	}
 
-	public void removeFromCanvas(Text text) {
-		canvas.getChildren().remove(text);
+	public void removeFromCanvas(Shape shape) {
+		canvas.getChildren().remove(shape);
 	}
 
 	public void addConnectingLine(AbstractNode start) {

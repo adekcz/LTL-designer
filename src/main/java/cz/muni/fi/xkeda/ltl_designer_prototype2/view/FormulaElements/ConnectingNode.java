@@ -36,13 +36,6 @@ public class ConnectingNode extends AbstractNode<Circle> {
 	}
 
 	@Override
-	public final void moveTo(double x, double y) {
-		moveLinesTo(x, y);
-		getShape().setCenterX(x);
-		getShape().setCenterY(y);
-	}
-
-	@Override
 	public final void moveBy(double deltaX, double detlaY) {
 		moveLinesBy(deltaX, detlaY);
 		getShape().setCenterX(deltaX + getShape().getCenterX());
@@ -60,8 +53,8 @@ public class ConnectingNode extends AbstractNode<Circle> {
 	}
 
 	@Override
-	public void setDefaultFill() {
-		getShape().setFill(Color.web(Settings.get(Settings.GRAB_POINT_COLOR)));
+	public Color getDefaultFill() {
+		return Color.web(Settings.get(Settings.GRAB_POINT_COLOR));
 	}
 
 	@Override

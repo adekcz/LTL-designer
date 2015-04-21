@@ -24,25 +24,13 @@ public class Ltl_designer extends Application {
 	private Stage primaryStage;
 	private BorderPane rootLayout;
 
-	//start from helloWorld maven template
-// @Override
-//    public void start(Stage stage) throws Exception {
-//		Parent root = FXMLLoader.load(getClass().getResource("/fxml/Scene.fxml"));
-//        
-//        Scene scene = new Scene(root);
-//        scene.getStylesheets().add("/styles/Styles.css");
-//        
-//        stage.setTitle("JavaFX and Maven");
-//        stage.setScene(scene);
-//        stage.show();
-//    }
 	@Override
 	public void start(Stage stage) throws Exception {
 		ResourcesHelper.initAllFiles();
 		Settings.initSettings();
 		
 		loadLayoutFromFxml();
-		displayStage(stage);
+		setupStage(stage);
 	}
 
 	private void loadLayoutFromFxml() throws IOException {
@@ -50,15 +38,21 @@ public class Ltl_designer extends Application {
 		rootLayout = (BorderPane) loader.load();
 	}
 
-	private void displayStage(Stage stage) {
+	private void setupStage(Stage stage) {
 
 		this.primaryStage = stage;
 		this.primaryStage.setTitle("LTL Designer");
+		this.primaryStage.setMinHeight(300);
+		this.primaryStage.setMinWidth(450);
 
+		displayStage();
+	}
+
+	private void displayStage() {
 		Scene scene = new Scene(rootLayout);
 		
-		stage.setScene(scene);
-		stage.show();
+		primaryStage.setScene(scene);
+		primaryStage.show();
 	}
 
 	/**

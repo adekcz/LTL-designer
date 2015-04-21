@@ -54,6 +54,14 @@ public abstract class AbstractNode<E extends Shape> {
 	private boolean isSelected = false;
 	private int index = 0;
 
+	//in more complicated formulas thiss will probably be group of different elements
+	private E shape;
+	protected Point2D lastPosition;
+
+	protected AbstractNode(E shape, CanvasController controller) {
+		this.shape = shape;
+		this.controller = controller;
+	}
 	public int getIndex() {
 		return index;
 	}
@@ -66,26 +74,18 @@ public abstract class AbstractNode<E extends Shape> {
 		return isSelected;
 	}
 
-	public void setSelected(boolean isSelected) {
+	public void changeSelected(boolean isSelected) {
 		if (isSelected) {
 			shape.setFill(Color.web(Settings.get(Settings.SELECTED_COLOR)));
 		} else {
-			setDefaultFill();
+			fillWithDefaultFill();
 		}
-		this.isSelected = isSelected;
+		setSelected(isSelected);
 	}
-	//in more complicated formulas thiss will probably be group of different elements
-	private E shape;
-	protected Point2D lastPosition;
+	
 
-	protected AbstractNode(E shape, CanvasController controller) {
-		this.shape = shape;
-		this.controller = controller;
-	}
-
-	public void setupHandlers() {
+	protected void setupHandlers() {
 		System.out.println("default handlers");
-		setDefaultFill();
 		shape.setOnMouseClicked(clickOnShape());
 		shape.setOnMousePressed(pressOnShape());
 		shape.setOnMouseReleased(releasedOnShape());
@@ -101,12 +101,12 @@ public abstract class AbstractNode<E extends Shape> {
 		};
 	}
 
-	private EventHandler<MouseEvent> releasedOnShape() {
+	protected EventHandler<MouseEvent> releasedOnShape() {
 		return (MouseEvent mouseEvent) -> {
 			System.out.println("RELEASED");
 			shape.setCursor(Cursor.HAND);
 			if (!controller.containsSelected(this)) {
-				setSelected(false);
+				changeSelected(false);
 			}
 		};
 	}
@@ -122,9 +122,9 @@ public abstract class AbstractNode<E extends Shape> {
 		};
 	}
 
-	private EventHandler<MouseEvent> pressOnShape() {
+	protected EventHandler<MouseEvent> pressOnShape() {
 		return (MouseEvent mouseEvent) -> {
-			setSelected(true);
+			changeSelected(true);
 			if (mouseEvent.isControlDown()) {
 				controller.addSelected(this);
 			}
@@ -154,6 +154,7 @@ public abstract class AbstractNode<E extends Shape> {
 
 	public void setupGUIinteractions() {
 		setupHandlers();
+		fillWithDefaultFill();
 		getController().addToAll(this);
 		getController().add(this.getShape());
 	}
@@ -173,26 +174,7 @@ public abstract class AbstractNode<E extends Shape> {
 		this.shape = shape;
 	}
 
-	/**
-	 * Moves to x and y coordinate. Also moves with all lines that are
-	 * connected to this (with line-end that is connected to this).
-	 *
-	 * @param x where to move
-	 * @param y where to move
-	 */
-	protected void moveLinesTo(double x, double y) {
-		if (inEdge != null) {
-			Line line = inEdge.getShape();
-			line.setEndX(x);
-			line.setEndY(y);
-		}
 
-		if (outEdge != null) {
-			Line line = outEdge.getShape();
-			line.setStartX(x);
-			line.setStartY(y);
-		}
-	}
 
 	protected void moveLinesBy(double deltaX, double deltaY) {
 		moveInEdge(deltaX, deltaY);
@@ -206,7 +188,6 @@ public abstract class AbstractNode<E extends Shape> {
 			line.setStartY(deltaY + line.getStartY());
 		}
 	}
-
 	private void moveInEdge(double deltaX, double deltaY) {
 		if (inEdge != null) {
 			Line line = inEdge.getShape();
@@ -214,15 +195,6 @@ public abstract class AbstractNode<E extends Shape> {
 			line.setEndY(deltaY + line.getEndY());
 		}
 	}
-
-	/**
-	 * Where to move.
-	 *
-	 * @param x coordinate x
-	 * @param y coordinate y
-	 */
-	public abstract void moveTo(double x, double y);
-
 	public abstract void moveBy(double deltaX, double deltaY);
 
 	/**
@@ -237,7 +209,10 @@ public abstract class AbstractNode<E extends Shape> {
 	 */
 	public abstract double getRepresentativeY();
 
-	public abstract void setDefaultFill();
+	public void fillWithDefaultFill(){
+		getShape().setFill(getDefaultFill());
+	}
+	public abstract Color getDefaultFill();
 
 	public PolygonalChain connectGraphicallyTo(AbstractNode other) {
 		PolygonalChain line = FormulaShapeFactory.createPolygonalChain(this, other);
@@ -283,6 +258,10 @@ public abstract class AbstractNode<E extends Shape> {
 	protected void disconnect() {
 		outEdge = null;
 		inEdge = null;
+	}
+
+	protected void setSelected(boolean selected) {
+		this.isSelected = selected;
 	}
 
 }

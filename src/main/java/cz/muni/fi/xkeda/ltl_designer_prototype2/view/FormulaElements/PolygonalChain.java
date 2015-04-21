@@ -43,18 +43,14 @@ public class PolygonalChain extends AbstractNode<Line>{
 	}
 
 	@Override
-	public void moveTo(double x, double y) {
-		moveLinesTo(x, y);
-	}
-	@Override
 	public final void moveBy(double deltaX, double detlaY) {
 		//TODO create method for moving circles
 		moveLinesBy(deltaX, detlaY);
 	}
 
 	@Override
-	public void setDefaultFill() {
-		getShape().setFill(Color.BLACK);
+	public Color getDefaultFill() {
+		return Color.BLACK;
 	}
 
 	@Override

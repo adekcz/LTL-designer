@@ -16,6 +16,8 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
@@ -55,11 +57,30 @@ public class JavaFxHelper {
 		return result;
 	}
 
+	public static void showErrorDialog(String title, Exception ex) {
+		Alert errorDialog = new Alert(Alert.AlertType.ERROR);
+		errorDialog.setTitle(title);
+		errorDialog.setContentText(ex.getMessage());
+		GridPane expContent = createExpandableExceptionRegion(ex);
+
+		errorDialog.getDialogPane().setExpandableContent(expContent);
+		errorDialog.showAndWait();
+	}
+
+	public static boolean isDoubleClick(MouseEvent event) {
+		if (event.getButton().equals(MouseButton.PRIMARY)) {
+			if (event.getClickCount() == 2) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private static GridPane createExpandableExceptionRegion(Exception ex) {
 		String exceptionText = getExceptionText(ex);
 		Label label = new Label("The exception stacktrace was:");
 		TextArea textArea = getTextAreaForExceptionRegion(exceptionText);
-		
+
 		GridPane expContent = createExceptionContentPane(label, textArea);
 		return expContent;
 	}
@@ -91,15 +112,4 @@ public class JavaFxHelper {
 		return exceptionText;
 	}
 
-	public static void showErrorDialog(String title, Exception ex) {
-		Alert errorDialog = new Alert(Alert.AlertType.ERROR);
-		errorDialog.setTitle(title);
-		errorDialog.setContentText(ex.getMessage());
-		GridPane expContent = createExpandableExceptionRegion(ex);
-
-// Set expandable Exception into the dialog pane.
-		errorDialog.getDialogPane().setExpandableContent(expContent);
-
-		errorDialog.showAndWait();
-	}
 }

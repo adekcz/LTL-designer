@@ -40,4 +40,13 @@ public class TODOs {
 	
 
 	//keyhandle for delete: http://stackoverflow.com/questions/13246211/javafx-how-to-get-stage-from-controller-during-initialization
+
+
+	//add some pictograhphical/fullygraphical represeantation of predefined formulas, you can use cosntructor new label(string text, node graphic)..
+
+	///load json should return arraylist, not map, even thought it is internally implemented as map
+	
+
+	//hide grabpoint when not pointing on it.
+	//toto checkout constructors, do they need controller?
 }

@@ -44,6 +44,7 @@
               <items>
                 <MenuItem mnemonicParsing="false" text="Zoom In - Not Implemented Yet" />
                   <MenuItem mnemonicParsing="false" text="Zoom Out - - Not Implemented Yet" />
+                  <MenuItem mnemonicParsing="false" text="Show/Hide basic controls - Not Implemented Yet" />
               </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Tools">

@@ -8,10 +8,12 @@ package cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.Settings;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JavaFxHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasStatus;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -31,6 +33,8 @@ public class TextNode extends AbstractNode<Rectangle> {
 	private String textualFormula;
 	private Text text;
 	private final List<ConnectingNode> startPoints;
+	//todo implement saving to json
+	private Loop loop;
 
 	public List<ConnectingNode> getStartPoints() {
 		return Collections.unmodifiableList(startPoints);
@@ -47,16 +51,34 @@ public class TextNode extends AbstractNode<Rectangle> {
 		super(new Rectangle(x, y, 100, 30), canvasController);
 		startPoints = new ArrayList<>();
 		textualFormula = "";
+	}
 
-		//todo this also into super class as static or somehow better method
-		//getShape().setOnMouseDragged((eventDragged) -> {
-		//if (eventDragged.isPrimaryButtonDown()) {
-		//double x1 = eventDragged.getRepresentativeX();
-		//double y1 = eventDragged.getRepresentativeY();
-		//moveTo(x1, y1);
-		//}
-//
-		//});
+	@Override
+	public void setupHandlers() {
+		super.setupHandlers(); //To change body of generated methods, choose Tools | Templates.
+		EventHandler<? super MouseEvent> oldClickHandler = getShape().getOnMouseClicked();
+		EventHandler<? super MouseEvent> newClickHandler = new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent event) {
+				System.out.println("NEW HANDLER, shiny, ");
+				oldClickHandler.handle(event);
+				if (getController().getStatus() == CanvasStatus.CREATING_SELF_LOOP && loop == null) {
+					loop = new Loop(getShape().getX() + getShape().getWidth(), getShape().getY(), getController());
+					loop.setupGUIinteractions();
+					System.out.println(event.getSceneX());
+					System.out.println(event.getSceneY());
+					System.out.println(event.getScreenX());
+					System.out.println(event.getScreenY());
+					loop.showTypePopupChooser(event.getScreenX(), event.getScreenY());
+
+				}
+
+			}
+
+		};
+		getShape().setOnMouseClicked(newClickHandler);
+
 	}
 
 	public AbstractNode getMyParent() {
@@ -85,27 +107,16 @@ public class TextNode extends AbstractNode<Rectangle> {
 		return textualFormula;
 	}
 
-	//TODO Deltas will be better, after all, (it will get rid of magic constant;
-	@Override
-	public final void moveTo(double x, double y) {
-		moveLinesTo(x, y);
-		if (getShape() != null) {
-			getShape().setX(x);
-			getShape().setY(y);
-		}
-		if (text != null) {
-			text.setX(x);
-			text.setY(y + 20);
-		}
-
-	}
-
 	@Override
 	public void moveBy(double deltaX, double deltaY) {
 		moveLinesBy(deltaX, deltaY);
 		moveShapeBy(deltaX, deltaY);
 		moveTextBy(deltaX, deltaY);
 		moveStartNodesBy(deltaX, deltaY);
+		if (loop != null) {
+			loop.moveBy(deltaX, deltaY);
+		}
+		//TODO refactor, list containing shapes into abstarctNode, itarate over that list 
 	}
 
 	private void moveStartNodesBy(double deltaX, double deltaY) {
@@ -123,8 +134,8 @@ public class TextNode extends AbstractNode<Rectangle> {
 
 	private void moveShapeBy(double deltaX, double deltaY) {
 		if (getShape() != null) {
-			getShape().setX(getShape().getX() + deltaX);
-			getShape().setY(getShape().getY() + deltaY);
+			getShape().setX(deltaX + getShape().getX());
+			getShape().setY(deltaY + getShape().getY());
 		}
 	}
 
@@ -139,7 +150,7 @@ public class TextNode extends AbstractNode<Rectangle> {
 		createStartingPoints(textToAdd);
 	}
 
-	private void createGUItext(){
+	private void createGUItext() {
 		text = createNewText(textualFormula);
 		getShape().setWidth(JavaFxHelper.getWidth(text));
 		getController().add(text); // order of adding to canvas matter, text should be added before starting points (mouseeevent handlers rely on this..)
@@ -178,9 +189,9 @@ public class TextNode extends AbstractNode<Rectangle> {
 			System.out.println("Event hadoverd");
 			Event.fireEvent(getShape(), event);
 		});
-			node.setOnMouseClicked((event) -> {
-				Event.fireEvent(getShape(), event);
-			});
+		node.setOnMouseClicked((event) -> {
+			Event.fireEvent(getShape(), event);
+		});
 		node.setOnMouseDragged((event) -> {
 			Event.fireEvent(getShape(), event);
 		});
@@ -219,19 +230,22 @@ public class TextNode extends AbstractNode<Rectangle> {
 	}
 
 	@Override
-	public void setDefaultFill() {
-		getShape().setFill(Color.web(Settings.get(Settings.FORMULA_COLOR)));
+	public Color getDefaultFill() {
+		return Color.web(Settings.get(Settings.FORMULA_COLOR));
 	}
 
 	@Override
 	public void delete() {
 		super.delete();
-		for(ConnectingNode cn: startPoints){
+		for (ConnectingNode cn : startPoints) {
 			cn.delete();
 		}
 		getController().removeFromCanvas(text);
+		if (loop != null) {
+			loop.delete();
+		}
 		disconnect();
-		
+
 	}
 
 }

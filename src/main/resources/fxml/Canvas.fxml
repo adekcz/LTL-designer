@@ -17,14 +17,15 @@
             <Button mnemonicParsing="false" onAction="#handleArrowAction" text="Arrow" />
             <Button mnemonicParsing="false" onAction="#handleTextAction" text="Text" />
             <Button mnemonicParsing="false" onMouseClicked="#handleDeleteSelected" text="Delete Selected" />
+            <Button mnemonicParsing="false" onAction="#handleSelfLoopClicked" text="Self loop" />
          </children>
       </HBox>
    </top>
    <center>
-      <Pane fx:id="canvas" minHeight="400.0" minWidth="400.0" onKeyPressed="#handleKeyPressed" onMouseClicked="#handleCanvasClick" style="-fx-background-color: #ff0000;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER" />
+      <Pane fx:id="canvas" minHeight="400.0" minWidth="400.0" onKeyPressed="#handleKeyPressed" onMouseClicked="#handleCanvasClick" onMouseDragged="#handleCanvasDrag" onMousePressed="#handleCanvasPress" onMouseReleased="#handleCanvasRelease" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER" />
    </center>
    <bottom>
-      <HBox fx:id="hbFormula" alignment="CENTER" prefHeight="34.0" prefWidth="600.0" visible="false" BorderPane.alignment="TOP_LEFT">
+      <HBox fx:id="hbFormula" alignment="CENTER_LEFT" prefHeight="34.0" prefWidth="600.0" visible="false" BorderPane.alignment="TOP_LEFT">
          <children>
             <Label text="Write formula Here:" />
             <TextField fx:id="txtInputFormula" prefHeight="31.0" prefWidth="433.0" />

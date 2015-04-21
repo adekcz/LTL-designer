@@ -44,7 +44,7 @@ public class StartingNode extends ConnectingNode {
 	}
 
 	@Override
-	public void setDefaultFill() {
+	public void fillWithDefaultFill() {
 		getShape().setFill(Color.web(Settings.get(Settings.START_POINT_COLOR)));
 	}
 
@@ -67,6 +67,11 @@ public class StartingNode extends ConnectingNode {
 		if(isInner()){
 			getController().removeFromAllNodes(this);
 		}
+	}
+
+	@Override
+	public void setupHandlers() {
+		super.setupHandlers(); //To change body of generated methods, choose Tools | Templates.
 		getShape().setOnDragDropped(handleDropppingSavedFormula());
 	}
 
