@@ -65,7 +65,7 @@ public class TextNode extends AbstractNode<Rectangle> {
 				System.out.println("NEW HANDLER, shiny, ");
 				oldClickHandler.handle(event);
 				if (getController().getStatus() == CanvasState.CREATING_SELF_LOOP && loop == null) {
-					loop = new Loop(getShape().getX() + getShape().getWidth(), getShape().getY(), getController());
+					loop = new Loop(getShape(), getController());
 					loop.setupGUIinteractions();
 					System.out.println(event.getSceneX());
 					System.out.println(event.getSceneY());
