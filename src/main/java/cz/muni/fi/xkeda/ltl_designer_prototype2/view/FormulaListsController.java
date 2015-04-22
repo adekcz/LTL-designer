@@ -5,7 +5,7 @@
  */
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view;
 
-import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.Settings;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.SettingsConstants;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.FileHelper;
 import java.io.File;
 import java.net.URL;
@@ -16,13 +16,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
-import javafx.util.Callback;
 
 /**
  * FXML Controller class
@@ -35,43 +33,29 @@ public class FormulaListsController implements Initializable {
 	private ListView<File> defaultFormulasLV;
 	private CanvasController canvasController;
 
-	/**
-	 * Initializes the controller class.
-	 */
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
-		defaultFormulasLV.setBackground(new Background(new BackgroundFill(Color.BEIGE, CornerRadii.EMPTY, Insets.EMPTY)));
-		ObservableList<File> data = FXCollections.observableArrayList();
-		System.out.println(Settings.SETTINGS_FOLDER_PATH);
-		List<File> files = FileHelper.getAllFiles(new File(Settings.SETTINGS_FOLDER_PATH), "json");
-		data.addAll(files);
-		defaultFormulasLV.setItems(data);
-		
-		//= FXCollections.observableArrayList(
-			//"chocolate", "salmon", "gold", "coral", "darkorchid",
-			//"darkgoldenrod", "lightsalmon", "black", "rosybrown", "blue",
-			//"blueviolet", "brown");
+		initFormulasList();
 
-		defaultFormulasLV.setCellFactory(new Callback<ListView<File>, ListCell<File>>() {
-			@Override
-			public ListCell<File> call(ListView<File> list) {
-				ListFileCell cell = new ListFileCell(canvasController);
-				return cell;
-			}
-		}
-		);
-		//defaultFormulasLV.getSelectionModel().g
-		//defaultFormulasLV.getSelectionModel().selectedItemProperty().addListener(
-			//new ChangeListener<String>() {
-				//public void changed(ObservableValue<? extends String> ov,
-					//String old_val, String new_val) {
-				//}
-			//});
-
-		// TODO
+		setupHandlers();
 	}
 
-	void setCanvasController(CanvasController canvasController) {
+	private void initFormulasList() {
+		defaultFormulasLV.setBackground(new Background(new BackgroundFill(Color.BEIGE, CornerRadii.EMPTY, Insets.EMPTY)));
+		ObservableList<File> data = FXCollections.observableArrayList();
+		List<File> files = FileHelper.getAllFiles(new File(SettingsConstants.SETTINGS_FOLDER_PATH), "json");
+		data.addAll(files);
+		defaultFormulasLV.setItems(data);
+	}
+
+	private void setupHandlers() {
+		defaultFormulasLV.setCellFactory((ListView<File> list) -> {
+			ListFileCell cell = new ListFileCell(canvasController);
+			return cell;
+		});
+	}
+
+	public void setCanvasController(CanvasController canvasController) {
 		this.canvasController = canvasController;
 	}
 

@@ -16,24 +16,26 @@ import java.util.List;
  */
 public class FileHelper {
 
-	/**
-	 *
-	 */
 	public static void createPredecessorFolderStructure(File file) {
 		File parent = file.getParentFile();
 		if (!parent.exists()) {
 			boolean parentCreated = parent.mkdirs();
 			if (!parentCreated) {
-				IOException ioException = new IOException("Folder structure for file: " + file.getAbsolutePath() +" could not be created. Please do it manually.\n");
-				JavaFxHelper.showErrorDialog("Folder structure could not be crated." , ioException);
+				IOException ioException = new IOException("Folder structure for file: " + file.getAbsolutePath() + " could not be created. Please do it manually.\n");
+				JavaFxHelper.showErrorDialog("Folder structure could not be crated.", ioException);
 			}
 		}
-
 	}
-	public static List<File> getAllFiles(File dir, String suffix){
+
+	/**
+	 * @param dir where to look
+	 * @param suffix NOT regex, plain old string; Empty string matches all files
+	 * @return list of files (not directories) one level below dir
+	 */
+	public static List<File> getAllFiles(File dir, String suffix) {
 		List<File> filesInDir = new ArrayList<>();
-		for(File current: dir.listFiles()){
-			if(current.isFile() && current.getAbsolutePath().endsWith(suffix)){
+		for (File current : dir.listFiles()) {
+			if (current.isFile() && current.getAbsolutePath().endsWith(suffix)) {
 				filesInDir.add(current);
 			}
 		}

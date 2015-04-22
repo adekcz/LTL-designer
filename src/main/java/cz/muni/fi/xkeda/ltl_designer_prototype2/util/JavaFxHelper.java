@@ -57,6 +57,15 @@ public class JavaFxHelper {
 		return result;
 	}
 
+	public static boolean isDoubleClick(MouseEvent event) {
+		if (event.getButton().equals(MouseButton.PRIMARY)) {
+			if (event.getClickCount() == 2) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static void showErrorDialog(String title, Exception ex) {
 		Alert errorDialog = new Alert(Alert.AlertType.ERROR);
 		errorDialog.setTitle(title);
@@ -65,15 +74,6 @@ public class JavaFxHelper {
 
 		errorDialog.getDialogPane().setExpandableContent(expContent);
 		errorDialog.showAndWait();
-	}
-
-	public static boolean isDoubleClick(MouseEvent event) {
-		if (event.getButton().equals(MouseButton.PRIMARY)) {
-			if (event.getClickCount() == 2) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private static GridPane createExpandableExceptionRegion(Exception ex) {

@@ -6,6 +6,7 @@
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements;
 
 import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.Settings;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.SettingsConstants;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JavaFxHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JsonHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
@@ -18,7 +19,6 @@ import java.util.logging.Logger;
 import javafx.event.EventHandler;
 import javafx.scene.input.DragEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 
 /**
  *
@@ -45,7 +45,7 @@ public class StartingNode extends ConnectingNode {
 
 	@Override
 	public void fillWithDefaultFill() {
-		getShape().setFill(Color.web(Settings.get(Settings.START_POINT_COLOR)));
+		getShape().setFill(Color.web(Settings.get(SettingsConstants.START_POINT_COLOR)));
 	}
 
 	@Override
@@ -86,8 +86,6 @@ public class StartingNode extends ConnectingNode {
 				double y = event.getY();
 
 				File draggedFile = (File) event.getDragboard().getContent(ListFileCell.fileDragFormat);
-				Text droppedText = new Text(x, y, event.getDragboard().getString());
-				getController().add(droppedText);
 				try {
 					Map<Integer, AbstractNode> loadJson = JsonHelper.loadJson(draggedFile);
 					StartingNode oldStart = getStartNode(loadJson);

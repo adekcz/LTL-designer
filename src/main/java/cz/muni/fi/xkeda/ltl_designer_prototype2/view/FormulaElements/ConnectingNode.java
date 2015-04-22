@@ -6,6 +6,7 @@
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements;
 
 import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.Settings;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.SettingsConstants;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -17,16 +18,11 @@ import javafx.scene.shape.Circle;
  */
 public class ConnectingNode extends AbstractNode<Circle> {
 
-
 	public enum Type {
 
 		StartPoint, GrabPoint
 	}
 
-	/**
-	 * Construtctor that only initializes values, not behaviour of
-	 * interactions with canvas
-	 */
 	public ConnectingNode(double x, double y) {
 		this(x, y, null);
 	}
@@ -54,7 +50,7 @@ public class ConnectingNode extends AbstractNode<Circle> {
 
 	@Override
 	public Color getDefaultFill() {
-		return Color.web(Settings.get(Settings.GRAB_POINT_COLOR));
+		return Color.web(Settings.get(SettingsConstants.GRAB_POINT_COLOR));
 	}
 
 	@Override
@@ -69,12 +65,7 @@ public class ConnectingNode extends AbstractNode<Circle> {
 
 	@Override
 	public void setupGUIinteractions() {
-		super.setupGUIinteractions(); 
-	//	EventHandler<? super MouseEvent> mouseClickedHandler = getShape().getOnMouseClicked(); 
-	//	getShape().setOnMouseClicked((event) -> {
-	//		mouseClickedHandler.handle(event);
-	//		//TODO FIGURE OUT WHAT you wanted to write here ??? (if I undestand this correctly now, this does nothing..)
-	//	});
+		super.setupGUIinteractions();
 	}
 
 }

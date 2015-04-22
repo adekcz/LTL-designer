@@ -25,32 +25,18 @@ import java.util.logging.Logger;
 public class Settings {
 
 
-	//keys to map
-	public static final String FORMULA_COLOR = "FORMULA_COLOR";
-	public static final String START_POINT_COLOR = "START_POINT_COLOR";
-	public static final String GRAB_POINT_COLOR = "GRAB_POINT_COLOR";
-	public static final String SELECTED_COLOR = "SELECTED_COLOR";
-	public static final String PLACEHOLDER_FOR_FORMULA_START = "PLACEHOLDER_FOR_FORMULA_START";
-	public static final String LAST_OPEN_DIRECTORY = "LAST_OPEN_DIRECTORY";
+	public static final Properties currentSettings = new Properties();
 
-	private static final Properties currentSettings = new Properties();
+	public static String get(String key) {
+		return currentSettings.getProperty(key);
+	}
 
-
-	public static final String SETTINGS_RESOURCE_FOLDER_PATH = "saved";
-	public static final String SETTINGS_RESOURCE_FILE_PATH = SETTINGS_RESOURCE_FOLDER_PATH + "/defaultProperties.properties";
-
-
-	public static final String APP_HOME_FOLDER_PATH = System.getProperty("user.dir");
-	public static final String SETTINGS_FILE_PATH = APP_HOME_FOLDER_PATH + File.separator + SETTINGS_RESOURCE_FOLDER_PATH + File.separator + "defaultProperties.properties";
-
-	public static final String SETTINGS_FOLDER_PATH = APP_HOME_FOLDER_PATH + File.separator + "saved";
 	/**
-	 * Reads settings from default location. If it does not exists, tries to
-	 * create it.
+	 * Reads settings from default location. If it does not exists, tries to create it.
 	 */
 	public static void initSettings() {
-		File settingsFile = new File(SETTINGS_FILE_PATH);
-		Properties loaded = null;
+		File settingsFile = new File(SettingsConstants.SETTINGS_FILE_PATH);
+		Properties loaded;
 		if (settingsFile.exists()) {
 			loaded = loadFromExistingFile(settingsFile);
 		} else {
@@ -72,7 +58,7 @@ public class Settings {
 	}
 
 	private static Properties loadDefaultSettings() {
-		InputStream input = ResourcesHelper.getResourceAsInputStream("/" + SETTINGS_RESOURCE_FILE_PATH);
+		InputStream input = ResourcesHelper.getResourceAsInputStream("/" + SettingsConstants.SETTINGS_RESOURCE_FILE_PATH);
 		Properties prop = loadSettings(input);
 		return prop;
 	}
@@ -88,13 +74,8 @@ public class Settings {
 		return prop;
 	}
 
-	private static void replaceSettings(Properties other) {
-		currentSettings.clear();
-		currentSettings.putAll(other);
-	}
-
 	private static void saveSettings(Properties prop) {
-		try (OutputStream output = new FileOutputStream(SETTINGS_FILE_PATH)) {
+		try (OutputStream output = new FileOutputStream(SettingsConstants.SETTINGS_FILE_PATH)) {
 			// save properties to project root folder
 			prop.store(output, "Contains all customizable settings in LTL Designer. Edit _Sensibly_.");
 		} catch (FileNotFoundException ex) {
@@ -105,8 +86,5 @@ public class Settings {
 
 	}
 
-	public static String get(String key) {
-		return currentSettings.getProperty(key);
-	}
 
 }

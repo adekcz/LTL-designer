@@ -9,7 +9,7 @@ package cz.muni.fi.xkeda.ltl_designer_prototype2.view;
  *
  * @author adekcz
  */
-public enum CanvasStatus {
+public enum CanvasState {
 
 	IDLE, CONNECTING_FORMULAS, CREATING_NEW_ELEMENT, CREATING_DOT, CREATING_TEXT, DRAGGING_SAVED_FORMULA, CREATING_SELF_LOOP
 }

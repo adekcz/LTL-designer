@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,16 +51,16 @@ public class JsonHelper {
 	private static final String KEY_EDGE_END = "end";
 	private static final String KEY_EDGE_START = "start";
 
-	public static final String testJson = "{\"FormulaNodes\":[{\"X\":402.5556640625, \"Y\":116.0, \"text\":\"asfdho XXX sdf XXX soifj XXX\", \"index\":1, \"Edges\":[{\"X\":384.650390625, \"Y\":111.0, \"index\":2}, {\"X\":438.56640625, \"Y\":111.0, \"index\":3}, {\"X\":502.111328125, \"Y\":111.0, \"index\":4}]}, {\"X\":167.26171875, \"Y\":290.0, \"text\":\"fsd\", \"index\":5, \"Edges\":[]}, {\"X\":303.26171875, \"Y\":269.0, \"text\":\"dsf\", \"index\":6, \"Edges\":[]}, {\"X\":349.26171875, \"Y\":272.0, \"text\":\"sdf\", \"index\":7, \"Edges\":[]}], \"ConnectingPoints\":[{\"X\":40.0, \"Y\":76.0, \"index\":8}], \"Edges\":[{\"start\":2, \"end\":5}, {\"start\":3, \"end\":6}, {\"start\":4, \"end\":7}, {\"start\":8, \"end\":1}]}\n"
-		+ "";
-
-	public static void saveJson(JsonObject json, File file) throws FileNotFoundException {
+	public static void saveJson(JsonObject json, File file) {
 		Map<String, Object> properties = new HashMap<>(1);
 		properties.put(JsonGenerator.PRETTY_PRINTING, true);
 
 		JsonWriterFactory createWriterFactory = Json.createWriterFactory(properties);
-		try (JsonWriter writer = createWriterFactory.createWriter(new FileOutputStream(file))) {
+		try (FileOutputStream fileStream = new FileOutputStream(file);
+			JsonWriter writer = createWriterFactory.createWriter(fileStream)) {
 			writer.writeObject(json);
+		} catch (IOException ex) {
+			JavaFxHelper.showErrorDialog("Could not save to selected File", ex);
 		}
 
 	}
@@ -67,10 +68,8 @@ public class JsonHelper {
 	public static Map<Integer, AbstractNode> loadJson(File file) throws FileNotFoundException {
 		Map<Integer, AbstractNode> nodes = loadModel(file);
 		return nodes;
-		
 
 	}
-
 
 	private static Map<Integer, AbstractNode> loadModel(File file) throws FileNotFoundException {
 		Map<Integer, AbstractNode> nodes = new HashMap<>();
@@ -83,23 +82,44 @@ public class JsonHelper {
 	}
 
 	private static JsonObject readJson(File file) throws FileNotFoundException {
-		JsonReader jsonReader = Json.createReader(new FileReader(file));
-		JsonObject wholeJson = jsonReader.readObject();
-		jsonReader.close();
+		JsonObject wholeJson;
+		try (JsonReader jsonReader = Json.createReader(new FileReader(file))) {
+			wholeJson = jsonReader.readObject();
+		}
 		return wholeJson;
 	}
 
-	private static void connectNodes(JsonObject edgesObject, Map<Integer, AbstractNode> nodes) {
-		JsonArray edges = edgesObject.getJsonArray(KEY_EDGES);
-		for (JsonValue jsonvalue : edges) {
-			JsonObject edge = (JsonObject) jsonvalue;
-			int startIndex = ((JsonNumber) edge.get(KEY_EDGE_START)).intValue();
-			int endIndex = ((JsonNumber) edge.get(KEY_EDGE_END)).intValue();
-			nodes.get(startIndex).connectSymbolically(nodes.get(endIndex));
+	private static Map<Integer, AbstractNode> loadConnectingPoints(JsonObject object) {
+		Map<Integer, AbstractNode> nodes = new HashMap<>();
+		JsonArray connectingPoints = object.getJsonArray(KEY_CONNECTING_POINTS);
+		for (JsonValue jsonvalue : connectingPoints) {
+			JsonObject connectingPoin = (JsonObject) jsonvalue;
+			JsonNumber x = (JsonNumber) connectingPoin.get(KEY_X);
+			JsonNumber y = (JsonNumber) connectingPoin.get(KEY_Y);
+			JsonNumber index = (JsonNumber) connectingPoin.get(KEY_INDEX);
+			//todo, check, if is start
+			ConnectingNode connectingPoint = new ConnectingNode(x.doubleValue(), y.doubleValue());
+			nodes.put(index.intValue(), connectingPoint);
 		}
+		return nodes;
 	}
 
-	private static  Map<Integer, AbstractNode>  loadFormulasAndItsStartPoints(JsonObject object) {
+	private static Map<Integer, AbstractNode> loadStartNodes(JsonObject object) {
+		Map<Integer, AbstractNode> nodes = new HashMap<>();
+		JsonArray connectingPoints = object.getJsonArray(KEY_STARTS);
+		for (JsonValue jsonvalue : connectingPoints) {
+			JsonObject connectingPoin = (JsonObject) jsonvalue;
+			JsonNumber x = (JsonNumber) connectingPoin.get(KEY_X);
+			JsonNumber y = (JsonNumber) connectingPoin.get(KEY_Y);
+			JsonNumber index = (JsonNumber) connectingPoin.get(KEY_INDEX);
+			//todo, check, if is start
+			StartingNode connectingPoint = new StartingNode(x.doubleValue(), y.doubleValue());
+			nodes.put(index.intValue(), connectingPoint);
+		}
+		return nodes;
+	}
+
+	private static Map<Integer, AbstractNode> loadFormulasAndItsStartPoints(JsonObject object) {
 		Map<Integer, AbstractNode> nodes = new HashMap<>();
 		JsonArray formulas = object.getJsonArray(KEY_FORMULA_NODES);
 		for (JsonValue jsonvalue : formulas) {
@@ -127,34 +147,15 @@ public class JsonHelper {
 		}
 		return nodes;
 	}
-	private static Map<Integer, AbstractNode> loadStartNodes(JsonObject object) {
-		Map<Integer, AbstractNode> nodes = new HashMap<>();
-		JsonArray connectingPoints = object.getJsonArray(KEY_STARTS);
-		for (JsonValue jsonvalue : connectingPoints) {
-			JsonObject connectingPoin = (JsonObject) jsonvalue;
-			JsonNumber x = (JsonNumber) connectingPoin.get(KEY_X);
-			JsonNumber y = (JsonNumber) connectingPoin.get(KEY_Y);
-			JsonNumber index = (JsonNumber) connectingPoin.get(KEY_INDEX);
-			//todo, check, if is start
-			StartingNode connectingPoint = new StartingNode(x.doubleValue(), y.doubleValue());
-			nodes.put(index.intValue(), connectingPoint);
-		}
-		return nodes;
-	}
 
-	private static Map<Integer, AbstractNode> loadConnectingPoints(JsonObject object) {
-		Map<Integer, AbstractNode> nodes = new HashMap<>();
-		JsonArray connectingPoints = object.getJsonArray(KEY_CONNECTING_POINTS);
-		for (JsonValue jsonvalue : connectingPoints) {
-			JsonObject connectingPoin = (JsonObject) jsonvalue;
-			JsonNumber x = (JsonNumber) connectingPoin.get(KEY_X);
-			JsonNumber y = (JsonNumber) connectingPoin.get(KEY_Y);
-			JsonNumber index = (JsonNumber) connectingPoin.get(KEY_INDEX);
-			//todo, check, if is start
-			ConnectingNode connectingPoint = new ConnectingNode(x.doubleValue(), y.doubleValue());
-			nodes.put(index.intValue(), connectingPoint);
+	private static void connectNodes(JsonObject edgesObject, Map<Integer, AbstractNode> nodes) {
+		JsonArray edges = edgesObject.getJsonArray(KEY_EDGES);
+		for (JsonValue jsonvalue : edges) {
+			JsonObject edge = (JsonObject) jsonvalue;
+			int startIndex = ((JsonNumber) edge.get(KEY_EDGE_START)).intValue();
+			int endIndex = ((JsonNumber) edge.get(KEY_EDGE_END)).intValue();
+			nodes.get(startIndex).connectSymbolically(nodes.get(endIndex));
 		}
-		return nodes;
 	}
 
 	private static void indexElements(List<AbstractNode> nodes) {
@@ -193,8 +194,7 @@ public class JsonHelper {
 	}
 
 	private static void fillJsonArrays(List<AbstractNode> nodes, JsonArrayBuilder formulaNodes, JsonArrayBuilder connectinPoints, JsonArrayBuilder edges, JsonArrayBuilder starts) throws UnsupportedOperationException, IllegalStateException {
-		for (int i = 0; i < nodes.size(); i++) {
-			AbstractNode uncastNode = nodes.get(i);
+		for (AbstractNode uncastNode : nodes) {
 			if (uncastNode instanceof TextNode) {
 				TextNode currNode = (TextNode) uncastNode;
 				JsonObjectBuilder nodeBuilder = convertNode(currNode);
@@ -207,12 +207,11 @@ public class JsonHelper {
 				nodeBuilder.add(KEY_EDGES, innerStartPointsArray);
 				formulaNodes.add(nodeBuilder);
 
-			} else if(uncastNode instanceof StartingNode){
+			} else if (uncastNode instanceof StartingNode) {
 				StartingNode currConnectingNode = (StartingNode) uncastNode;
 				starts.add(convertConnectingNode(currConnectingNode));
 				convertOutEdges(currConnectingNode.getOutEdge(), edges);
-			}
-			else if (uncastNode instanceof ConnectingNode) {
+			} else if (uncastNode instanceof ConnectingNode) {
 				ConnectingNode currConnectingNode = (ConnectingNode) uncastNode;
 				connectinPoints.add(convertConnectingNode(currConnectingNode));
 				convertOutEdges(currConnectingNode.getOutEdge(), edges);
@@ -223,7 +222,6 @@ public class JsonHelper {
 			} else {
 				throw new UnsupportedOperationException("Convertor for " + uncastNode.getClass() + " to JSON was not implemented");
 			}
-
 		}
 	}
 

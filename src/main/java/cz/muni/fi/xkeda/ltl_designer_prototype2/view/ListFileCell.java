@@ -6,8 +6,6 @@
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view;
 
 import java.io.File;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
@@ -17,7 +15,7 @@ import javafx.scene.input.TransferMode;
  *
  * @author adekcz
  */
-public class ListFileCell extends javafx.scene.control.ListCell<File> implements ChangeListener<File> {
+public class ListFileCell extends javafx.scene.control.ListCell<File> {
 
 	public static final DataFormat fileDragFormat = new DataFormat("file");
 	private File file;
@@ -32,8 +30,7 @@ public class ListFileCell extends javafx.scene.control.ListCell<File> implements
 				/* Put a string on a dragboard */
 				ClipboardContent content = new ClipboardContent();
 				content.put(fileDragFormat, file);
-				content.putString(ListFileCell.this.getText());
-				canvasController.setStatus(CanvasStatus.DRAGGING_SAVED_FORMULA);
+				canvasController.setStatus(CanvasState.DRAGGING_SAVED_FORMULA);
 				db.setContent(content);
 
 				event.consume();
@@ -52,12 +49,5 @@ public class ListFileCell extends javafx.scene.control.ListCell<File> implements
 		if (empty) {
 			setText("empty line");
 		}
-	}
-//Basic mind making I'm adding up to the cell so that
-
-	@Override
-	public void changed(ObservableValue<? extends File> observable, File oldValue, File newValue) {
-		System.out.println("Changed");
-
 	}
 }

@@ -23,14 +23,11 @@ public class TestMain {
 
 	public static void main(String[] args){
 		System.out.println(Arrays.toString("asfj a flkasjd f XXX asdlfkj aofi XXXX sadofij asdXXXsakXXX".split("XXX")));
-
+		atomicPropositionTest();
 	}
 
-	private static void substringCountTest(){
 
-	}
-
-	private void atomicPropositionTest(){
+	private static void atomicPropositionTest(){
 		AtomicProposition holka = new AtomicProposition("h");
 		AtomicProposition fialova = new AtomicProposition("f");
 		AtomicProposition green = new AtomicProposition("g");
@@ -48,6 +45,7 @@ public class TestMain {
 
 		Json json = (Json) Json.createArrayBuilder();
 		System.out.println(unaryFormula);
+		System.out.println(json);
 	}
 	
 }

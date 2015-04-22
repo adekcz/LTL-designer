@@ -38,7 +38,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Shape;
-import javafx.scene.text.Text;
 
 /**
  * FXML Controller class
@@ -56,7 +55,7 @@ public class CanvasController implements Initializable {
 	@FXML
 	private HBox hbFormula;
 
-	private CanvasStatus status;
+	private CanvasState state;
 
 	private PolygonalChain connectingLine;
 	private List<AbstractNode> selectedNodes;
@@ -66,83 +65,63 @@ public class CanvasController implements Initializable {
 
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
-		// allow the label to be dragged around.
-
 		selectedNodes = new ArrayList<>();
 		allNodesNotEmbedded = new ArrayList<>();
-		status = CanvasStatus.IDLE;
-		canvas.setOnMouseMoved((eventMoved) -> {
-			if (status == CanvasStatus.CONNECTING_FORMULAS && connectingLine != null) {
-				//-2 because clicking on element does not propagate throught line if line is directly under cursor... OPTIONALY try to find better solution
-				connectingLine.getShape().setEndX(eventMoved.getX() - 2);
-				connectingLine.getShape().setEndY(eventMoved.getY() - 2);
-			}
-		});
+		state = CanvasState.IDLE;
 
 		// EXPERMINETAL AREA
 		canvas.setFocusTraversable(true);
 		canvas.requestFocus();
 
-		//you can delete everything up to end of method
-		canvas.setOnDragOver(new EventHandler<DragEvent>() {
-			public void handle(DragEvent event) {
-				/* data is dragged over the target */
-				/* accept it only if it is not dragged from the same node 
-				 * and if it has a string data */
-				if (event.getGestureSource() != canvas
-				    && event.getDragboard().hasString()) {
-					/* allow for both copying and moving, whatever user chooses */
-					event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-				}
-				//double x = event.getX();
-				//double y = event.getY();
-//
-				//Rectangle rectangle = new Rectangle(x, y, 10, 20);
-				//rectangle.setFill(Color.web(event.getDragboard().getString()));
-				//add(rectangle);
-
-				event.consume();
-			}
-		});
-		canvas.setOnDragDropped(new EventHandler<DragEvent>() {
-			public void handle(DragEvent event) {
-				System.out.println("Handling DROPPED Canvas drop");
-				/* data is dragged over the target */
-				/* accept it only if it is not dragged from the same node 
-				 * and if it has a string data */
-				double x = event.getX();
-				double y = event.getY();
-
-				File draggedFile = (File) event.getDragboard().getContent(ListFileCell.fileDragFormat);;
-				Text droppedText = new Text(x, y, event.getDragboard().getString());
-				add(droppedText);
-				try {
-					Map<Integer, AbstractNode> loadJson = JsonHelper.loadJson(draggedFile);
-					addToControler(loadJson);
-				} catch (FileNotFoundException ex) {
-					Logger.getLogger(CanvasController.class.getName()).log(Level.SEVERE, null, ex);
-				}
-				event.setDropCompleted(true);
-				event.consume();
-			}
-		});
+		setupHandlers();
 	}
-//             ######## ##     ## ######## ##    ## ######## 
-//             ##       ##     ## ##       ###   ##    ##    
-//             ##       ##     ## ##       ####  ##    ##    
-//             ######   ##     ## ######   ## ## ##    ##    
-//             ##        ##   ##  ##       ##  ####    ##    
-//             ##         ## ##   ##       ##   ###    ##    
-//             ########    ###    ######## ##    ##    ##    
-//             
-//             
-//             ##     ##    ###    ##    ## ########  ##       ######## ########   ######  
-//             ##     ##   ## ##   ###   ## ##     ## ##       ##       ##     ## ##    ## 
-//             ##     ##  ##   ##  ####  ## ##     ## ##       ##       ##     ## ##       
-//             ######### ##     ## ## ## ## ##     ## ##       ######   ########   ######  
-//             ##     ## ######### ##  #### ##     ## ##       ##       ##   ##         ## 
-//             ##     ## ##     ## ##   ### ##     ## ##       ##       ##    ##  ##    ## 
-//             ##     ## ##     ## ##    ## ########  ######## ######## ##     ##  ###### 
+
+	private void setupHandlers() {
+		canvas.setOnMouseMoved(handleCanvasMouseMoved());
+		canvas.setOnDragOver(handleCanvasDragOver());
+		canvas.setOnDragDropped(handleCanvasDragDropped());
+	}
+
+	private EventHandler<? super MouseEvent> handleCanvasMouseMoved() {
+		return (eventMoved) -> {
+			if (state == CanvasState.CONNECTING_FORMULAS && connectingLine != null) {
+				/* -2 because clicking on element does not propagate throught line if line is directly under cursor
+				 OPTIONALY try to find better solution */
+				connectingLine.getShape().setEndX(eventMoved.getX() - 2);
+				connectingLine.getShape().setEndY(eventMoved.getY() - 2);
+			}
+		};
+	}
+
+	private EventHandler<DragEvent> handleCanvasDragOver() {
+		return (DragEvent event) -> {
+			if (event.getGestureSource() != canvas
+				&& event.getDragboard().hasContent(ListFileCell.fileDragFormat)) {
+				event.acceptTransferModes(TransferMode.ANY);
+			}
+			event.consume();
+		};
+	}
+
+	private EventHandler<DragEvent> handleCanvasDragDropped() {
+		return (DragEvent event) -> {
+			double x = event.getX();
+			double y = event.getY();
+
+			renderFromJsonFile((File) event.getDragboard().getContent(ListFileCell.fileDragFormat));
+			event.setDropCompleted(true);
+			event.consume();
+		};
+	}
+
+	private void renderFromJsonFile(File draggedFile) {
+		try {
+			Map<Integer, AbstractNode> loadJson = JsonHelper.loadJson(draggedFile);
+			addToControler(loadJson);
+		} catch (FileNotFoundException ex) {
+			Logger.getLogger(CanvasController.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	}
 
 	@FXML
 	void handleKeyPressed(KeyEvent event) {
@@ -182,12 +161,38 @@ public class CanvasController implements Initializable {
 		System.out.println("released");
 		resetCursor();
 	}
+
+	@FXML
+	void handleTextAction(ActionEvent event) {
+		setStatus(CanvasState.CREATING_TEXT);
+	}
+
+	@FXML
+	void handleNodeAction(ActionEvent event) {
+		setStatus(CanvasState.CREATING_NEW_ELEMENT);
+	}
+
+	@FXML
+	void handleStartAction(ActionEvent event) {
+		setStatus(CanvasState.CREATING_DOT);
+	}
+
+	@FXML
+	void handleArrowAction(ActionEvent event) {
+		setStatus(CanvasState.CONNECTING_FORMULAS);
+	}
+
+	@FXML
+	void handleSelfLoopClicked(ActionEvent event) {
+		setStatus(CanvasState.CREATING_SELF_LOOP);
+	}
+
 	@FXML
 	void handleCanvasClick(MouseEvent event) {
 		canvas.requestFocus();
 		double x = event.getX();
 		double y = event.getY();
-		switch (status) {
+		switch (state) {
 			case IDLE:
 				if (event.getTarget().equals(canvas)) {
 					deselectAll();
@@ -200,44 +205,32 @@ public class CanvasController implements Initializable {
 				break;
 			case CREATING_NEW_ELEMENT:
 				FormulaShapeFactory.createFormulaNode(x, y, this);
-				setStatus(CanvasStatus.IDLE);
+				setStatus(CanvasState.IDLE);
 				break;
 			case CREATING_DOT:
 				FormulaShapeFactory.createStartFormulaNode(x, y, this);
-				setStatus(CanvasStatus.IDLE);
+				setStatus(CanvasState.IDLE);
 				break;
 			case CREATING_TEXT:
 				addTextNode(x, y);
 				break;
 			case DRAGGING_SAVED_FORMULA:
-				setStatus(CanvasStatus.IDLE);
-				break;
 			case CREATING_SELF_LOOP:
-				setStatus(CanvasStatus.IDLE);
+				setStatus(CanvasState.IDLE);
 				break;
 			default:
-				throw new AssertionError(status.name());
+				throw new AssertionError(state.name());
 		}
 	}
 
-	private void addTextNode(double x, double y) {
-		TextNode formulaNode = FormulaShapeFactory.createFormulaNode(x, y, this);
-		hbFormula.setVisible(true);
-		txtInputFormula.setStyle("-fx-background-color: LavenderBlush;");
-		txtInputFormula.requestFocus();
-		txtInputFormula.setOnKeyPressed(formulaEnterPressed(formulaNode));
+	private boolean isClickedIntoEmptySpace(double x, double y) {
+		//todo give this rething. I think that there was reason for this. Give explanation when you figure it out.
+		//log entry 2: and figure out what you meant by that comment
+		return getConnectingShape() != null && !isClickedInside(x, y, getConnectingShape());
 	}
 
-	private EventHandler<? super KeyEvent> formulaEnterPressed(TextNode formulaNode) {
-		return (eventPressed) -> {
-			if (eventPressed.getCode() == KeyCode.ENTER) {
-				formulaNode.changeText(txtInputFormula.getText());
-				txtInputFormula.setText("");
-				hbFormula.setVisible(false);
-				setStatus(CanvasStatus.IDLE);
-			}
-
-		};
+	private boolean isClickedInside(double x, double y, AbstractNode node) {
+		return node.getShape().intersects(x, y, 2, 2);
 	}
 
 	private void addGrabPoint(double x, double y) {
@@ -246,105 +239,47 @@ public class CanvasController implements Initializable {
 		start.connectGraphicallyTo(grabPoiont);
 		removeCompletely(getConnectingLine());
 
-		addConnectingLine(grabPoiont);
-	}
-//		ConnectingNode grabPoiont = FormulaShapeFactory.createLineGrabPoint(x, y, this);
-//		PolygonalChain inLine = getConnectingLine();
-//		inLine.setEnd(grabPoiont);
-//		grabPoiont.addToInEdges(inLine);
-//
-//		PolygonalChain outLine = FormulaShapeFactory.createPolygonalChain(grabPoiont);
-//		grabPoiont.setOutEdge(outLine);
-//		getCanvas().getChildren().add(outLine.getShape());
-//		setConnectingLine(outLine);
-
-	@FXML
-	void handleTextAction(ActionEvent event) {
-		setStatus(CanvasStatus.CREATING_TEXT);
+		createConnectingLine(grabPoiont);
 	}
 
-	@FXML
-	void handleNodeAction(ActionEvent event) {
-		setStatus(CanvasStatus.CREATING_NEW_ELEMENT);
+	private void addTextNode(double x, double y) {
+		TextNode formulaNode = FormulaShapeFactory.createFormulaNode(x, y, this);
+		hbFormula.setVisible(true);
+		txtInputFormula.setStyle("-fx-background-color: LavenderBlush;");
+		txtInputFormula.requestFocus();
+		txtInputFormula.setOnKeyPressed(handleTxtFormulaEnterPressed(formulaNode));
 	}
 
-	@FXML
-	void handleStartAction(ActionEvent event) {
-		setStatus(CanvasStatus.CREATING_DOT);
+	private EventHandler<? super KeyEvent> handleTxtFormulaEnterPressed(TextNode formulaNode) {
+		return (eventPressed) -> {
+			if (eventPressed.getCode() == KeyCode.ENTER) {
+				formulaNode.changeText(txtInputFormula.getText());
+				txtInputFormula.setText("");
+				hbFormula.setVisible(false);
+				setStatus(CanvasState.IDLE);
+			}
+
+		};
 	}
 
-	@FXML
-	void handleArrowAction(ActionEvent event) {
-		setStatus(CanvasStatus.CONNECTING_FORMULAS);
-	}
-	
-	@FXML 
-	void handleSelfLoopClicked(ActionEvent event) {
-		setStatus(CanvasStatus.CREATING_SELF_LOOP);
-	}
-
-	@FXML
-	void handleConnectAction(ActionEvent event) {
-
-	}
-
-	@FXML
-	void handleNextAction(ActionEvent event) {
-
-	}
-
-	@FXML
-	void handleGlobalAction(ActionEvent event) {
-
-	}
-
-	@FXML
-	void handleFinallyAction(ActionEvent event) {
-
-	}
-
-	@FXML
-	void handleUntilAction(ActionEvent event) {
-
-	}
-
-	@FXML
-	void handleReleaseAction(ActionEvent event) {
-	}
-
-//       ##     ## ####  ######   ######  
-//       ###   ###  ##  ##    ## ##    ## 
-//       #### ####  ##  ##       ##       
-//       ## ### ##  ##   ######  ##       
-//       ##     ##  ##        ## ##       
-//       ##     ##  ##  ##    ## ##    ## 
-//       ##     ## ####  ######   ###### 
-	private boolean isClickedInside(double x, double y, AbstractNode node) {
-		return node.getShape().intersects(x, y, 2, 2);
-	}
-
-	public void setStatus(CanvasStatus status) {
-		this.status = status;
+	public void setStatus(CanvasState status) {
+		this.state = status;
 		switch (status) {
 			case IDLE: {
 				resetCursor();
 				break;
 			}
-			case CONNECTING_FORMULAS:
-				rootPane.setCursor(Cursor.CROSSHAIR);
-				break;
-			case CREATING_NEW_ELEMENT:
-				rootPane.setCursor(Cursor.HAND);
-				break;
 			case CREATING_DOT:
 				rootPane.setCursor(Cursor.cursor(ResourcesHelper.getResourceAsString("/images/Cursor3.png")));
 				break;
 			case CREATING_TEXT:
 				rootPane.setCursor(Cursor.TEXT);
 				break;
+			case CREATING_NEW_ELEMENT:
 			case DRAGGING_SAVED_FORMULA:
 				rootPane.setCursor(Cursor.HAND);
 				break;
+			case CONNECTING_FORMULAS:
 			case CREATING_SELF_LOOP:
 				rootPane.setCursor(Cursor.CROSSHAIR);
 				break;
@@ -358,12 +293,11 @@ public class CanvasController implements Initializable {
 		rootPane.setCursor(Cursor.DEFAULT);
 	}
 
-	public void moveSelectedBy(double deltaX, double deltaY) {
-		for (AbstractNode shape : selectedNodes) {
-			shape.moveBy(deltaX, deltaY);
-		}
-	}
-
+	/**
+	 * Moves all nodes that were previously selected
+	 *
+	 * @param current node on which move action originated
+	 */
 	public void moveSelectedBy(double deltaX, double deltaY, AbstractNode current) {
 		if (!selectedNodes.contains(current)) {
 			current.moveBy(deltaX, deltaY);
@@ -371,32 +305,16 @@ public class CanvasController implements Initializable {
 		moveSelectedBy(deltaX, deltaY);
 	}
 
-	private void moveAll(double deltaX, double deltaY) {
-		for (AbstractNode shape : allNodesNotEmbedded) {
+	private void moveSelectedBy(double deltaX, double deltaY) {
+		for (AbstractNode shape : selectedNodes) {
 			shape.moveBy(deltaX, deltaY);
 		}
 	}
 
-	public void addToControler(Map<Integer, AbstractNode> nodes) {
-		for (AbstractNode aNode : nodes.values()) {
-			aNode.setController(this);
-			aNode.setupGUIinteractions();
-			if (aNode.getOutEdge() != null) {
-				add(aNode.getOutEdge().getShape());
-				aNode.getOutEdge().setController(this);
-			}
+	private void moveAll(double deltaX, double deltaY) {
+		for (AbstractNode shape : allNodesNotEmbedded) {
+			shape.moveBy(deltaX, deltaY);
 		}
-	}
-
-//   ###     ######   ######  ########  ######   ######   #######  ########   ######  
-//  ## ##   ##    ## ##    ## ##       ##    ## ##    ## ##     ## ##     ## ##    ## 
-// ##   ##  ##       ##       ##       ##       ##       ##     ## ##     ## ##       
-//##     ## ##       ##       ######    ######   ######  ##     ## ########   ######  
-//######### ##       ##       ##             ##       ## ##     ## ##   ##         ## 
-//##     ## ##    ## ##    ## ##       ##    ## ##    ## ##     ## ##    ##  ##    ## 
-//##     ##  ######   ######  ########  ######   ######   #######  ##     ##  ######  
-	public void addSelected(AbstractNode shape) {
-		selectedNodes.add(shape);
 	}
 
 	public boolean containsSelected(AbstractNode shape) {
@@ -410,44 +328,16 @@ public class CanvasController implements Initializable {
 		selectedNodes.clear();
 	}
 
-	private boolean isClickedIntoEmptySpace(double x, double y) {
-		//todo give this rething. I think that there was reason for this. Give explanation when you figure it out.
-		return getConnectingShape() != null && !isClickedInside(x, y, getConnectingShape());
+	public void addSelected(AbstractNode shape) {
+		selectedNodes.add(shape);
 	}
 
-	public void add(Shape shape) {
+	public void addGraphicToCanvas(Shape shape) {
 		canvas.getChildren().add(shape);
 	}
 
-	public CanvasStatus getStatus() {
-		return status;
-	}
-
 	/**
-	 *
-	 * @return Start node in current attempt to connect two nodes.
-	 */
-	public AbstractNode getConnectingShape() {
-		if (connectingLine != null) {
-			return connectingLine.getStart();
-		}
-		return null;
-	}
-
-	public void setConnectingLine(PolygonalChain line) {
-		this.connectingLine = line;
-	}
-
-	public PolygonalChain getConnectingLine() {
-		return connectingLine;
-	}
-
-	public Pane getCanvas() {
-		return canvas;
-	}
-
-	/**
-	 * do not add same element twice
+	 * do not addGraphicToCanvas same element twice //todo enforce in code
 	 *
 	 * @param shape
 	 */
@@ -457,6 +347,17 @@ public class CanvasController implements Initializable {
 
 	public List<AbstractNode> getAllNodes() {
 		return Collections.unmodifiableList(allNodesNotEmbedded);
+	}
+
+	public void addToControler(Map<Integer, AbstractNode> nodes) {
+		for (AbstractNode aNode : nodes.values()) {
+			aNode.setController(this);
+			aNode.setupGUIinteractions();
+			if (aNode.getOutEdge() != null) {
+				addGraphicToCanvas(aNode.getOutEdge().getShape());
+				aNode.getOutEdge().setController(this);
+			}
+		}
 	}
 
 	public void removeFromAllNodes(AbstractNode node) {
@@ -486,7 +387,34 @@ public class CanvasController implements Initializable {
 		canvas.getChildren().remove(shape);
 	}
 
-	public void addConnectingLine(AbstractNode start) {
+	public CanvasState getStatus() {
+		return state;
+	}
+
+	/**
+	 *
+	 * @return Start node in current attempt to connect two nodes.
+	 */
+	public AbstractNode getConnectingShape() {
+		if (connectingLine != null) {
+			return connectingLine.getStart();
+		}
+		return null;
+	}
+
+	public void setConnectingLine(PolygonalChain line) {
+		this.connectingLine = line;
+	}
+
+	public PolygonalChain getConnectingLine() {
+		return connectingLine;
+	}
+
+	public Pane getCanvas() {
+		return canvas;
+	}
+
+	public void createConnectingLine(AbstractNode start) {
 		PolygonalChain line = FormulaShapeFactory.createPolygonalChain(start);
 		getCanvas().getChildren().add(line.getShape());
 		setConnectingLine(line);

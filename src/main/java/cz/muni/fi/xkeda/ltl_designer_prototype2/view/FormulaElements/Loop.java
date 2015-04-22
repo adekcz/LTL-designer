@@ -6,6 +6,7 @@
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements;
 
 import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.Settings;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.SettingsConstants;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JavaFxHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
 import javafx.event.ActionEvent;
@@ -88,8 +89,8 @@ public class Loop extends AbstractNode<Circle> {
 	@Override
 	public void setupGUIinteractions() {
 
-		getController().add(getShape());
-		getController().add(loopLabel);
+		getController().addGraphicToCanvas(getShape());
+		getController().addGraphicToCanvas(loopLabel);
 		loopLabel.setOnMouseClicked((event) -> {
 			if (JavaFxHelper.isDoubleClick(event)) {
 				showTypePopupChooser(event.getScreenX(), event.getScreenY());
@@ -115,7 +116,7 @@ public class Loop extends AbstractNode<Circle> {
 	@Override
 	public void changeSelected(boolean isSelected) {
 		if (isSelected) {
-			Color selectedColor = Color.web(Settings.get(Settings.SELECTED_COLOR));
+			Color selectedColor = Color.web(Settings.get(SettingsConstants.SELECTED_COLOR));
 			getShape().setStroke(selectedColor);
 			loopLabel.setStroke(selectedColor);
 		} else {

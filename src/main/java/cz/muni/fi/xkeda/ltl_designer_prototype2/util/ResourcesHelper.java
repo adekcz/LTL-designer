@@ -5,7 +5,7 @@
  */
 package cz.muni.fi.xkeda.ltl_designer_prototype2.util;
 
-import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.Settings;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.SettingsConstants;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -28,12 +28,12 @@ import java.util.zip.ZipInputStream;
  */
 public class ResourcesHelper {
 
-	public static URL getResource(String name) {
-		return ResourcesHelper.class.getResource(name);
-	}
-
 	public static String getResourceAsString(String path) {
 		return getResource(path).toExternalForm();
+	}
+
+	public static URL getResource(String name) {
+		return ResourcesHelper.class.getResource(name);
 	}
 
 	public static InputStream getResourceAsInputStream(String path) {
@@ -41,8 +41,7 @@ public class ResourcesHelper {
 	}
 
 	/**
-	 * Creates files in default folder. Creates: Settings.properties all
-	 * premanufactured formulaes
+	 * Creates files in default folder. Creates: Settings.properties all premanufactured formulaes
 	 */
 	public static void initAllFiles() {
 		try {
@@ -58,27 +57,21 @@ public class ResourcesHelper {
 
 	}
 
-	private static String getJarFolder() throws URISyntaxException {
-		return new File(ResourcesHelper.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getPath().replace('\\', '/'); //yeah, this is copy and paste from internet
-
-	}
-
 	/**
 	 * http://stackoverflow.com/questions/10308221/how-to-copy-file-inside-jar-to-outside-the-jar
 	 * Export a resource embedded into a Jar file to the local file path.
 	 *
 	 * @param resourceName ie.: "/SmartLibrary.dll"
 	 * @return The path to the exported resource
-	 * @throws Exception
 	 */
 	static public String exportResource(String resourceName) {
-		File toBeCreated = new File(Settings.APP_HOME_FOLDER_PATH + resourceName.replace('\\', '/'));
+		File toBeCreated = new File(SettingsConstants.APP_HOME_FOLDER_PATH + resourceName.replace('\\', '/'));
 		if (!toBeCreated.exists()) {
 			FileHelper.createPredecessorFolderStructure(toBeCreated);
 
 			writeResource(resourceName, toBeCreated);
 		}
-		return Settings.APP_HOME_FOLDER_PATH + resourceName;
+		return SettingsConstants.APP_HOME_FOLDER_PATH + resourceName;
 	}
 
 	private static void writeResource(String resourceName, File toBeCreated) {
@@ -101,7 +94,7 @@ public class ResourcesHelper {
 		}
 	}
 
-	public static List<String> getAllPremafucturedFiles() throws IOException {
+	private static List<String> getAllPremafucturedFiles() throws IOException {
 		List<String> allFiles = new ArrayList<>();
 		CodeSource src = ResourcesHelper.class.getProtectionDomain().getCodeSource();
 		if (src != null) {
@@ -128,9 +121,18 @@ public class ResourcesHelper {
 			return true;
 		}
 		String name = e.getName();
-		if (name.startsWith(Settings.SETTINGS_RESOURCE_FOLDER_PATH) && !name.equals(Settings.SETTINGS_RESOURCE_FOLDER_PATH)) {
+		if (name.startsWith(SettingsConstants.SETTINGS_RESOURCE_FOLDER_PATH) && !name.equals(SettingsConstants.SETTINGS_RESOURCE_FOLDER_PATH)) {
 			allFiles.add(name);
 		}
 		return false;
+	}
+
+	/**
+	 * @return location of jar, that was used to execute this program
+	 * @throws URISyntaxException
+	 */
+	private static String getJarFolder() throws URISyntaxException {
+		return new File(ResourcesHelper.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getPath().replace('\\', '/'); //yeah, this is copy and paste from internet
+
 	}
 }

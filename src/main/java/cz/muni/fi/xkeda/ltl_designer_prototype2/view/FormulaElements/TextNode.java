@@ -6,9 +6,10 @@
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements;
 
 import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.Settings;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.SettingsConstants;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JavaFxHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
-import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasStatus;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasState;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +29,7 @@ import javafx.scene.text.TextAlignment;
  */
 public class TextNode extends AbstractNode<Rectangle> {
 
-	private final static String START_PLACEHOLDER = Settings.get(Settings.PLACEHOLDER_FOR_FORMULA_START);
+	private final static String START_PLACEHOLDER = Settings.get(SettingsConstants.PLACEHOLDER_FOR_FORMULA_START);
 
 	private String textualFormula;
 	private Text text;
@@ -63,7 +64,7 @@ public class TextNode extends AbstractNode<Rectangle> {
 			public void handle(MouseEvent event) {
 				System.out.println("NEW HANDLER, shiny, ");
 				oldClickHandler.handle(event);
-				if (getController().getStatus() == CanvasStatus.CREATING_SELF_LOOP && loop == null) {
+				if (getController().getStatus() == CanvasState.CREATING_SELF_LOOP && loop == null) {
 					loop = new Loop(getShape().getX() + getShape().getWidth(), getShape().getY(), getController());
 					loop.setupGUIinteractions();
 					System.out.println(event.getSceneX());
@@ -153,7 +154,7 @@ public class TextNode extends AbstractNode<Rectangle> {
 	private void createGUItext() {
 		text = createNewText(textualFormula);
 		getShape().setWidth(JavaFxHelper.getWidth(text));
-		getController().add(text); // order of adding to canvas matter, text should be added before starting points (mouseeevent handlers rely on this..)
+		getController().addGraphicToCanvas(text); // order of adding to canvas matter, text should be added before starting points (mouseeevent handlers rely on this..)
 
 	}
 
@@ -231,7 +232,7 @@ public class TextNode extends AbstractNode<Rectangle> {
 
 	@Override
 	public Color getDefaultFill() {
-		return Color.web(Settings.get(Settings.FORMULA_COLOR));
+		return Color.web(Settings.get(SettingsConstants.FORMULA_COLOR));
 	}
 
 	@Override

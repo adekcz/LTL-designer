@@ -75,12 +75,18 @@ public class FormulaShapeFactory {
 	}
 
 	/**
-	 * Just Line, from one node to another. 
+	 * Just Line, from one node to another, both nodes should have associated controller
+	 * @param start - not null!
+	 * @param end - not null!
+	 * @return 
 	 */
 	public static PolygonalChain createPolygonalChain(AbstractNode start, AbstractNode end) {
+		if(start == null || end == null){
+			throw new IllegalArgumentException("Nodes should not be null");
+		}
 		PolygonalChain polygonalChain = new PolygonalChain(start, end, start.getController());
 		start.setOutEdge(polygonalChain);
-		if(end!=null && !end.equals(start)){
+		if(!end.equals(start)){
 			end.setInEdge(polygonalChain);
 		}
 		return polygonalChain;

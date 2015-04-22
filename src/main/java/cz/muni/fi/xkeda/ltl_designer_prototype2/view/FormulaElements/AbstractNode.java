@@ -6,8 +6,9 @@
 package cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements;
 
 import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.Settings;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.SettingsConstants;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
-import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasStatus;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasState;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
@@ -17,36 +18,13 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 
 /**
- * class that should be used as parent for all graphical formulas subclasses.
- * provides basic operations and sets "interface" for other classes.
+ * class that should be used as parent for all graphical formulas subclasses. provides basic
+ * operations and sets "interface" for other classes.
  *
  * @author adekcz
- * @param <E> Underlying Shape that is somehow main graphical shape in specific
- * subclass;
+ * @param <E> Underlying Shape that is somehow main graphical shape in specific subclass;
  */
 public abstract class AbstractNode<E extends Shape> {
-
-	protected static void handleClickForLineCreation(CanvasController canvasController, AbstractNode node) {
-		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAS) {
-			if (canvasController.getConnectingLine() == null) {
-				canvasController.addConnectingLine(node);
-
-			}
-		}
-	}
-
-	protected static void handleClickForLineConnection(CanvasController canvasController, AbstractNode node) {
-		if (canvasController.getStatus() == CanvasStatus.CONNECTING_FORMULAS) {
-			if (canvasController.getConnectingLine() != null && !canvasController.getConnectingShape().equals(node)) {
-				AbstractNode start = canvasController.getConnectingLine().getStart();
-				start.connectGraphicallyTo(node);
-				canvasController.removeCompletely(canvasController.getConnectingLine());
-
-				canvasController.setConnectingLine(null);
-				canvasController.setStatus(CanvasStatus.IDLE);
-			}
-		}
-	}
 
 	private PolygonalChain outEdge;
 	private PolygonalChain inEdge;
@@ -62,27 +40,13 @@ public abstract class AbstractNode<E extends Shape> {
 		this.shape = shape;
 		this.controller = controller;
 	}
-	public int getIndex() {
-		return index;
-	}
 
-	public void setIndex(int index) {
-		this.index = index;
+	public void setupGUIinteractions() {
+		setupHandlers();
+		fillWithDefaultFill();
+		getController().addToAll(this);
+		getController().addGraphicToCanvas(this.getShape());
 	}
-
-	public boolean isIsSelected() {
-		return isSelected;
-	}
-
-	public void changeSelected(boolean isSelected) {
-		if (isSelected) {
-			shape.setFill(Color.web(Settings.get(Settings.SELECTED_COLOR)));
-		} else {
-			fillWithDefaultFill();
-		}
-		setSelected(isSelected);
-	}
-	
 
 	protected void setupHandlers() {
 		System.out.println("default handlers");
@@ -94,10 +58,25 @@ public abstract class AbstractNode<E extends Shape> {
 
 	}
 
-	private EventHandler<MouseEvent> setHandCursorHandler() {
-		return (MouseEvent mouseEvent) -> {
-			shape.setCursor(Cursor.HAND);
+	private EventHandler<MouseEvent> clickOnShape() {
+		return (MouseEvent eventMouse) -> {
+			//TODO passing "this" to method in superclass really smells.
+			handleClickForLineCreation(controller, this);
+			handleClickForLineConnection(controller, this);
+		};
+	}
 
+	protected EventHandler<MouseEvent> pressOnShape() {
+		return (MouseEvent mouseEvent) -> {
+			changeSelected(true);
+			if (mouseEvent.isControlDown()) {
+				controller.addSelected(this);
+			}
+			// record a delta distance for the drag and drop operation.
+			double x = mouseEvent.getX();
+			double y = mouseEvent.getY();
+			lastPosition = new Point2D(x, y);
+			shape.setCursor(Cursor.CLOSED_HAND);
 		};
 	}
 
@@ -122,26 +101,33 @@ public abstract class AbstractNode<E extends Shape> {
 		};
 	}
 
-	protected EventHandler<MouseEvent> pressOnShape() {
+	private EventHandler<MouseEvent> setHandCursorHandler() {
 		return (MouseEvent mouseEvent) -> {
-			changeSelected(true);
-			if (mouseEvent.isControlDown()) {
-				controller.addSelected(this);
-			}
-			// record a delta distance for the drag and drop operation.
-			double x = mouseEvent.getX();
-			double y = mouseEvent.getY();
-			lastPosition = new Point2D(x, y);
-			shape.setCursor(Cursor.CLOSED_HAND);
+			shape.setCursor(Cursor.HAND);
+
 		};
 	}
 
-	private EventHandler<MouseEvent> clickOnShape() {
-		return (MouseEvent eventMouse) -> {
-			//TODO passing "this" to method in superclass really smells.
-			handleClickForLineCreation(controller, this);
-			handleClickForLineConnection(controller, this);
-		};
+	protected void handleClickForLineCreation(CanvasController canvasController, AbstractNode node) {
+		if (canvasController.getStatus() == CanvasState.CONNECTING_FORMULAS) {
+			if (canvasController.getConnectingLine() == null) {
+				canvasController.createConnectingLine(node);
+
+			}
+		}
+	}
+
+	protected void handleClickForLineConnection(CanvasController canvasController, AbstractNode node) {
+		if (canvasController.getStatus() == CanvasState.CONNECTING_FORMULAS) {
+			if (canvasController.getConnectingLine() != null && !canvasController.getConnectingShape().equals(node)) {
+				AbstractNode start = canvasController.getConnectingLine().getStart();
+				start.connectGraphicallyTo(node);
+				canvasController.removeCompletely(canvasController.getConnectingLine());
+
+				canvasController.setConnectingLine(null);
+				canvasController.setStatus(CanvasState.IDLE);
+			}
+		}
 	}
 
 	public CanvasController getController() {
@@ -152,29 +138,15 @@ public abstract class AbstractNode<E extends Shape> {
 		this.controller = controller;
 	}
 
-	public void setupGUIinteractions() {
-		setupHandlers();
-		fillWithDefaultFill();
-		getController().addToAll(this);
-		getController().add(this.getShape());
-	}
-
-	/**
-	 *
-	 * @return
-	 */
 	public E getShape() {
 		return shape;
 	}
 
-	/**
-	 * @param shape Sets main underlying Shape
-	 */
 	public void setShape(E shape) {
 		this.shape = shape;
 	}
 
-
+	public abstract void moveBy(double deltaX, double deltaY);
 
 	protected void moveLinesBy(double deltaX, double deltaY) {
 		moveInEdge(deltaX, deltaY);
@@ -188,6 +160,7 @@ public abstract class AbstractNode<E extends Shape> {
 			line.setStartY(deltaY + line.getStartY());
 		}
 	}
+
 	private void moveInEdge(double deltaX, double deltaY) {
 		if (inEdge != null) {
 			Line line = inEdge.getShape();
@@ -195,28 +168,28 @@ public abstract class AbstractNode<E extends Shape> {
 			line.setEndY(deltaY + line.getEndY());
 		}
 	}
-	public abstract void moveBy(double deltaX, double deltaY);
 
 	/**
-	 * @return returns X coordinate for this element. Should be somehow
-	 * reasonable (e.g. center for circle)
+	 * @return returns X coordinate for this element. Should be somehow reasonable (e.g. center for
+	 * circle)
 	 */
 	public abstract double getRepresentativeX();
 
 	/**
-	 * @return returns Y coordinate for this element. Should be somehow
-	 * reasonable (e.g. center for circle)
+	 * @return returns Y coordinate for this element. Should be somehow reasonable (e.g. center for
+	 * circle)
 	 */
 	public abstract double getRepresentativeY();
 
-	public void fillWithDefaultFill(){
+	public void fillWithDefaultFill() {
 		getShape().setFill(getDefaultFill());
 	}
+
 	public abstract Color getDefaultFill();
 
 	public PolygonalChain connectGraphicallyTo(AbstractNode other) {
-		PolygonalChain line = FormulaShapeFactory.createPolygonalChain(this, other);
-		getController().add(line.getShape());
+		PolygonalChain line = connectSymbolically(other);
+		getController().addGraphicToCanvas(line.getShape());
 		return line;
 	}
 
@@ -224,26 +197,7 @@ public abstract class AbstractNode<E extends Shape> {
 		PolygonalChain line = FormulaShapeFactory.createPolygonalChain(this, other);
 		return line;
 	}
-
-	/**
-	 * @param line Sets line as only outgoing edge from this node.
-	 */
-	public void setOutEdge(PolygonalChain line) {
-		this.outEdge = line;
-	}
-
-	public PolygonalChain getOutEdge() {
-		return outEdge;
-	}
-
-	public PolygonalChain getInEdge() {
-		return inEdge;
-	}
-
-	public void setInEdge(PolygonalChain line) {
-		this.inEdge = line;
-	}
-
+	
 	public void delete() {
 		controller.removeCompletely(this);
 		if (inEdge != null) {
@@ -260,8 +214,49 @@ public abstract class AbstractNode<E extends Shape> {
 		inEdge = null;
 	}
 
+	/**
+	 * @param line Sets line as only outgoing edge from this node.
+	 */
+	public void setOutEdge(PolygonalChain line) {
+		this.outEdge = line;
+	}
+
+	public PolygonalChain getOutEdge() {
+		return outEdge;
+	}
+
+	public void setInEdge(PolygonalChain line) {
+		this.inEdge = line;
+	}
+
+	public PolygonalChain getInEdge() {
+		return inEdge;
+	}
+
+
+	public int getIndex() {
+		return index;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
+	public boolean isSelected() {
+		return isSelected;
+	}
+
 	protected void setSelected(boolean selected) {
 		this.isSelected = selected;
+	}
+
+	public void changeSelected(boolean isSelected) {
+		if (isSelected) {
+			shape.setFill(Color.web(Settings.get(SettingsConstants.SELECTED_COLOR)));
+		} else {
+			fillWithDefaultFill();
+		}
+		setSelected(isSelected);
 	}
 
 }
