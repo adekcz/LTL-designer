@@ -158,6 +158,14 @@ public class TextNode extends AbstractNode<Rectangle> {
 
 	}
 
+	private Text createNewText(String textToAdd) {
+		Text newText = new Text(getShape().getX(), getShape().getY() + 20, textToAdd.replaceAll(START_PLACEHOLDER, "   "));
+		newText.setFont(new Font(20));
+		newText.setTextAlignment(TextAlignment.JUSTIFY);
+		handOverEvents(newText);
+		return newText;
+	}
+
 	public void setText(String text) {
 		this.textualFormula = text;
 	}
@@ -173,14 +181,6 @@ public class TextNode extends AbstractNode<Rectangle> {
 		}
 	}
 
-	private Text createNewText(String textToAdd) {
-		Text newText = new Text(getShape().getX(), getShape().getY() + 20, textToAdd.replaceAll(START_PLACEHOLDER, "   "));
-		newText.setFont(new Font(20));
-		newText.setTextAlignment(TextAlignment.JUSTIFY);
-		handOverEvents(newText);
-		return newText;
-	}
-
 	public void addStartPoint(ConnectingNode node) {
 		startPoints.add(node);
 	}
@@ -190,9 +190,12 @@ public class TextNode extends AbstractNode<Rectangle> {
 			System.out.println("Event hadoverd");
 			Event.fireEvent(getShape(), event);
 		});
-		node.setOnMouseClicked((event) -> {
-			Event.fireEvent(getShape(), event);
-		});
+		//don't hand over event for circles from Inner Formulas (mainly handling creating connection lines)
+		if (node instanceof Text) {
+			node.setOnMouseClicked((event) -> {
+				Event.fireEvent(getShape(), event);
+			});
+		}
 		node.setOnMouseDragged((event) -> {
 			Event.fireEvent(getShape(), event);
 		});
