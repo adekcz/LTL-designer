@@ -28,10 +28,12 @@ public class Loop extends AbstractNode<CubicCurve> {
 
 	//TODO this is empirical !!!! 
 	private static final double controlPointsOffset = 50;
-	private static final double labelOffset = 10;
+	private static final double labelOffset = 20;
 
 	private LoopType type;
 	private Text label;
+
+
 
 	public enum LoopType {
 
@@ -51,6 +53,10 @@ public class Loop extends AbstractNode<CubicCurve> {
 
 	}
 
+	public Loop(LoopType type) {
+		super(new CubicCurve(), null);
+		this.type = type;
+	}
 	/**
 	 * @param parent coordinates will be computed from rectangle
 	 */
@@ -132,7 +138,7 @@ public class Loop extends AbstractNode<CubicCurve> {
 		getController().addGraphicToCanvas(getShape());
 		getController().addGraphicToCanvas(label);
 		label.setOnMouseClicked((event) -> {
-			if (JavaFxHelper.isDoubleClick(event)) {
+			if (JavaFxHelper.isDoubleClick(event) || event.isSecondaryButtonDown()) {
 				showTypePopupChooser(event.getScreenX(), event.getScreenY());
 			}
 

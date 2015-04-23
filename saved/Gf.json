@@ -1,0 +1,29 @@
+
+{
+    "FormulaNodes":[
+        {
+            "X":177.0,
+            "Y":141.0,
+            "text":"Insert Formula",
+            "index":2,
+            "Edges":[
+            ],
+            "loopType":"INFINITE"
+        }
+    ],
+    "ConnectingPoints":[
+    ],
+    "Edges":[
+        {
+            "start":1,
+            "end":2
+        }
+    ],
+    "Starts":[
+        {
+            "X":99.0,
+            "Y":153.0,
+            "index":1
+        }
+    ]
+}

@@ -42,6 +42,9 @@ public class JavaFxHelper {
 	public static double getWidth(Node node) {
 		return node.getLayoutBounds().getMaxX() - node.getLayoutBounds().getMinX();
 	}
+	public static double getHeight(Node node) {
+		return node.getLayoutBounds().getMaxY() - node.getLayoutBounds().getMinY();
+	}
 
 	public static int countSubstringOccurencies(String text, String pattern) {
 		if (Strings.isNullOrEmpty(text) || Strings.isNullOrEmpty(pattern)) {

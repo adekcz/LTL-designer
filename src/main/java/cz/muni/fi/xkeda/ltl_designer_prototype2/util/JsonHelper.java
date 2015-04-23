@@ -7,6 +7,7 @@ package cz.muni.fi.xkeda.ltl_designer_prototype2.util;
 
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.AbstractNode;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.ConnectingNode;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.Loop;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.PolygonalChain;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.StartingNode;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.TextNode;
@@ -42,7 +43,7 @@ public class JsonHelper {
 	private static final String KEY_CONNECTING_POINTS = "ConnectingPoints";
 	private static final String KEY_FORMULA_NODES = "FormulaNodes";
 
-	private static final String KEY_TYPE = "type";
+	private static final String KEY_LOOP_TYPE = "loopType";
 	private static final String KEY_INDEX = "index";
 	private static final String KEY_TEXT = "text";
 	private static final String KEY_Y = "Y";
@@ -76,7 +77,7 @@ public class JsonHelper {
 		JsonObject wholeJson = readJson(file);
 		nodes.putAll(loadConnectingPoints(wholeJson));
 		nodes.putAll(loadStartNodes(wholeJson));
-		nodes.putAll(loadFormulasAndItsStartPoints(wholeJson));
+		nodes.putAll(loadTextFormulasAndItsStartPoints(wholeJson));
 		connectNodes(wholeJson, nodes);
 		return nodes;
 	}
@@ -119,7 +120,7 @@ public class JsonHelper {
 		return nodes;
 	}
 
-	private static Map<Integer, AbstractNode> loadFormulasAndItsStartPoints(JsonObject object) {
+	private static Map<Integer, AbstractNode> loadTextFormulasAndItsStartPoints(JsonObject object) {
 		Map<Integer, AbstractNode> nodes = new HashMap<>();
 		JsonArray formulas = object.getJsonArray(KEY_FORMULA_NODES);
 		for (JsonValue jsonvalue : formulas) {
@@ -129,7 +130,16 @@ public class JsonHelper {
 			JsonNumber index = (JsonNumber) formulaJson.get(KEY_INDEX);
 			JsonString text = (JsonString) formulaJson.getJsonString(KEY_TEXT);
 
+			String loopTypeStr= formulaJson.getString(KEY_LOOP_TYPE, null);
+			Loop.LoopType type = null;
+			if(loopTypeStr != null){
+				type = Loop.LoopType.valueOf(loopTypeStr);
+			}
+
 			TextNode formulaNode = new TextNode(x.intValue(), y.intValue());
+			if(type!=null){
+				formulaNode.setLoop(new Loop(type));
+			}
 			formulaNode.setText(text.getString());
 			nodes.put(index.intValue(), formulaNode);
 			for (JsonValue jsonValueConnectingPoint : formulaJson.getJsonArray(KEY_EDGES)) {
@@ -143,7 +153,6 @@ public class JsonHelper {
 				formulaNode.addStartPoint(startPoint);
 				nodes.put(index2.intValue(), startPoint);
 			}
-
 		}
 		return nodes;
 	}
@@ -197,32 +206,38 @@ public class JsonHelper {
 		for (AbstractNode uncastNode : nodes) {
 			if (uncastNode instanceof TextNode) {
 				TextNode currNode = (TextNode) uncastNode;
-				JsonObjectBuilder nodeBuilder = convertNode(currNode);
-				JsonArrayBuilder innerStartPointsArray = Json.createArrayBuilder();
-				for (ConnectingNode connectinPoint : currNode.getStartPoints()) {
-					JsonObjectBuilder jsonPoint = convertConnectingNode(connectinPoint);
-					innerStartPointsArray.add(jsonPoint);
-					convertOutEdges(connectinPoint.getOutEdge(), edges);
-				}
-				nodeBuilder.add(KEY_EDGES, innerStartPointsArray);
-				formulaNodes.add(nodeBuilder);
-
+				JsonObjectBuilder textAsJson = convertTextNode(currNode, edges);
+				formulaNodes.add(textAsJson);
 			} else if (uncastNode instanceof StartingNode) {
-				StartingNode currConnectingNode = (StartingNode) uncastNode;
-				starts.add(convertConnectingNode(currConnectingNode));
-				convertOutEdges(currConnectingNode.getOutEdge(), edges);
+				fillWithConnectingPoint(uncastNode, starts, edges);
 			} else if (uncastNode instanceof ConnectingNode) {
-				ConnectingNode currConnectingNode = (ConnectingNode) uncastNode;
-				connectinPoints.add(convertConnectingNode(currConnectingNode));
-				convertOutEdges(currConnectingNode.getOutEdge(), edges);
-				//	} else if (uncastNode instanceof LineGrabPoint) {
-				//		LineGrabPoint currStartNode = (LineGrabPoint) uncastNode;
-				//		grabPoints.add(convertFormulaShape(currStartNode));
-				//		convertOutEdges(currStartNode.getOutEdge(), edges);
+				fillWithConnectingPoint(uncastNode, connectinPoints, edges);
 			} else {
 				throw new UnsupportedOperationException("Convertor for " + uncastNode.getClass() + " to JSON was not implemented");
 			}
 		}
+	}
+
+	private static JsonObjectBuilder convertTextNode(TextNode currNode, JsonArrayBuilder edges) throws IllegalStateException {
+		JsonObjectBuilder nodeBuilder = convertNode(currNode);
+		JsonArrayBuilder innerStartPointsArray = Json.createArrayBuilder();
+		for (ConnectingNode connectinPoint : currNode.getStartPoints()) {
+			JsonObjectBuilder jsonPoint = convertConnectingNode(connectinPoint);
+			innerStartPointsArray.add(jsonPoint);
+			convertOutEdges(connectinPoint.getOutEdge(), edges);
+		}
+		nodeBuilder.add(KEY_EDGES, innerStartPointsArray);
+		convertOutEdges(currNode.getOutEdge(), edges);
+		if(currNode.getLoop() != null){
+			nodeBuilder.add(KEY_LOOP_TYPE, currNode.getLoop().getType().name());
+		}
+		return nodeBuilder;
+	}
+
+	private static void fillWithConnectingPoint(AbstractNode uncastNode, JsonArrayBuilder starts, JsonArrayBuilder edges) throws IllegalStateException {
+		ConnectingNode currConnectingNode = (ConnectingNode) uncastNode;
+		starts.add(convertConnectingNode(currConnectingNode));
+		convertOutEdges(currConnectingNode.getOutEdge(), edges);
 	}
 
 	//TODO refractor so thtat it returns jsonobject

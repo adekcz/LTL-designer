@@ -190,6 +190,7 @@ public abstract class AbstractNode<E extends Shape> {
 	public PolygonalChain connectGraphicallyTo(AbstractNode other) {
 		PolygonalChain line = connectSymbolically(other);
 		getController().addGraphicToCanvas(line.getShape());
+		line.getShape().toBack();
 		return line;
 	}
 

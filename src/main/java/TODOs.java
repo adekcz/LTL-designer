@@ -49,4 +49,7 @@ public class TODOs {
 
 	//hide grabpoint when not pointing on it.
 	//toto checkout constructors, do they need controller?
+
+
+	//todo lze kliknout na uzel, do ktereho uz vede linka .. vede k nechani sirotci linky na canvasu.
 }

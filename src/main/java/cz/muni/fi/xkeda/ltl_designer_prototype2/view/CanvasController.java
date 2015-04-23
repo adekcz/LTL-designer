@@ -353,9 +353,11 @@ public class CanvasController implements Initializable {
 		for (AbstractNode aNode : nodes.values()) {
 			aNode.setController(this);
 			aNode.setupGUIinteractions();
+			//TODO why is not this inside setupGUIInteractions?
 			if (aNode.getOutEdge() != null) {
 				addGraphicToCanvas(aNode.getOutEdge().getShape());
 				aNode.getOutEdge().setController(this);
+				aNode.getOutEdge().getShape().toBack();
 			}
 		}
 	}
