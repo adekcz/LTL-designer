@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.scene.paint.Color;
 
 /**
  *
@@ -84,6 +85,10 @@ public class Settings {
 			Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
 		}
 
+	}
+
+	public static Color getColor(String key) {
+			return Color.web(Settings.get(key));
 	}
 
 

@@ -10,9 +10,15 @@ import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.SettingsConstants;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasState;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
@@ -24,7 +30,7 @@ import javafx.scene.shape.Shape;
  * @author adekcz
  * @param <E> Underlying Shape that is somehow main graphical shape in specific subclass;
  */
-public abstract class AbstractNode<E extends Shape> {
+public abstract class AbstractNode<E extends Node> {
 
 	private PolygonalChain outEdge;
 	private PolygonalChain inEdge;
@@ -90,7 +96,7 @@ public abstract class AbstractNode<E extends Shape> {
 		};
 	}
 
-	private EventHandler<MouseEvent> dragOnShape() {
+	protected EventHandler<MouseEvent> dragOnShape() {
 		return (MouseEvent mouseEvent) -> {
 			double deltaX = mouseEvent.getX() - lastPosition.getX();
 			double deltaY = mouseEvent.getY() - lastPosition.getY();
@@ -182,8 +188,20 @@ public abstract class AbstractNode<E extends Shape> {
 	public abstract double getRepresentativeY();
 
 	public void fillWithDefaultFill() {
-		getShape().setFill(getDefaultFill());
+		if (getShape() instanceof Shape) {
+			((Shape) getShape()).setFill(getDefaultFill());
+		} else if (getShape() instanceof Region) {
+			((Region) getShape()).setBackground(new Background(new BackgroundFill(getDefaultFill(), CornerRadii.EMPTY, Insets.EMPTY)));
+		}
 	}
+	private void fillWithColor(Color color) {
+	if (getShape() instanceof Shape) {
+			((Shape) getShape()).setFill(color);
+		} else if (getShape() instanceof Region) {
+			((Region) getShape()).setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
+		}
+	}
+		
 
 	public abstract Color getDefaultFill();
 
@@ -195,10 +213,10 @@ public abstract class AbstractNode<E extends Shape> {
 	}
 
 	public PolygonalChain connectSymbolically(AbstractNode other) {
-		PolygonalChain line = FormulaShapeFactory.createPolygonalChain(this, other);
+		PolygonalChain line = PolygonalChain.createPolygonalChain(this, other);
 		return line;
 	}
-	
+
 	public void delete() {
 		controller.removeCompletely(this);
 		if (inEdge != null) {
@@ -234,7 +252,6 @@ public abstract class AbstractNode<E extends Shape> {
 		return inEdge;
 	}
 
-
 	public int getIndex() {
 		return index;
 	}
@@ -253,11 +270,12 @@ public abstract class AbstractNode<E extends Shape> {
 
 	public void changeSelected(boolean isSelected) {
 		if (isSelected) {
-			shape.setFill(Color.web(Settings.get(SettingsConstants.SELECTED_COLOR)));
+			fillWithColor(Settings.getColor(SettingsConstants.SELECTED_COLOR));
 		} else {
 			fillWithDefaultFill();
 		}
 		setSelected(isSelected);
 	}
+
 
 }

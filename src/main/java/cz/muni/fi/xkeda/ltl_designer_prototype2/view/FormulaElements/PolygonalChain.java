@@ -14,6 +14,33 @@ import javafx.scene.shape.Line;
  * @author adekcz
  */
 public class PolygonalChain extends AbstractNode<Line>{
+
+	/**
+	 * Just Line, from one node to another.
+	 * @param start
+	 * @return
+	 */
+	public static PolygonalChain createPolygonalChain(AbstractNode start) {
+		return createPolygonalChain(start, start);
+	}
+
+	/**
+	 * Just Line, from one node to another, both nodes should have associated controller
+	 * @param start - not null!
+	 * @param end - not null!
+	 * @return
+	 */
+	public static PolygonalChain createPolygonalChain(AbstractNode start, AbstractNode end) {
+		if (start == null || end == null) {
+			throw new IllegalArgumentException("Nodes should not be null");
+		}
+		PolygonalChain polygonalChain = new PolygonalChain(start, end, start.getController());
+		start.setOutEdge(polygonalChain);
+		if (!end.equals(start)) {
+			end.setInEdge(polygonalChain);
+		}
+		return polygonalChain;
+	}
 	private AbstractNode start;
 	private AbstractNode end;
 

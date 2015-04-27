@@ -52,4 +52,7 @@ public class TODOs {
 
 
 	//todo lze kliknout na uzel, do ktereho uz vede linka .. vede k nechani sirotci linky na canvasu.
+
+
+	//canvas controller, idea to refactor - crate class that manages content, all add/remove methods in it, plus collections
 }

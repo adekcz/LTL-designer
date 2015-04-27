@@ -25,6 +25,33 @@ import javafx.scene.paint.Color;
  * @author adekcz
  */
 public class StartingNode extends ConnectingNode {
+
+	/**
+	 * Should be only one in correct formula.
+	 * @param x
+	 * @param y
+	 * @param controller
+	 * @return
+	 */
+	public static StartingNode createStartFormulaNode(double x, double y, CanvasController controller) {
+		StartingNode formulaNode = new StartingNode(x, y, controller);
+		formulaNode.setupGUIinteractions();
+		return formulaNode;
+	}
+
+	/**
+	 * Basically startFormula nested over TextNode.Text
+	 * @param x
+	 * @param y
+	 * @param controller
+	 * @return
+	 */
+	public static StartingNode createInnerStartFormulaNode(double x, double y, CanvasController controller) {
+		StartingNode formulaNode = new StartingNode(x, y, controller);
+		formulaNode.setInner(true);
+		formulaNode.setupGUIinteractions();
+		return formulaNode;
+	}
 	private boolean isInner = false;
 
 	public boolean isInner() {

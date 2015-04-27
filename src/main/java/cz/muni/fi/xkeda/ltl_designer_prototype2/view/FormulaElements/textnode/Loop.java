@@ -3,19 +3,20 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements;
+package cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.textnode;
 
 import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.Settings;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.settings.SettingsConstants;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JavaFxHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.CanvasController;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.AbstractNode;
 import javafx.event.ActionEvent;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.CubicCurve;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
@@ -60,25 +61,25 @@ public class Loop extends AbstractNode<CubicCurve> {
 	/**
 	 * @param parent coordinates will be computed from rectangle
 	 */
-	protected Loop(Rectangle parent, CanvasController canvasController) {
+	protected Loop(Node parent, CanvasController canvasController) {
 		super(new CubicCurve(), canvasController);
 
 		initCurve(parent);
 		initText(parent);
 	}
 
-	private void initText(Rectangle parent) {
-		double x = parent.getX() + parent.getWidth() / 2;
-		double y = parent.getY() - labelOffset;
+	private void initText(Node parent) {
+		double x = parent.getLayoutX()+ JavaFxHelper.getWidth(parent)/ 2;
+		double y = parent.getLayoutY()- labelOffset;
 		label = new Text(x, y, "");
 		//todo create this in css file
 		label.setFont(new Font(30));
 	}
 
-	private void initCurve(Rectangle parent) {
-		double x1 = parent.getX();
-		double x2 = parent.getX() + parent.getWidth();
-		double y = parent.getY() + parent.getHeight() / 2;
+	private void initCurve(Node parent) {
+		double x1 = parent.getLayoutX();
+		double x2 = parent.getLayoutX() +JavaFxHelper.getWidth(parent);
+		double y = parent.getLayoutY() +JavaFxHelper.getHeight(parent)/2;
 
 		CubicCurve curve = getShape();
 

@@ -7,10 +7,10 @@ package cz.muni.fi.xkeda.ltl_designer_prototype2.util;
 
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.AbstractNode;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.ConnectingNode;
-import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.Loop;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.PolygonalChain;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.StartingNode;
-import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.TextNode;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.textnode.Loop;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.textnode.TextNode;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -255,8 +255,8 @@ public class JsonHelper {
 
 	private static JsonObjectBuilder convertNode(TextNode currNode) {
 		JsonObjectBuilder jsonNode = Json.createObjectBuilder();
-		jsonNode.add(KEY_X, currNode.getShape().getX())
-			.add(KEY_Y, currNode.getShape().getY())
+		jsonNode.add(KEY_X, currNode.getShape().getLayoutX())
+			.add(KEY_Y, currNode.getShape().getLayoutY())
 			.add(KEY_TEXT, currNode.getText())
 			.add(KEY_INDEX, currNode.getIndex());
 		return jsonNode;

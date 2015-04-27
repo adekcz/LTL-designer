@@ -90,7 +90,8 @@
 					<target>1.8</target>
 					<compilerArguments>
 						<bootclasspath>${sun.boot.class.path}${path.separator}${java.home}/lib/jfxrt.jar</bootclasspath>
-						-Djavafx.animation.fullspeed=true              
+						-Dprism.vsync=false
+						-Djavafx.animation.fullspeed=true
 					</compilerArguments>
 				</configuration>
 			</plugin>

@@ -9,9 +9,9 @@ import cz.muni.fi.xkeda.ltl_designer_prototype2.util.JsonHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.util.ResourcesHelper;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.AbstractNode;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.ConnectingNode;
-import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.FormulaShapeFactory;
 import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.PolygonalChain;
-import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.TextNode;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.StartingNode;
+import cz.muni.fi.xkeda.ltl_designer_prototype2.view.FormulaElements.textnode.TextNode;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
@@ -28,16 +28,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
-import javafx.scene.control.TextField;
+import javafx.scene.Node;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Shape;
 
 /**
  * FXML Controller class
@@ -50,10 +48,6 @@ public class CanvasController implements Initializable {
 	private BorderPane rootPane;
 	@FXML
 	private Pane canvas;
-	@FXML
-	private TextField txtInputFormula;
-	@FXML
-	private HBox hbFormula;
 
 	private CanvasState state;
 
@@ -189,7 +183,8 @@ public class CanvasController implements Initializable {
 
 	@FXML
 	void handleCanvasClick(MouseEvent event) {
-		canvas.requestFocus();
+		canvas.requestFocus(); /* when canvas gets focus then other nodes (e.g. textfields) that had focu will lost it -- possible to detect  */
+
 		double x = event.getX();
 		double y = event.getY();
 		switch (state) {
@@ -204,15 +199,16 @@ public class CanvasController implements Initializable {
 				}
 				break;
 			case CREATING_NEW_ELEMENT:
-				FormulaShapeFactory.createFormulaNode(x, y, this);
+				TextNode.createFormulaNode(x, y, this);
 				setStatus(CanvasState.IDLE);
 				break;
 			case CREATING_DOT:
-				FormulaShapeFactory.createStartFormulaNode(x, y, this);
+				StartingNode.createStartFormulaNode(x, y, this);
 				setStatus(CanvasState.IDLE);
 				break;
 			case CREATING_TEXT:
-				addTextNode(x, y);
+				TextNode.createFormulaNode(x, y, this);
+				setStatus(CanvasState.IDLE);
 				break;
 			case DRAGGING_SAVED_FORMULA:
 			case CREATING_SELF_LOOP:
@@ -234,32 +230,12 @@ public class CanvasController implements Initializable {
 	}
 
 	private void addGrabPoint(double x, double y) {
-		ConnectingNode grabPoiont = FormulaShapeFactory.createLineGrabPoint(x, y, this);
+		ConnectingNode grabPoiont = ConnectingNode.createLineGrabPoint(x, y, this);
 		AbstractNode start = getConnectingLine().getStart();
 		start.connectGraphicallyTo(grabPoiont);
 		removeCompletely(getConnectingLine());
 
 		createConnectingLine(grabPoiont);
-	}
-
-	private void addTextNode(double x, double y) {
-		TextNode formulaNode = FormulaShapeFactory.createFormulaNode(x, y, this);
-		hbFormula.setVisible(true);
-		txtInputFormula.setStyle("-fx-background-color: LavenderBlush;");
-		txtInputFormula.requestFocus();
-		txtInputFormula.setOnKeyPressed(handleTxtFormulaEnterPressed(formulaNode));
-	}
-
-	private EventHandler<? super KeyEvent> handleTxtFormulaEnterPressed(TextNode formulaNode) {
-		return (eventPressed) -> {
-			if (eventPressed.getCode() == KeyCode.ENTER) {
-				formulaNode.changeText(txtInputFormula.getText());
-				txtInputFormula.setText("");
-				hbFormula.setVisible(false);
-				setStatus(CanvasState.IDLE);
-			}
-
-		};
 	}
 
 	public void setStatus(CanvasState status) {
@@ -332,7 +308,7 @@ public class CanvasController implements Initializable {
 		selectedNodes.add(shape);
 	}
 
-	public void addGraphicToCanvas(Shape shape) {
+	public void addGraphicToCanvas(Node shape) {
 		canvas.getChildren().add(shape);
 	}
 
@@ -385,7 +361,7 @@ public class CanvasController implements Initializable {
 		}
 	}
 
-	public void removeFromCanvas(Shape shape) {
+	public void removeFromCanvas(Node shape) {
 		canvas.getChildren().remove(shape);
 	}
 
@@ -417,7 +393,7 @@ public class CanvasController implements Initializable {
 	}
 
 	public void createConnectingLine(AbstractNode start) {
-		PolygonalChain line = FormulaShapeFactory.createPolygonalChain(start);
+		PolygonalChain line = PolygonalChain.createPolygonalChain(start);
 		getCanvas().getChildren().add(line.getShape());
 		setConnectingLine(line);
 	}

@@ -18,6 +18,19 @@ import javafx.scene.shape.Circle;
  */
 public class ConnectingNode extends AbstractNode<Circle> {
 
+	/**
+	 * LineGrabPoint is circular node between polygonal chain.
+	 * @param x
+	 * @param y
+	 * @param controller
+	 * @return
+	 */
+	public static ConnectingNode createLineGrabPoint(double x, double y, CanvasController controller) {
+		ConnectingNode created = new ConnectingNode(x, y, controller);
+		created.setupGUIinteractions();
+		return created;
+	}
+
 	public enum Type {
 
 		StartPoint, GrabPoint
@@ -32,10 +45,10 @@ public class ConnectingNode extends AbstractNode<Circle> {
 	}
 
 	@Override
-	public final void moveBy(double deltaX, double detlaY) {
-		moveLinesBy(deltaX, detlaY);
+	public final void moveBy(double deltaX, double deltaY) {
+		moveLinesBy(deltaX, deltaY);
 		getShape().setCenterX(deltaX + getShape().getCenterX());
-		getShape().setCenterY(detlaY + getShape().getCenterY());
+		getShape().setCenterY(deltaY + getShape().getCenterY());
 	}
 
 	@Override
@@ -68,4 +81,11 @@ public class ConnectingNode extends AbstractNode<Circle> {
 		super.setupGUIinteractions();
 	}
 
+	public void setStandartPressHandler() {
+		getShape().setOnMousePressed(pressOnShape());
+	}
+
+	public void setStandartReleasedHandler() {
+		getShape().setOnMouseReleased(releasedOnShape());
+	}
 }
